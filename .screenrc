@@ -1,0 +1,43 @@
+#turn off the visual bell
+vbell off
+
+#detach the screen when a session is closed
+autodetach on
+
+#stop the startup message
+startup_message off
+
+#set the scrollback to 1000 lines
+defscrollback 1000
+
+#use bright colours for bold text
+attrcolor b ".I"
+
+#make sure deleting stuff uses the correct background colour
+defbce on
+
+#set messages to last for 1 second
+msgwait 1
+
+#make sure the screen refreshes properly in vim
+altscreen on
+
+#set up a backtick to display git repo information
+backtick 1 1 1 ginfo
+
+#set up some default screens
+chdir $HOME/src/tiddlyspace/
+screen -t "TiddlySpace_root" 1
+chdir $HOME/src/tiddlyspace/src/
+screen -t "TiddlySpace_dev" 2
+chdir $HOME/src/ts.bt.com/
+screen -t "ts.bt.com" 3
+chdir $HOME/src/tiddlywiki/
+screen -t "TiddlyWiki" 4
+chdir $HOME/src/tiddlyweb-client-plugins
+screen -t "Client-Plugins" 5
+chdir
+screen 0
+
+#print out a statusline
+hardstatus alwayslastline '%{gk} [ %{G}%H %{g}][%= %{wk}%?%-Lw%?%{=b kR}[%n%f %t%?(%u)%?%{=b kR}]%{= kw}%?%+Lw%?%?%= %{g}]%{g}[ %{m}%1` %{g}][%{=b G} %D %d/%m/%y %C%a %{g}]%{W} '
