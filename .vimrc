@@ -100,7 +100,7 @@ set vb t_vb=
 
 "let filetypes give specific info to plugins
 filetype plugin on
-filetype plugin indent on
+autocmd filetype clojure filetype plugin indent on
 
 "Map some function keys for NERDTree
 noremap <F2> :NERDTreeToggle<CR>
