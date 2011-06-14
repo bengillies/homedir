@@ -41,6 +41,11 @@ autocmd FileType python setlocal expandtab
 autocmd FileType python compiler pylint
 autocmd FileType javascript set makeprg=jslint-wrapper\ %
 
+"set up easy testing and linting
+nmap <Leader>l :make<CR><CR>:copen<CR>
+nmap <Leader>t :!make test<CR>
+nmap <Leader>m :!make
+
 "don't call pylint after _every_ single :w (it's really annoying)
 let g:pylint_onwrite = 0
 
