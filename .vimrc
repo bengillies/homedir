@@ -40,6 +40,7 @@ autocmd FileType python setlocal expandtab
 "set compilers to check syntax
 autocmd FileType python compiler pylint
 autocmd FileType javascript set makeprg=jslint-wrapper\ %
+autocmd FileType css set makeprg=csslint\ %
 
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
