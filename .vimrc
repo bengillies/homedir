@@ -108,6 +108,14 @@ set vb t_vb=
 filetype plugin on
 autocmd filetype clojure filetype plugin indent on
 
+"set TiddlyWiki mode
+autocmd BufNewFile,BufRead *.tid set filetype=TiddlyWiki
+autocmd filetype TiddlyWiki set wrap
+autocmd filetype TiddlyWiki set linebreak
+autocmd filetype TiddlyWiki set nolist "list disables linebreak
+autocmd filetype TiddlyWiki set textwidth=0
+autocmd filetype TiddlyWiki set wrapmargin=0
+
 "Map some function keys for NERDTree
 noremap <F2> :NERDTreeToggle<CR>
 noremap <F3> :NERDTreeFind<CR>
