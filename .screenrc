@@ -36,6 +36,8 @@ chdir $HOME/src/tiddlywiki/
 screen -t "TiddlyWiki" 4
 chdir $HOME/src/tiddlyweb-client-plugins
 screen -t "Client-Plugins" 5
+chdir $HOME/src/chrjs.store
+screen -t "chrjs-store" 5
 chdir
 screen 0
 
