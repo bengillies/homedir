@@ -1,6 +1,10 @@
 "set compatibility mode with vi
-
 set nocompatible
+
+"set less timeout to speed vim up
+set notimeout
+set ttimeout
+set timeoutlen=50
 
 "set <Leader> to ","
 let mapleader=","

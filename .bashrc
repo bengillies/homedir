@@ -61,10 +61,17 @@ alias prolog="swipl"
 #(so that we can use it to print the current git branch in the status bar)
 if [ "$TERM" == "screen-bce" -o "$TERM" == "screen-256color" ]; then
 	PROMPT_COMMAND="pwd > $HOME/.pwd"
+	alias pbcopy="cat > /tmp/pipe4tmux"
 fi
+
 
 #start screen (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ]; then
 	echo "connecting to tmux..."
+	pipe4tmux=/tmp/pipe4tmux
+	alias tcp="tmux showb > $pipe4tmux"
+	if [[ ! -p $pipe4tmux ]]; then
+		~/bin/pipe4tmux.sh &
+	fi
 	tmux attach
 fi
