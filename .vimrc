@@ -150,6 +150,9 @@ runtime plugin/matchit.vim
 "add a status line
 set laststatus=2
 
+"set 8 colors
+set t_Co=8
+
 "do fancy status line color thing
 "(http://www.reddit.com/r/vim/comments/gexi6/a_smarter_statusline_code_in_comments/)
 hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen ctermfg=black

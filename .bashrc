@@ -59,12 +59,12 @@ alias prolog="swipl"
 
 #write the current directory to a file if in screen
 #(so that we can use it to print the current git branch in the status bar)
-if [ "$TERM" == "screen-bce" ]; then
+if [ "$TERM" == "screen-bce" -o "$TERM" == "screen-256color" ]; then
 	PROMPT_COMMAND="pwd > $HOME/.pwd"
 fi
 
 #start screen (unless we're in it already). If its already on, connect to it
-if [ "$TERM" != "screen-bce" ]; then
-	echo "connecting to screen..."
-	screen -R
+if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ]; then
+	echo "connecting to tmux..."
+	tmux attach
 fi
