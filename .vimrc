@@ -199,3 +199,6 @@ endfunction
 
 au InsertEnter * call InsertStatuslineColor(v:insertmode)
 au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen ctermfg=black
+
+"set the colorcolumn to dark
+hi ColorColumn ctermbg=0
