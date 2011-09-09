@@ -1,0 +1,21 @@
+#!/bin/sh
+#copy the file uri of the file specified to the clipboard and
+#output to the shell
+
+if [ $# -ne 1 ]; then
+    echo "Usage: uri <filename>"
+	exit
+fi
+
+#construct the uri
+if [ "${1:0:1}" = "/" ]; then
+	FILE="file://$1"
+else
+	FILE="file://`pwd`/$1"
+fi
+
+#copy the uri to the clipboard
+echo $FILE | pbcopy
+
+#output to the screen
+echo $FILE

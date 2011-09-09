@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#return the git repo and current branch in the form:
+#
+#			gitRepo/currentBranch
+#
+#written by Ben Gillies
+
+function isGit() {
+	dir=$1
+	if [ -d "${dir}/.git" ]; then
+		repoName=$(echo $dir | awk 'BEGIN{FS="/"}{print $NF;}')
+		echo $repoName
+	elif [ "$dir" == "/" ]; then
+		echo ""
+	else
+		newDir=$(echo $dir | sed "s/\/[^\/]*$//")
+		if [ "$newDir" != "" ]; then
+			tryAgain=$(isGit $newDir)
+			echo $tryAgain
+		else
+			echo ""
+		fi
+	fi
+}
+
+currDir=$1
+if [ -z "$currDir" ]; then
+	if [ -f $HOME/.pwd ]; then
+		currDir=$(cat $HOME/.pwd)
+	else
+		currDir=$(pwd)
+	fi
+fi
+
+gitRepo=$(isGit $currDir)
+
+if [ "$gitRepo" != "" ]; then
+	gitBranch=$(cd $currDir && git branch | sed "/^[^\*].*/d" | sed "s/^\* //")
+
+	echo "$gitRepo/$gitBranch"
+fi
