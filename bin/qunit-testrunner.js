@@ -46,8 +46,20 @@ var extractResults = function($el) {
 
 			console.log('Module: ' + moduleName + ', Test: ' + testName +
 				', Failed: ' + countFailed);
-			$module.find('.fail .test-message').each(function(i, el) {
-				console.log('\t-> ' + el.innerText);
+			$module.find('li').each(function(i, el) {
+				var $el = $(el);
+				if ($el.hasClass('fail')) {
+					var failTitle = $el.find('.test-message').text() || 'Test Failed',
+						expected = $el.find('.test-expected').text(),
+						actual = $el.find('.test-actual').text();
+					console.log('    ' + (i + 1) + ' -> ' + failTitle);
+					if (expected) {
+						console.log('        - ' + expected);
+					}
+					if (actual) {
+						console.log('        - ' + actual);
+					}
+				}
 			});
 		});
 	}
