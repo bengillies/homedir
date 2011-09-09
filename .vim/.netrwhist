@@ -1,6 +1,9 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =4
+let g:netrw_dirhist_cnt =7
 let g:netrw_dirhist_1='/Users/bengillies/.node_libraries'
 let g:netrw_dirhist_2='/Users/bengillies/.node_libraries/express@1.0.1'
 let g:netrw_dirhist_3='/Users/bengillies/tmp/openbritain'
 let g:netrw_dirhist_4='/Users/bengillies/src/tiddlyspace/src/plugins'
+let g:netrw_dirhist_5='/Users/bengillies/src/chrjs.store/test'
+let g:netrw_dirhist_6='/Users/bengillies/src/homedir'
+let g:netrw_dirhist_7='/Users/bengillies/src/tiddlyspace/tiddlywebplugins/templates'
