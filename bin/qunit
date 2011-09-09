@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Test the specified QUnit file using the qunit-testrunner.js file specified
+# if not present, download the file to the current directory
+#
+# written by Ben Gillies
+
+if [ ! -f qunit-testrunner.js ]; then
+	curl -o qunit-testrunner.js https://raw.github.com/bengillies/homedir/master/bin/qunit-testrunner.js
+fi
+
+phantomjs ./qunit-testrunner.js $1
+
