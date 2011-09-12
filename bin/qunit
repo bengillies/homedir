@@ -3,6 +3,8 @@
 # Test the specified QUnit file using the qunit-testrunner.js file specified
 # if not present, download the file to the same directory as this script
 #
+# uses PhantomJS (http://www.phantomjs.org/)
+#
 # written by Ben Gillies
 
 BASE_DIR=$(dirname $0)
