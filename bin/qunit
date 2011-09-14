@@ -10,9 +10,118 @@
 BASE_DIR=$(dirname $0)
 TESTRUNNER=$BASE_DIR/qunit-testrunner.js
 
-if [ ! -f $TESTRUNNER ]; then
-	curl -o $TESTRUNNER https://raw.github.com/bengillies/homedir/master/bin/qunit-testrunner.js
+function newTestSuite {
+	if [ ! -d 'test' ]; then
+		mkdir test
+	fi
+
+	if [ ! -f 'test/fixtures.js' ]; then
+		touch test/fixtures.js
+	fi
+
+	if [ ! -f 'test/index.html' ]; then
+		cat > test/index.html << EOF
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Test Suite</title>
+		<link rel="stylesheet" type="text/css" href="lib/qunit.css">
+	</head>
+
+	<body>
+		<h1 id="qunit-header">Test Suite</h1>
+		<h2 id="qunit-banner"></h2>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+
+		<!--load QUnit and dependencies-->
+		<script src="lib/qunit.js" type="text/javascript"></script>
+		<script src="lib/jquery.js" type="text/javascript"></script>
+
+
+		<!--load your scripts in here-->
+		<script src="fixtures.js" type="text/javascript"></script>
+
+		<!--load tests-->
+		<script src="test_main.js" type="text/javascript"></script>
+	</body>
+</html>
+EOF
+	fi
+
+	if [ ! -f test/test_main.js ]; then
+		touch test/test_main.js
+	fi
+
+	if [ ! -d test/lib ]; then
+		mkdir test/lib
+		curl -o test/lib/qunit.js \
+			https://raw.github.com/jquery/qunit/master/qunit/qunit.js
+		curl -o test/lib/qunit.css \
+			https://raw.github.com/jquery/qunit/master/qunit/qunit.css
+		curl -o test/lib/jquery.js \
+			http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js
+	fi
+}
+
+function addScriptFile {
+	NEWSCRIPT=$(echo "		<script src=\"`uri $1`\" type=\"text/javascript\"><\/script>")
+	MODSCRIPT=$(cat test/index.html | sed "s|^		<script src=\"fixtures|\\`echo "$NEWSCRIPT"`®		<script src=\"fixtures|g" | tr '®' '\n')
+	echo "$MODSCRIPT" > test/index.html
+}
+
+
+function addTestFile {
+	NEWNAME="test_$1.js"
+	touch test/$NEWNAME
+	NEWSCRIPT=$(echo "		<script src=\"$NEWNAME\" type=\"text/javascript\"><\/script>")
+	MODSCRIPT=$(cat test/index.html | sed "s|^	<\/body>|\\`echo "$NEWSCRIPT"`®	<\/body>|g" | tr '®' '\n')
+	echo "$MODSCRIPT" > test/index.html
+}
+
+function runTests {
+	if [ ! -f $TESTRUNNER ]; then
+		curl -o $TESTRUNNER https://raw.github.com/bengillies/homedir/master/bin/qunit-testrunner.js
+	fi
+
+	RESULT=$(phantomjs $TESTRUNNER $1)
+
+# Make the result green on success and red on error
+	if echo $RESULT | tail -1 | grep 'Failed: 0' > /dev/null; then
+		echo "$(tput setaf 2)$RESULT$(tput sgr0)"
+	else
+		DETAILS=$(echo "$RESULT" | sed '$d' | sed '$d')
+		FINAL=$(echo "$RESULT" | tail -2)
+		echo -e "$DETAILS\n$(tput setaf 1)$FINAL$(tput sgr0)"
+	fi
+}
+
+NOFLAGS=true
+while getopts ":n :a: :t:" opt; do
+	NOFLAGS=false
+	case $opt in
+
+		n)
+			newTestSuite
+			;;
+
+		a)
+			addScriptFile $OPTARG
+			;;
+
+		t)
+			addTestFile $OPTARG
+			;;
+
+		\?)
+			echo "Incorrect Usage." >&2
+			exit 1
+			;;
+
+	esac
+done
+
+if [ "$NOFLAGS" == true ]; then
+	runTests $1
 fi
-
-phantomjs $TESTRUNNER $1
-
