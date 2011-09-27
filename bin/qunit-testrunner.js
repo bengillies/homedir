@@ -17,7 +17,7 @@ loadPage(phantom.args[0], function() {
 		exitStatus = 0;
 
 	window.setInterval(function() {
-		if ($el.length > 0) {
+		if (/^Tests completed/.test($el.text())) {
 			try {
 				exitStatus = extractResults($el);
 			} catch (e) {
@@ -26,7 +26,7 @@ loadPage(phantom.args[0], function() {
 
 			phantom.exit(exitStatus);
 		} else {
-			console.log('Error: Test results not found');
+			console.log('Running tests');
 		}
 	}, 100);
 });
