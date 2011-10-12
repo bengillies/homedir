@@ -116,6 +116,9 @@ while getopts ":n :a: :t:" opt; do
 
 		\?)
 			echo "Incorrect Usage." >&2
+			echo "qunit -n --> new test suite"
+			echo "qunit -a path/to/file --> add script file to dependencies"
+			echo "qunit -t testName --> create test_testName.js and add to tests"
 			exit 1
 			;;
 
