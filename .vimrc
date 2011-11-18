@@ -202,3 +202,62 @@ au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen cterm
 
 "set the colorcolumn to dark
 hi ColorColumn ctermbg=0
+
+"set up code folding
+autocmd FileType javascript setlocal foldmethod=marker
+autocmd FileType javascript setlocal foldmarker={,}
+autocmd FileType javascript setlocal foldtext=MarkerFoldText()
+
+autocmd FileType css setlocal foldmethod=marker
+autocmd FileType css setlocal foldmarker={,}
+autocmd FileType css setlocal foldtext=MarkerFoldText()
+
+autocmd FileType python setlocal foldmethod=indent
+
+autocmd FileType html setlocal foldmethod=manual
+
+
+"don't apply the folds automatically
+set foldlevelstart=99
+
+"remove some annoying commands
+noremap <F1> <nop>
+noremap K <nop>
+
+"set fold highlight colours
+highlight Folded ctermfg=Grey ctermbg=0
+
+"define a function for marker'd fold text
+function! MarkerFoldText()
+  let line = getline(v:foldstart)
+  if match( line, '^[ \t]*\(\/\*\|\/\/\)[*/\\]*[ \t]*$' ) == 0
+    let initial = substitute( line, '^\([ \t]\)*\(\/\*\|\/\/\)\(.*\)', '\1\2', '' )
+    let linenum = v:foldstart + 1
+    while linenum < v:foldend
+      let line = getline( linenum )
+      let comment_content = substitute( line, '^\([ \t\/\*]*\)\(.*\)$', '\2', 'g' )
+      if comment_content != ''
+        break
+      endif
+      let linenum = linenum + 1
+    endwhile
+    let sub = initial . ' ' . comment_content
+  else
+    let sub = line
+    let startbrace = substitute( line, '^.*{[ \t]*$', '{', 'g')
+    if startbrace == '{'
+      let line = getline(v:foldend)
+      let endbrace = substitute( line, '^[ \t]*}\(.*\)$', '}', 'g')
+      if endbrace == '}'
+        let sub = sub.substitute( line, '^[ \t]*}\(.*\)$', '...}\1', 'g')
+      endif
+    endif
+  endif
+  let n = v:foldend - v:foldstart + 1
+  let info = " " . n . " lines"
+  let sub = sub . "                                                                                                                  "
+  let num_w = getwinvar( 0, '&number' ) * getwinvar( 0, '&numberwidth' )
+  let fold_w = getwinvar( 0, '&foldcolumn' )
+  let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
+  return sub . info
+endfunction
