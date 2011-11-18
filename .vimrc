@@ -214,7 +214,7 @@ autocmd FileType css setlocal foldtext=MarkerFoldText()
 
 autocmd FileType python setlocal foldmethod=indent
 
-autocmd FileType html setlocal foldmethod=manual
+autocmd FileType html setlocal foldmethod=indent
 
 
 "don't apply the folds automatically
