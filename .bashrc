@@ -19,6 +19,9 @@ PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home/bin:$PATH
 #add /opt/local/bin for MacPorts installed apps
 PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
+#add the cabal bin for haskell programs
+PATH=$HOME/.cabal/bin:$PATH
+
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
 
