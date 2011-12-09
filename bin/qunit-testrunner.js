@@ -49,7 +49,8 @@ var extractResults = function($el) {
 			$module.find('li').each(function(i, el) {
 				var $el = $(el);
 				if ($el.hasClass('fail')) {
-					var failTitle = $el.find('.test-message').text() || 'Test Failed',
+					var failTitle = $el.find('.test-message').text() ||
+							$el.text() || 'Test Failed',
 						expected = $el.find('.test-expected').text(),
 						actual = $el.find('.test-actual').text();
 					console.log('    ' + (i + 1) + ' -> ' + failTitle);
