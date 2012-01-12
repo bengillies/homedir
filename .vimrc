@@ -49,7 +49,7 @@ autocmd FileType css set makeprg=csslint\ %
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
 nmap <Leader>t :!make test<CR>
-nmap <Leader>m :!make
+nmap <Leader>m :!make<CR>
 
 "don't call pylint after _every_ single :w (it's really annoying)
 let g:pylint_onwrite = 0
@@ -74,7 +74,6 @@ set encoding=utf-8
 
 "ignore these file types when opening
 set wildignore=*.pyc,*.o,*.obj,*.swp
-
 
 "show search results as you type
 set incsearch
@@ -151,11 +150,21 @@ let vimclojure#ParenRainbow = 1
 "use matchit plugin
 runtime plugin/matchit.vim
 
+"setup Command-T to use <Leader>f (cos 't' means test)
+nnoremap <silent> <Leader>f :CommandT<CR>
+
 "add a status line
 set laststatus=2
 
 "set 8 colors
 set t_Co=8
+
+"set slime to use tmux
+let g:slime_target = "tmux"
+
+"set up keybindings for slime (C-c is an awful default)
+let g:slime_send_key = '<Leader>e'
+let g:slime_config_key = '<Leader>v'
 
 "do fancy status line color thing
 "(http://www.reddit.com/r/vim/comments/gexi6/a_smarter_statusline_code_in_comments/)
