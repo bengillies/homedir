@@ -95,7 +95,8 @@ def main(space, title, tiddler, tags, before, after):
             body = 'tags: \n\n' + body
 
     res, content = http.request(uri, method='PUT', headers=headers, body=body)
-    print content
+    if content:
+        print content
 
 
 if __name__ == '__main__':
