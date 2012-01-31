@@ -159,6 +159,23 @@ set laststatus=2
 "set 8 colors
 set t_Co=8
 
+"set up relative line numbering
+function! RelNumToggle()
+  if(&relativenumber == 1)
+    set number
+  else
+    set relativenumber
+  endif
+endfunc
+
+nnoremap <Leader>n :call RelNumToggle()<cr>
+
+"set absolute line numbering automatically on certain events
+:au FocusLost * :set number
+:au FocusGained * :set relativenumber
+autocmd InsertEnter * :set number
+autocmd InsertLeave * :set relativenumber
+
 "set slime to use tmux
 let g:slime_target = "tmux"
 
