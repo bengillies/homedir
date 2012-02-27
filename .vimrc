@@ -27,6 +27,13 @@ filetype on
 "wrap long lines
 set wrap
 
+"make Y behave like other capitals
+map Y y$
+
+"reselect highlighted blocks after indent/outdent
+vnoremap > >gv
+vnoremap < <gv
+
 "automatically indent new lines
 set autoindent
 set smartindent
