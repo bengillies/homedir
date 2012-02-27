@@ -63,6 +63,20 @@ EOF
 		curl -o test/lib/jquery.js \
 			http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js
 	fi
+
+	if [ ! -f Makefile ]; then
+		touch Makefile
+	fi
+
+	if ! grep '^\.PHONY' Makefile; then
+		echo -e "\n.PHONY: test" >> Makefile
+	elif ! grep '^\.PHONY:.*test' Makefile; then
+		sed -i '' 's/^\.PHONY: /.PHONY: test /' Makefile
+	fi
+
+	if ! grep '^test:' Makefile; then
+		echo -e "\ntest:\n\tqunit test/index.html\n" >> Makefile
+	fi
 }
 
 function addScriptFile {
