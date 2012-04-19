@@ -19,6 +19,8 @@ import re
 from httplib2 import Http
 from urllib import quote
 
+from fsevents import Observer, Stream
+
 TYPES = {
     'js': 'text/javascript',
     'html': 'text/html',
@@ -32,7 +34,7 @@ TYPES = {
     'ttf': 'font/truetype'
 }
 
-def main(space, title, tiddler, tags, before, after):
+def upload(space, title, tiddler, tags, before, after):
     cookie = open(os.path.expanduser('~/.tiddlyspace-cookie'), 'r').read()
     http = Http()
     headers = {
@@ -111,11 +113,14 @@ if __name__ == '__main__':
     parser.add_option('-t', '--tag', action='append', help='add a tag')
     parser.add_option('-B', '--before', help='add text before file')
     parser.add_option('-A', '--after', help='add text after file')
+    parser.add_option('--watch', help='watch the named directory for changes' \
+        ' and upload any to the given space')
     options, args = parser.parse_args()
     title = options.name
     tags = options.tag
     before = options.before
     after = options.after
+    watch_dir = options.watch
     space = args[0]
 
     try:
@@ -124,4 +129,15 @@ if __name__ == '__main__':
         tiddlers = [filename.strip() for filename in sys.stdin.readlines()]
 
     for tiddler in tiddlers:
-        main(space, title, tiddler, tags, before, after)
+        upload(space, title, tiddler, tags, before, after)
+
+    if watch_dir:
+        observer = Observer()
+        def callback(event):
+            tiddler = event.name
+            name = os.path.basename(tiddler)
+            if not tiddler.endswith('swp'): # XXX: make configurable
+                upload(space, name, tiddler, tags, before, after)
+        stream = Stream(callback, watch_dir, file_events=True)
+        observer.schedule(stream)
+        observer.start()
