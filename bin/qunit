@@ -80,7 +80,7 @@ EOF
 }
 
 function addScriptFile {
-	NEWSCRIPT=$(echo "		<script src=\"../`$1`\" type=\"text/javascript\"><\/script>")
+	NEWSCRIPT=$(echo "		<script src=\"../$1\" type=\"text/javascript\"><\/script>")
 	MODSCRIPT=$(cat test/index.html | sed "s|^		<script src=\"fixtures|\\`echo "$NEWSCRIPT"`®		<script src=\"fixtures|g" | tr '®' '\n')
 	echo "$MODSCRIPT" > test/index.html
 }

@@ -24,7 +24,12 @@ TYPES = {
     'html': 'text/html',
     'css': 'text/css',
     'png': 'image/png',
-    'tid': 'text/plain'
+    'tid': 'text/plain',
+    'svg': 'image/svg+xml',
+    'svgz': 'image/svg+xml',
+    'woff': 'application/x-woff',
+    'eot': 'application/vnd.ms-fontobject',
+    'ttf': 'font/truetype'
 }
 
 def main(space, title, tiddler, tags, before, after):
