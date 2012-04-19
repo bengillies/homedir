@@ -58,6 +58,9 @@ nmap <Leader>l :make<CR><CR>:copen<CR>
 nmap <Leader>t :!make test<CR>
 nmap <Leader>m :!make<CR>
 
+"easy upload
+nmap <Leader>u :!make upload<CR><CR>
+
 "don't call pylint after _every_ single :w (it's really annoying)
 let g:pylint_onwrite = 0
 
