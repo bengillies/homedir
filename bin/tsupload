@@ -16,25 +16,17 @@ import sys
 from optparse import OptionParser
 import os
 import re
+import mimetypes
 from httplib2 import Http
 from urllib import quote
+from base64 import b64encode
 
 from fsevents import Observer, Stream
 
-TYPES = {
-    'js': 'text/javascript',
-    'html': 'text/html',
-    'css': 'text/css',
-    'png': 'image/png',
-    'tid': 'text/plain',
-    'svg': 'image/svg+xml',
-    'svgz': 'image/svg+xml',
-    'woff': 'application/x-woff',
-    'eot': 'application/vnd.ms-fontobject',
-    'ttf': 'font/truetype'
-}
+mimetypes.add_type('text/plain', '.tid')
+mimetypes.add_type('woff', '.application/x-woff')
 
-def upload(space, title, tiddler, tags, before, after):
+def upload(space, title, tiddler, tags, before, after, stderr=sys.stderr):
     cookie = open(os.path.expanduser('~/.tiddlyspace-cookie'), 'r').read()
     http = Http()
     headers = {
@@ -61,7 +53,7 @@ def upload(space, title, tiddler, tags, before, after):
         suffix = 'tid'
 
     try:
-        body_type = TYPES[suffix]
+        body_type = mimetypes.guess_type(tiddler)[0]
         headers['Content-Type'] = body_type
     except KeyError:
         body_type = None
@@ -89,6 +81,10 @@ def upload(space, title, tiddler, tags, before, after):
         body += after
 
     if len(tags) > 0:
+        try:
+            body.encode('utf-8')
+        except UnicodeDecodeError:
+            body = b64encode(body)
         tag_line = 'tags: %s\n' % ' '.join(tags)
         if body_type != 'text/plain':
             type_line = 'type: %s\n' % body_type
@@ -103,7 +99,8 @@ def upload(space, title, tiddler, tags, before, after):
 
     res, content = http.request(uri, method='PUT', headers=headers, body=body)
     if content:
-        print content
+        print STDERR
+        STDERR.write(content)
 
 
 if __name__ == '__main__':
@@ -132,12 +129,18 @@ if __name__ == '__main__':
         upload(space, title, tiddler, tags, before, after)
 
     if watch_dir:
+        class HideErr(object):
+            def write(self, source):
+                pass
         observer = Observer()
         def callback(event):
             tiddler = event.name
             name = os.path.basename(tiddler)
             if not tiddler.endswith('swp'): # XXX: make configurable
-                upload(space, name, tiddler, tags, before, after)
+                try:
+                    upload(space, name, tiddler, tags, before, after, HideErr)
+                except Exception: # don't die
+                    pass # XXX: do something more intelligent here
         stream = Stream(callback, watch_dir, file_events=True)
         observer.schedule(stream)
         observer.start()
