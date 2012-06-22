@@ -99,7 +99,7 @@ set ignorecase
 
 " display whitespace characters
 set list
-set listchars=tab:⋯\ ,trail:·
+set listchars=tab:\▸\ ,trail:·
 
 "highlight current cursor line and column
 set cursorline
