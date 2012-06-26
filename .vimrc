@@ -108,7 +108,7 @@ set cursorcolumn
 "set color stuff
 syntax on
 set background=dark
-colorscheme desert
+colorscheme elrodeo
 
 "<Enter> and <Shift><Enter> insert lines without going into insert mode
 map <Enter> o<ESC>
@@ -167,7 +167,7 @@ nnoremap <silent> <Leader>f :CommandT<CR>
 set laststatus=2
 
 "set 8 colors
-set t_Co=8
+"set t_Co=8
 
 "set up relative line numbering
 function! RelNumToggle()
@@ -195,8 +195,8 @@ let g:slime_config_key = '<Leader>v'
 
 "do fancy status line color thing
 "(http://www.reddit.com/r/vim/comments/gexi6/a_smarter_statusline_code_in_comments/)
-hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen ctermfg=black
-hi Modified guibg=orange guifg=black ctermbg=lightred ctermfg=black
+hi StatColor guibg=#95e454 guifg=black ctermbg=green ctermfg=black
+hi Modified guibg=orange guifg=black ctermbg=red ctermfg=black
 
 function! MyStatusLine(mode)
     let statusline=""
@@ -223,7 +223,7 @@ set statusline=%!MyStatusLine('Enter')
 
 function! InsertStatuslineColor(mode)
   if a:mode == 'i'
-    hi StatColor guibg=orange ctermbg=lightred
+    hi StatColor guibg=orange ctermbg=red
   elseif a:mode == 'r'
     hi StatColor guibg=#e454ba ctermbg=magenta
   elseif a:mode == 'v'
@@ -234,7 +234,7 @@ function! InsertStatuslineColor(mode)
 endfunction
 
 au InsertEnter * call InsertStatuslineColor(v:insertmode)
-au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen ctermfg=black
+au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=green ctermfg=black
 
 "set the colorcolumn to dark
 hi ColorColumn ctermbg=0
