@@ -62,10 +62,15 @@ hi Type			ctermfg=221
 hi Statement	ctermfg=117
 hi Keyword		ctermfg=117
 hi PreProc		ctermfg=173
+hi Title		ctermfg=221
 
 "JavaScript Highlighting
-hi javaScriptParens ctermfg=72
-hi javaScriptBraces ctermfg=221
+hi javaScriptParens		ctermfg=72
+hi javaScriptBraces		ctermfg=221
+
+"HTML Highlighting
+hi htmlTagName			ctermfg=79
+hi htmlSpecialTagName	ctermfg=79
 
 "Extra
 hi DiffDelete	ctermfg=15
