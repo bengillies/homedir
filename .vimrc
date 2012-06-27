@@ -192,6 +192,9 @@ let g:slime_target = "tmux"
 "tell Powerline to use fance font rendering
 let g:Powerline_symbols = 'fancy'
 
+"make sure term is set to screen-256color
+set term=screen-256color
+
 "set up keybindings for slime (C-c is an awful default)
 let g:slime_send_key = '<Leader>e'
 let g:slime_config_key = '<Leader>v'

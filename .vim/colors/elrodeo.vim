@@ -7,7 +7,7 @@
 
 "set background=dark
 
-hi clear
+""hi clear
 if exists("syntax_on")
     syntax reset
 endif
@@ -34,7 +34,7 @@ hi StatusLineNC ctermfg=59 ctermbg=15
 hi VertSplit	ctermfg=59
 hi Folded		ctermbg=59 ctermfg=145
 hi Title		ctermfg=230 ctermbg=NONE	cterm=bold
-hi Visual		ctermfg=230
+hi Visual		ctermfg=230 ctermbg=101
 hi SpecialKey	ctermfg=102
 
 
@@ -55,7 +55,7 @@ hi Boolean      ctermfg=114
 hi Delimiter    ctermfg=102
 hi Character    ctermfg=81
 hi Search       ctermfg=black ctermbg=72
-hi Visual       ctermbg=59
+hi Visual       ctermbg=101
 
 " not used in Clojure (left as in wombat)
 hi Type			ctermfg=221
