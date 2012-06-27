@@ -33,7 +33,7 @@ export TW_ROOT=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/
 export OSMOSOFT=/Users/bengillies/Osmosoft/
 
 #set the prompt to username@hostname:pwd$ with username in blue, hostname in red, pwd in green, @, : and $ in white, and all bold
-PS1='\[\e[1;34m\]\u\[\e[m\]\[\e[1;37m\]@\[\e[m\]\[\e[1;31m\]\h\[\e[m\]:\[\e[1;32m\]\w\[\e[m\]\[\e[1;37m\]\$\[\e[m\]\[\e[m\]'
+PS1='\[\e[38;5;117m\]\u\[\e[m\]\[\e[38;5;230m\]@\[\e[m\]\[\e[38;5;221m\]\h\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\[\e[38;5;230m\]\$\[\e[m\]\[\e[m\]'
 export PS1
 
 #add colour to ls
