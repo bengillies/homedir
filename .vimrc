@@ -189,52 +189,12 @@ autocmd InsertLeave * :set relativenumber
 "set slime to use tmux
 let g:slime_target = "tmux"
 
+"tell Powerline to use fance font rendering
+let g:Powerline_symbols = 'fancy'
+
 "set up keybindings for slime (C-c is an awful default)
 let g:slime_send_key = '<Leader>e'
 let g:slime_config_key = '<Leader>v'
-
-"do fancy status line color thing
-"(http://www.reddit.com/r/vim/comments/gexi6/a_smarter_statusline_code_in_comments/)
-hi StatColor guibg=#95e454 guifg=black ctermbg=green ctermfg=black
-hi Modified guibg=orange guifg=black ctermbg=red ctermfg=black
-
-function! MyStatusLine(mode)
-    let statusline=""
-    if a:mode == 'Enter'
-        let statusline.="%#StatColor#"
-    endif
-    let statusline.="\(%n\)\ %f\ "
-    if a:mode == 'Enter'
-        let statusline.="%*"
-    endif
-    let statusline.="%#Modified#%m"
-    if a:mode == 'Leave'
-        let statusline.="%*%r"
-    elseif a:mode == 'Enter'
-        let statusline.="%r%*"
-    endif
-    let statusline .= "\ (%l/%L,\ %c)\ %P%=%h%w\ %y\ [%{&encoding}:%{&fileformat}]\ \ "
-    return statusline
-endfunction
-
-au WinEnter * setlocal statusline=%!MyStatusLine('Enter')
-au WinLeave * setlocal statusline=%!MyStatusLine('Leave')
-set statusline=%!MyStatusLine('Enter')
-
-function! InsertStatuslineColor(mode)
-  if a:mode == 'i'
-    hi StatColor guibg=orange ctermbg=red
-  elseif a:mode == 'r'
-    hi StatColor guibg=#e454ba ctermbg=magenta
-  elseif a:mode == 'v'
-    hi StatColor guibg=#e454ba ctermbg=magenta
-  else
-    hi StatColor guibg=red ctermbg=red
-  endif
-endfunction
-
-au InsertEnter * call InsertStatuslineColor(v:insertmode)
-au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=green ctermfg=black
 
 "set the colorcolumn to dark
 hi ColorColumn ctermbg=0
