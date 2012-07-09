@@ -32,9 +32,13 @@ export TW_TRUNKDIR=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/
 export TW_ROOT=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/
 export OSMOSOFT=/Users/bengillies/Osmosoft/
 
+
+#Prompt is cmd:repo/branch:cwd$ in colors yellow:blue:green$
+PS1='\[\e[38;5;221m\]\!\[\e[m\]:\[\e[38;5;117m\]$(ginfo)\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\$'
 #set the prompt to username@hostname:pwd$ with username in blue, hostname in red, pwd in green, @, : and $ in white, and all bold
-PS1='\[\e[38;5;117m\]\u\[\e[m\]\[\e[38;5;230m\]@\[\e[m\]\[\e[38;5;221m\]\h\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\[\e[38;5;230m\]\$\[\e[m\]\[\e[m\]'
+#PS1='\[\e[38;5;117m\]\u\[\e[m\]\[\e[38;5;230m\]@\[\e[m\]\[\e[38;5;221m\]\h\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\[\e[38;5;230m\]\$\[\e[m\]\[\e[m\]'
 export PS1
+
 
 #add colour to ls
 alias ls='ls -G'
