@@ -54,7 +54,7 @@ alias grep='grep --color -n'
 set -o vi
 
 #set a default editor
-export EDITOR=/opt/local/bin/vim
+export EDITOR=/usr/bin/vim
 
 #set a variable for dropbox (for use with git remotes)
 export DROPBOX=$HOME/Dropbox
