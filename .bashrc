@@ -22,6 +22,10 @@ PATH=/opt/local/bin:/opt/local/sbin:$PATH
 #add the cabal bin for haskell programs
 PATH=$HOME/.cabal/bin:$PATH
 
+#set up rbenv paths
+PATH=$HOME/.rbenv/bin:$PATH
+eval "$(rbenv init -)"
+
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
 
@@ -64,12 +68,8 @@ export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home
 #alias prolog to be a sensible name
 alias prolog="swipl"
 
-#write the current directory to a file if in screen
-#(so that we can use it to print the current git branch in the status bar)
-if [ "$TERM" == "screen-bce" -o "$TERM" == "screen-256color" ]; then
-	PROMPT_COMMAND="pwd > $HOME/.pwd"
-fi
-
+#export a NODE_PATH variable to pick up scripts installed by npm
+export NODE_PATH=/usr/local/lib/node_modules
 
 #start screen (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ]; then

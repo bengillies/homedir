@@ -38,15 +38,23 @@ vnoremap < <gv
 set autoindent
 set smartindent
 
-"use indents of 4 spaces
+"use indents of 4 spaces apart from ruby and coffeescript, where we want 2
 set softtabstop=4
 set shiftwidth=4
 set tabstop=4
+autocmd FileType ruby setlocal softtabstop=2
+autocmd FileType ruby setlocal shiftwidth=2
+autocmd FileType ruby setlocal tabstop=2
+autocmd FileType coffee setlocal softtabstop=2
+autocmd FileType coffee setlocal shiftwidth=2
+autocmd FileType coffee setlocal tabstop=2
 
 "tabs instead of spaces
-"apart from python, where we want spaces.
+"apart from python, Ruby and CoffeeScript where we want spaces.
 set noexpandtab
 autocmd FileType python setlocal expandtab
+autocmd FileType ruby setlocal expandtab
+autocmd FileType coffee setlocal expandtab
 
 "set compilers to check syntax
 autocmd FileType python compiler pylint
