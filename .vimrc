@@ -60,10 +60,11 @@ autocmd FileType coffee setlocal expandtab
 autocmd FileType python compiler pylint
 autocmd FileType javascript set makeprg=jslint-wrapper\ %
 autocmd FileType css set makeprg=csslint\ %
+autocmd FileType coffee set makeprg=coffeelint\ %
 
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
-nmap <Leader>t :!make test<CR>
+nmap <Leader>t :!if [ -e Makefile ]; then make test; else rake test; fi<CR>
 nmap <Leader>m :!make<CR>
 
 "easy upload
