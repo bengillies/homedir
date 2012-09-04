@@ -1,3 +1,5 @@
 [user]
 	name = Ben Gillies
 	email = bengillies@gmail.com
+[core]
+	excludesfile = /Users/bengillies/.gitignore
