@@ -173,7 +173,7 @@ runtime plugin/matchit.vim
 nnoremap <silent> <Leader>f :CommandT<CR>
 
 "setup Command-T to open files in split screen with C-i (like in NERDTree)
-let g:CommandTAcceptSelectionSplitMap=['<C-i>']
+let g:CommandTAcceptSelectionSplitMap=['<C-o>']
 
 "add a status line
 set laststatus=2
