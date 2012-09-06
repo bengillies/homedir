@@ -1,13 +1,24 @@
 #!/usr/bin/env node
-/*jslint nomen: false */
-/*global require, process, __dirname */
+/*jslint vars: true, nomen: true, node: true */
 
-var util = require("util");
-var fs = require("fs");
-var vm = require("vm");
+"use strict";
 
-var VERSION = "1.0.1";
-var JSLINT_PATH = __dirname + "/jslint.js";
+var fs = require("fs"),
+	path = require("path"),
+	vm = require("vm"),
+	util = require("util");
+
+var VERSION = "1.2.0";
+var LINT = {
+	name: "JSLint",
+	filename: "jslint.js",
+	root: "JSLINT",
+	source: {
+		scheme: "https",
+		host: "raw.github.com",
+		path: "/douglascrockford/JSLint/master/jslint.js"
+	}
+};
 
 var getJSLint, formatOutput, transformWarning, parseOptions, exit;
 
@@ -17,41 +28,46 @@ var main = function(args) {
 	var anon = opts.anon;
 	opts = opts.opts;
 
+	if(opts.jshint) {
+		delete opts.jshint;
+		LINT.name = "JSHint";
+		LINT.filename = "jshint.js";
+		LINT.root = "JSHINT";
+		LINT.source.path = "/jshint/jshint/master/jshint.js";
+	}
+	LINT.path = path.join(__dirname, LINT.filename);
+
 	var verbose = false;
 	if(opts.verbose) {
 		delete opts.verbose;
 		verbose = true;
 	}
 	if(opts.help || args.length === 0) {
-		var readme = fs.readFileSync(__dirname + "/README", "utf-8");
+		var readme = fs.readFileSync(path.join(__dirname, "README"), "utf-8");
 		exit(args.length > 0, readme);
 	}
 	if(opts.upgrade) {
 		getJSLint(function(contents) {
-			fs.writeFileSync(JSLINT_PATH, contents);
+			fs.writeFileSync(LINT.path, contents);
 			main([null, null, "--version"]); // XXX: hacky!?
 			exit(true);
 		});
 		return;
 	}
 
-	var jslint = fs.readFileSync(JSLINT_PATH, "utf-8");
+	var jslint;
+	try {
+		jslint = fs.readFileSync(LINT.path, "utf-8");
+	} catch(exc) {
+		exit(false, "ERROR: " + LINT.path + " not found - " +
+				"use `--upgrade` to initialize");
+	}
 
 	if(opts.version) {
 		var sandbox = {};
 		vm.runInNewContext(jslint, sandbox);
 		exit(true, "JSLint Reporter v" + VERSION + "\n" +
-			"JSLint v" + sandbox.JSLINT.edition);
-	}
-
-	// The Good Parts
-	if(opts.goodparts) {
-		delete opts.goodparts;
-		var goodparts = ["white", "onevar", "undef", "newcap", "nomen",
-			"regexp", "plusplus", "bitwise"];
-		goodparts.forEach(function(item, i) {
-			opts[item] = opts[item] !== false ? true : false;
-		});
+				LINT.name + " v" + sandbox[LINT.root].edition);
 	}
 
 	if(verbose) {
@@ -64,9 +80,10 @@ var main = function(args) {
 			SRC: src,
 			OPTS: opts
 		};
-		vm.runInNewContext(jslint + "\nJSLINT(SRC, OPTS);", sandbox);
+		var code = LINT.root + "(SRC, OPTS); var data = " + LINT.root + ".data();";
+		vm.runInNewContext(jslint + "\n" + code, sandbox);
 
-		var data = sandbox.JSLINT.data();
+		var data = sandbox.data;
 		var implied = (data.implieds || []).map(function(item) {
 			return transformWarning(item, "implied global");
 		});
@@ -89,7 +106,7 @@ var main = function(args) {
 	if(!pass) {
 		util.print(errors.join("\n") + "\n");
 		if(verbose) {
-			process.stderr.write(errors.length + " errors\n");
+			process.stderr.write(String(errors.length) + " errors\n");
 		}
 	}
 
@@ -97,10 +114,10 @@ var main = function(args) {
 };
 
 getJSLint = function(callback) {
-	var https = require("https");
+	var https = require(LINT.source.scheme);
 	var options = {
-		host: "github.com",
-		path: "/douglascrockford/JSLint/raw/master/jslint.js"
+		host: LINT.source.host,
+		path: LINT.source.path
 	};
 	https.get(options, function(response) {
 		if(response.statusCode !== 200) {
@@ -112,8 +129,7 @@ getJSLint = function(callback) {
 			body.push(chunk);
 		});
 		response.on("end", function() {
-			body = body.join("");
-			callback(body);
+			callback(body.join(""));
 		});
 	});
 };
@@ -157,20 +173,22 @@ parseOptions = function(args) {
 				var value = pair[1];
 
 				// infer value type
+				/*jslint confusion: true */
 				if(value === "false") {
 					value = false;
 				}
+				/*jslint confusion: false */
 				switch(name) { // XXX: special-casing JSLint-specifics
-					case "indent":
-					case "maxerr":
-					case "maxlen":
-						value = parseInt(value, 10);
-						break;
-					case "predef":
-						value = value.split(",");
-						break;
-					default:
-						break;
+				case "indent":
+				case "maxerr":
+				case "maxlen":
+					value = parseInt(value, 10);
+					break;
+				case "predef":
+					value = value.split(",");
+					break;
+				default:
+					break;
 				}
 
 				opts[name] = value;
@@ -189,6 +207,9 @@ exit = function(status, msg) {
 	if(msg) {
 		process.stderr.write(msg + "\n");
 	}
+	try {
+		process.stdout.flush(); // required for legacy support (Node <0.5)?
+	} catch(exc) {}
 	process.exit(status ? 0 : 1);
 };
 
