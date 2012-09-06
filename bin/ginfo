@@ -26,11 +26,7 @@ function isGit() {
 
 currDir=$1
 if [ -z "$currDir" ]; then
-	if [ -f $HOME/.pwd ]; then
-		currDir=$(cat $HOME/.pwd)
-	else
-		currDir=$(pwd)
-	fi
+	currDir=$(pwd)
 fi
 
 gitRepo=$(isGit $currDir)
