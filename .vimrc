@@ -58,7 +58,7 @@ autocmd FileType coffee setlocal expandtab
 
 "set compilers to check syntax
 autocmd FileType python compiler pylint
-autocmd FileType javascript set makeprg=jslint-wrapper\ %
+autocmd FileType javascript set makeprg=jslint-wrapper\ --jshint\ %
 autocmd FileType css set makeprg=csslint\ %
 autocmd FileType coffee set makeprg=coffeelint\ %
 
