@@ -2,7 +2,7 @@
 
 #return the git repo and current branch in the form:
 #
-#			gitRepo/currentBranch
+#	gitRepo/currentBranch
 #
 #written by Ben Gillies
 
@@ -33,6 +33,7 @@ gitRepo=$(isGit $currDir)
 
 if [ "$gitRepo" != "" ]; then
 	gitBranch=$(cd $currDir && git branch | sed "/^[^\*].*/d" | sed "s/^\* //")
+	gitStatus=$(echo $(git status --porcelain | sed 's/^M/s/' | sed 's/^ M/m/' | sed 's/^??/u/' | cut -d ' ' -f 1 | uniq) | sed 's/ //g')
 
-	echo "$gitRepo/$gitBranch"
+	echo "$gitBranch[$gitStatus]"
 fi
