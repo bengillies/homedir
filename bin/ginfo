@@ -35,5 +35,9 @@ if [ "$gitRepo" != "" ]; then
 	gitBranch=$(cd $currDir && git branch | sed "/^[^\*].*/d" | sed "s/^\* //")
 	gitStatus=$(echo $(git status --porcelain | sed 's/^M/s/' | sed 's/^ M/m/' | sed 's/^??/u/' | cut -d ' ' -f 1 | uniq) | sed 's/ //g')
 
-	echo "$gitBranch[$gitStatus]"
+	if [ "$gitStatus" != "" ]; then
+		gitStatus=$(echo "[$gitStatus]")
+	fi
+
+	echo "$gitBranch$gitStatus"
 fi
