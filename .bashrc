@@ -47,8 +47,8 @@ export PS1
 #add colour to ls
 alias ls='ls -G'
 
-#add color and line numbers to grep
-alias grep='grep --color -n'
+#add color and line numbers to grep and ignore binary file matches
+alias grep='grep --color -n -I'
 
 #set editing mode to vi
 set -o vi
