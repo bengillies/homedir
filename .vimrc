@@ -152,6 +152,7 @@ cmap w!! w !sudo tee % > /dev/null
 "clear highlighted searches
 nmap <silent> <Leader>/ :let @/=""<CR>
 
+
 "copy/paste contents of file to/from the clipboard
 map <silent> <Leader>y :w !pbcopy<CR><CR>
 map <silent> <Leader>p "*p
@@ -234,6 +235,18 @@ set foldlevelstart=99
 "remove some annoying commands
 noremap <F1> <nop>
 noremap K <nop>
+
+"toggle tab mode between tabs and 2 spaces
+nmap <Leader>q :call ToggleTabs()<CR>
+function! ToggleTabs()
+  if &softtabstop == 2
+    set softtabstop=4
+    set noexpandtab
+  else
+    set softtabstop=2
+    set expandtab
+  endif
+endfunction
 
 "set fold highlight colours
 highlight Folded ctermfg=Grey ctermbg=0
