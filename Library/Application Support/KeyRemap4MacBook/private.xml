@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<root>
+	<item>
+		<name>Custom Settings</name>
+		<item>
+			<name>Remap F19 (ctrl_L) to ctrl, alt, cmd, shift</name>
+			<identifier>private.f19_to_hyper</identifier>
+			<autogen>
+				--KeyToKey--
+					KeyCode::F19,
+					KeyCode::COMMAND_L, ModifierFlag::OPTION_L
+						| ModifierFlag::SHIFT_L
+						| ModifierFlag::CONTROL_L
+			</autogen>
+		</item>
+		<item>
+			<name>Remap shift_L to shift_L (when typed, send ctrl-a)</name>
+			<identifier>private.shift_l_to_ctrl_a</identifier>
+			<autogen>
+				--KeyOverlaidModifier--
+					KeyCode::SHIFT_L, ModifierFlag::SHIFT_L
+						| ModifierFlag::NONE,
+					KeyCode::SHIFT_L, KeyCode::A, ModifierFlag::CONTROL_L
+			</autogen>
+		</item>
+	</item>
+</root>
