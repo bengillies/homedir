@@ -33,7 +33,7 @@ gitRepo=$(isGit $currDir)
 
 if [ "$gitRepo" != "" ]; then
 	gitBranch=$(cd $currDir && git branch | sed "/^[^\*].*/d" | sed "s/^\* //")
-	gitStatus=$(echo $(git status --porcelain | sed 's/^M/s/' | sed 's/^ M/m/' | sed 's/^??/u/' | cut -d ' ' -f 1 | uniq) | sed 's/ //g')
+	gitStatus=$(echo $(git status --porcelain | sed 's/^[A-Z]\{2\}/C/' | sed 's/^R/s/' | sed 's/A/s/' | sed 's/^D/s/' | sed 's/^ D/m/' | sed 's/^M/s/' | sed 's/^ M/m/' | sed 's/^??/u/' | cut -d ' ' -f 1 | sort | uniq) | sed 's/ //g')
 
 	if [ "$gitStatus" != "" ]; then
 		gitStatus=$(echo "[$gitStatus]")
