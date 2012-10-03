@@ -19,3 +19,11 @@
 
 [color "status"]
 	untracked = yellow
+
+[merge]
+	tool = gitmerger
+
+[mergetool "gitmerger"]
+	cmd = gitmerger vim $BASE $LOCAL $REMOTE $MERGED
+	trustExitCode = true
+	keepBackup = false
