@@ -40,5 +40,9 @@ if [ "$gitRepo" != "" ]; then
 		gitPushStatus='p'
 	fi
 
-	echo "$gitBranch[$gitPushStatus$gitStatus]"
+	if [ "$gitPushStatus$gitStatus" != "" ]; then
+		gitShortFlag="[$gitPushStatus$gitStatus]"
+	fi
+
+	echo "$gitBranch$gitShortFlag"
 fi
