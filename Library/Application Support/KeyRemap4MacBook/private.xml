@@ -23,5 +23,13 @@
 					KeyCode::SHIFT_L, KeyCode::A, ModifierFlag::CONTROL_L
 			</autogen>
 		</item>
+		<item>
+			<name>Remap esc to F18</name>
+			<identifier>private.esc_to_f18</identifier>
+			<autogen>
+				--KeyToKey--
+					KeyCode::ESCAPE, KeyCode::F18
+			</autogen>
+		</item>
 	</item>
 </root>
