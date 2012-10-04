@@ -14,79 +14,553 @@
 			</autogen>
 		</item>
 		<item>
-			<name>Remap shift_L to shift_L (when typed, send ctrl-a)</name>
-			<identifier>private.shift_l_to_ctrl_a</identifier>
+			<name>Remap ctrl_L to ctrl_L (when typed, send ctrl-a)</name>
+			<identifier>private.ctrl_l_to_ctrl_a</identifier>
 			<autogen>
 				--KeyOverlaidModifier--
-					KeyCode::SHIFT_L, ModifierFlag::SHIFT_L
+					KeyCode::CONTROL_L, ModifierFlag::CONTROL_L
 						| ModifierFlag::NONE,
-					KeyCode::SHIFT_L, KeyCode::A, ModifierFlag::CONTROL_L
+					KeyCode::CONTROL_L, KeyCode::A, ModifierFlag::CONTROL_L
 			</autogen>
 		</item>
 		<item>
-			<name>Remap shift-R to F17 - letter - F17</name>
+			<name>shift_R to Greek letters</name>
 			<identifier>private.shift_r_to_f17_letter_f17</identifier>
 
-			<autogen>--KeyToKey-- KeyCode::Q, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::Q, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::W, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::W, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::E, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::E, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::R, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::R, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::T, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::T, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::Y, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::Y, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::U, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::U, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::I, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::I, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::O, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::O, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::P, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::P, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::A, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::A, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::S, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::S, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::D, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::D, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::F, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::F, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::G, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::G, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::H, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::H, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::J, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::J, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::K, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::K, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::L, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::L, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::Z, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::Z, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::X, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::X, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::C, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::C, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::V, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::V, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::B, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::B, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::N, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::N, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::M, ModifierFlag::SHIFT_R, KeyCode::F17, KeyCode::M, KeyCode::F17</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Q, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::W, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::E, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::R, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_1, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::T, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_4, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Y, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::U, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::I, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::O, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::P, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::A, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_1, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::S, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::D, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_4, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::F, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_6, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::G, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::H, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_7, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::J, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::D, ModifierFlag::OPTION_L,
+					KeyCode::KEY_1, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::K, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::L, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Z, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_6, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::X, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::E, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::C, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_7, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::V, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_2, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::B, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::KEY_2, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::N, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::D, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::M, ModifierFlag::SHIFT_R,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
 
-			<autogen>--KeyToKey-- KeyCode::Q, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::Q, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::W, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::W, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::E, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::E, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::R, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::R, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::T, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::T, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::Y, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::Y, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::U, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::U, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::I, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::I, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::O, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::O, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::P, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::P, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::A, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::A, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::S, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::S, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::D, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::D, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::F, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::F, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::G, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::G, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::H, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::H, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::J, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::J, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::K, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::K, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::L, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::L, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::Z, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::Z, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::X, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::X, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::C, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::C, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::V, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::V, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::B, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::B, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::N, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::N, KeyCode::F17</autogen>
-			<autogen>--KeyToKey-- KeyCode::M, ModifierFlag::SHIFT_R | ModifierFlag::SHIFT_L, KeyCode::F17, KeyCode::M, KeyCode::F17</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Q, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::W, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::E, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::R, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_1, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::T, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_4, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Y, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::U, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::I, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::O, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::P, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::A, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_1, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::S, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::D, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_4, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::F, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_6, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::G, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::H, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_7, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::J, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::K, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::L, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::B, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::Z, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_6, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::X, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::E, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::C, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_7, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::V, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::B, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_2, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::N, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::D, ModifierFlag::OPTION_L,
+					KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::M, ModifierFlag::SHIFT_R
+						| ModifierFlag::SHIFT_L,
+					KeyCode::F17, KeyCode::KEY_0,
+					ModifierFlag::OPTION_L, KeyCode::KEY_3,
+					ModifierFlag::OPTION_L, KeyCode::KEY_9,
+					ModifierFlag::OPTION_L, KeyCode::C,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
 		</item>
 		<item>
-			<name>Remap esc to F18</name>
-			<identifier>private.esc_to_f18</identifier>
+			<name>Remap alt_R + letter to unicode funsies</name>
+			<identifier>private.alt_r_to_funsies</identifier>
 			<autogen>
-				--KeyToKey--
-					KeyCode::ESCAPE, KeyCode::F18
+				--KeyToKey-- KeyCode::CURSOR_UP, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::B,
+					ModifierFlag::OPTION_L, KeyCode::KEY_0,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::CURSOR_DOWN, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::B,
+					ModifierFlag::OPTION_L, KeyCode::KEY_0,
+					ModifierFlag::OPTION_L, KeyCode::KEY_7,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::CURSOR_LEFT, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::B,
+					ModifierFlag::OPTION_L, KeyCode::KEY_0,
+					ModifierFlag::OPTION_L, KeyCode::KEY_5,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::CURSOR_RIGHT, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_7,
+					ModifierFlag::OPTION_L, KeyCode::A,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::K, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::D,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::J, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::F,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::H, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::C,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::L, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::E,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::KEY_8, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_0,
+					ModifierFlag::OPTION_L, KeyCode::KEY_3,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::KEY_0, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_3,
+					ModifierFlag::OPTION_L, KeyCode::A,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::KEY_9, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_6,
+					ModifierFlag::OPTION_L, KeyCode::KEY_3,
+					ModifierFlag::OPTION_L, KeyCode::KEY_9,
+					ModifierFlag::OPTION_L, KeyCode::F17
 			</autogen>
 		</item>
 	</item>
