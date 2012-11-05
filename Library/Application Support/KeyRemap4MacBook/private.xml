@@ -24,6 +24,15 @@
 			</autogen>
 		</item>
 		<item>
+			<name>Remap alt-L to #</name>
+			<identifier>private.alt_L_to_hash</identifier>
+			<autogen>
+				--KeyOverlaidModifier--
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_R
+			</autogen>
+		</item>
+		<item>
 			<name>shift_R to Greek letters</name>
 			<identifier>private.shift_r_to_f17_letter_f17</identifier>
 
