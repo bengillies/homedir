@@ -48,7 +48,7 @@ export PS1
 alias ls='ls -G'
 
 #add color and line numbers to grep and ignore binary file matches
-alias grep='grep --color -n -I'
+alias grep='grep --color -n -I -R'
 
 #set editing mode to vi
 set -o vi
@@ -75,7 +75,7 @@ export NODE_PATH=/usr/local/lib/node_modules
 export NODE_PATH='/usr/local/lib/jsctags:${NODE_PATH}'
 
 #start screen (unless we're in it already). If its already on, connect to it
-if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ]; then
+if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach
 fi
