@@ -241,9 +241,11 @@ nmap <Leader>q :call ToggleTabs()<CR>
 function! ToggleTabs()
   if &softtabstop == 2
     set softtabstop=4
+    set shiftwidth=4
     set noexpandtab
   else
     set softtabstop=2
+    set shiftwidth=2
     set expandtab
   endif
 endfunction
