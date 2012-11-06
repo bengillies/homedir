@@ -3,13 +3,12 @@
 	<item>
 		<name>Custom Settings</name>
 		<item>
-			<name>Remap F19 (ctrl_L) to ctrl, alt, cmd, shift</name>
+			<name>Remap F19 (ctrl_L) to ctrl, alt, cmd</name>
 			<identifier>private.f19_to_hyper</identifier>
 			<autogen>
 				--KeyToKey--
 					KeyCode::F19,
 					KeyCode::COMMAND_L, ModifierFlag::OPTION_L
-						| ModifierFlag::SHIFT_L
 						| ModifierFlag::CONTROL_L
 			</autogen>
 		</item>
