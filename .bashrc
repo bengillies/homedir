@@ -1,9 +1,6 @@
 #add some sensible extra paths
 PATH=/usr/local/bin:/usr/sbin:$PATH
 
-#add cook and ginsu
-PATH=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/tools/cooker/bash/:$PATH
-
 #add git
 PATH=/usr/local/git/bin:$PATH
 
@@ -15,9 +12,6 @@ PATH=/usr/local/android/tools:$PATH
 
 #add Java 1.6
 PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home/bin:$PATH
-
-#add /opt/local/bin for MacPorts installed apps
-PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
 #add the cabal bin for haskell programs
 PATH=$HOME/.cabal/bin:$PATH
@@ -31,18 +25,11 @@ PATH=$HOME/bin:$PATH
 
 export PATH
 
-#set up TiddlyWiki specific environment variables for use with cook
-export TW_TRUNKDIR=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/
-export TW_ROOT=/Users/bengillies/src/svn.tiddlywiki.org/Trunk/
-export OSMOSOFT=/Users/bengillies/Osmosoft/
-
-
 #Prompt is cmd:repo/branch:cwd$ in colors yellow:blue:green$
 PS1='\[\e[38;5;221m\]\!\[\e[m\]:\[\e[38;5;117m\]$(ginfo)\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\$'
 #set the prompt to username@hostname:pwd$ with username in blue, hostname in red, pwd in green, @, : and $ in white, and all bold
 #PS1='\[\e[38;5;117m\]\u\[\e[m\]\[\e[38;5;230m\]@\[\e[m\]\[\e[38;5;221m\]\h\[\e[m\]:\[\e[38;5;72m\]\w\[\e[m\]\[\e[38;5;230m\]\$\[\e[m\]\[\e[m\]'
 export PS1
-
 
 #add colour to ls
 alias ls='ls -G'
