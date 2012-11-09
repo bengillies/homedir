@@ -138,6 +138,9 @@ autocmd filetype TiddlyWiki set nolist "list disables linebreak
 autocmd filetype TiddlyWiki set textwidth=0
 autocmd filetype TiddlyWiki set wrapmargin=0
 
+"set *.md = Markdown
+autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
+
 "Map some function keys for NERDTree
 noremap <F2> :NERDTreeToggle<CR>
 noremap <F3> :NERDTreeFind<CR>
