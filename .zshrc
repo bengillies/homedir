@@ -68,6 +68,9 @@ alias ls='ls -G'
 
 #add color and line numbers to grep and ignore binary file matches
 alias grep='grep --color -n -I -R'
+
+#don't try and correct lein to link
+alias lein='nocorrect lein'
 #}}}
 
 #{{{ Folder locations
@@ -116,7 +119,7 @@ PATH=$HOME/bin:$PATH
 export PATH
 #}}}
 
-#start screen (unless we're in it already). If its already on, connect to it
+#start tmux (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach
