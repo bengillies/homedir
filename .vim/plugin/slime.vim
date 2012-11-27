@@ -56,7 +56,7 @@ endfunction
 
 function! s:TmuxSend(config, text)
   let escaped_text = s:_EscapeText(a:text)
-  call system("tmux -L " . a:config["socket_name"] . " send-keys -t" . a:config["target_pane"] . " " . escaped_text)
+  silent call system("tmux -L " . a:config["socket_name"] . " send-keys -t" . a:config["target_pane"] . " " . escaped_text)
 endfunction
 
 function! s:TmuxConfig()
@@ -64,8 +64,8 @@ function! s:TmuxConfig()
     let b:slime_config = {"socket_name": "default", "target_pane": ":"}
   end
 
-  let b:slime_config["socket_name"] = input("tmux socket name: ", b:slime_config["socket_name"])
-  let b:slime_config["target_pane"] = input("tmux target pane: ", b:slime_config["target_pane"])
+  let output = system("tmux display-panes")
+  let b:slime_config["target_pane"] = input("tmux target pane: ")
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
