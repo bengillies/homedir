@@ -128,7 +128,6 @@ set vb t_vb=
 
 "let filetypes give specific info to plugins
 filetype plugin on
-autocmd filetype clojure filetype plugin indent on
 
 "set TiddlyWiki mode
 autocmd BufNewFile,BufRead *.tid set filetype=TiddlyWiki
@@ -169,6 +168,7 @@ noremap <C-l> <C-w>l
 "vimclojure settings
 let vimclojure#HighlightBuiltins = 1
 let vimclojure#ParenRainbow = 1
+let vimclojure#DynamicHighlighting = 1
 
 "use matchit plugin
 runtime plugin/matchit.vim
@@ -212,7 +212,7 @@ let g:Powerline_symbols = 'fancy'
 set term=screen-256color
 
 "set up keybindings for slime (C-c is an awful default)
-let g:slime_send_key = '<Leader>e'
+let g:slime_send_key = '<leader>e'
 let g:slime_config_key = '<Leader>v'
 
 "set the colorcolumn to dark
@@ -252,6 +252,9 @@ function! ToggleTabs()
     set expandtab
   endif
 endfunction
+
+"vimclojure indenting
+filetype plugin indent on
 
 "set fold highlight colours
 highlight Folded ctermfg=Grey ctermbg=0
