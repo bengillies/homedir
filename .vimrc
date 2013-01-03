@@ -169,6 +169,7 @@ noremap <C-l> <C-w>l
 let vimclojure#HighlightBuiltins = 1
 let vimclojure#ParenRainbow = 1
 let vimclojure#DynamicHighlighting = 1
+let vimclojure#FuzzyIndent = 1
 
 "use matchit plugin
 runtime plugin/matchit.vim
