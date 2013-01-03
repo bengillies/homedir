@@ -44,5 +44,9 @@ if [ "$gitRepo" != "" ]; then
 		gitShortFlag="[$gitPushStatus$gitStatus]"
 	fi
 
+	if [ "$gitBranch" == "(no branch)" ]; then
+		gitBranch="($(git log -1 --oneline | cut -d ' ' -f 1))"
+	fi
+
 	echo "$gitBranch$gitShortFlag"
 fi
