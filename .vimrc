@@ -38,7 +38,7 @@ vnoremap < <gv
 set autoindent
 set smartindent
 
-"use indents of 4 spaces apart from ruby and coffeescript, where we want 2
+"use indents of 4 spaces apart from ruby, handlebars and coffeescript, where we want 2
 set softtabstop=4
 set shiftwidth=4
 set tabstop=4
@@ -48,13 +48,17 @@ autocmd FileType ruby setlocal tabstop=2
 autocmd FileType coffee setlocal softtabstop=2
 autocmd FileType coffee setlocal shiftwidth=2
 autocmd FileType coffee setlocal tabstop=2
+autocmd FileType mustache setlocal softtabstop=2
+autocmd FileType mustache setlocal shiftwidth=2
+autocmd FileType mustache setlocal tabstop=2
 
 "tabs instead of spaces
-"apart from python, Ruby and CoffeeScript where we want spaces.
+"apart from python, Ruby, Handlebars and CoffeeScript where we want spaces.
 set noexpandtab
 autocmd FileType python setlocal expandtab
 autocmd FileType ruby setlocal expandtab
 autocmd FileType coffee setlocal expandtab
+autocmd FileType mustache setlocal expandtab
 
 "set compilers to check syntax
 autocmd FileType python compiler pylint
@@ -256,6 +260,10 @@ endfunction
 
 "vimclojure indenting
 filetype plugin indent on
+
+"remove indenting for JS/Ruby
+autocmd FileType ruby set indentexpr=cindent
+autocmd FileType javascript set indentexpr=cindent
 
 "set fold highlight colours
 highlight Folded ctermfg=Grey ctermbg=0
