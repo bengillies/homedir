@@ -43,8 +43,17 @@ set -o vi
 # better array expansion
 setopt RC_EXPAND_PARAM
 
+#{{{ Key bindings
 # C-r is reverse history search
 bindkey "^R" history-incremental-search-backward
+
+# C-z brings the most recently stopped job (usually Vim) back to the foreground
+function bring-to-fg() {
+	fg
+}
+zle -N bring-to-fg
+bindkey "^Z" bring-to-fg
+#}}}
 
 #{{{ History
 SAVEHIST=10000
@@ -71,6 +80,9 @@ alias grep='grep --color -n -I -R'
 
 #don't try and correct lein to link
 alias lein='nocorrect lein'
+
+#g == git
+alias g='git'
 #}}}
 
 #{{{ Folder locations
