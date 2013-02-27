@@ -123,6 +123,7 @@ PATH=$HOME/.cabal/bin:$PATH
 
 #set up rbenv paths
 PATH=$HOME/.rbenv/bin:$PATH
+PATH=$HOME/.rbenv/versions/1.9.3-p194/bin/:$PATH
 eval "$(rbenv init - -zsh --no-rehash)"
 
 #The bin in the home directory should take priority
