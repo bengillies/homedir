@@ -8,9 +8,18 @@ YELLOW=$'\033[38;5;221m'
 GREEN=$'\033[38;5;72m'
 BLUE=$'\033\[38;5;117m'
 
-# cmdNo:pwd                                               gitbranch[status]
-PROMPT="%{$YELLOW%}%!%{$reset_color%}:%{$GREEN%}%~%{$reset_color%} %# "
+# prev_cmd_status pwd                                               gitbranch[status]
+function happy_or_sad() {
+	ret_code=$?
+	if [ $ret_code -eq 0 -o $ret_code -eq 18 ]; then # 18 == ctrl-z
+		echo 😃
+	else
+		echo 😡
+	fi
+}
+
 function precmd() {
+	PROMPT="$(happy_or_sad)  %{$GREEN%}%~%{$reset_color%} %# "
 	RPROMPT="%{$BLUE%}$(ginfo)%{$reset_color%}"
 }
 #}}}
