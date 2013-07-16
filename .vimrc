@@ -1,6 +1,31 @@
 "set compatibility mode with vi
 set nocompatible
 
+"vundle config
+filetype off
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+"Vundled packages
+Bundle 'gmarik/vundle'
+Bundle 'scrooloose/nerdtree'
+Bundle 'wincent/Command-T'
+Bundle 'tsaleh/vim-matchit'
+Bundle 'tpope/vim-surround'
+Bundle 'int3/vim-taglist-plus'
+Bundle 'bengillies/vim-slime'
+Bundle 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
+Bundle 'ap/vim-css-color'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'juvenn/mustache.vim'
+Bundle 'tpope/vim-haml'
+
+
+Bundle 'VimClojure'
+Bundle 'pydoc.vim'
+
+
 "set less timeout to speed vim up
 set notimeout
 set ttimeout
