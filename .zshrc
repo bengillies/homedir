@@ -119,7 +119,7 @@ PATH=/usr/local/bin:/usr/sbin:$PATH
 PATH=/usr/local/git/bin:$PATH
 
 #add mysql
-PATH=/usr/local/mysql/bin/:$PATH
+PATH=/usr/local/mysql/bin:$PATH
 
 #add the android sdk
 PATH=/usr/local/android/tools:$PATH
@@ -132,7 +132,7 @@ PATH=$HOME/.cabal/bin:$PATH
 
 #set up rbenv paths
 PATH=$HOME/.rbenv/bin:$PATH
-PATH=$HOME/.rbenv/versions/1.9.3-p194/bin/:$PATH
+PATH=$HOME/.rbenv/versions/1.9.3-p448/bin:$PATH
 eval "$(rbenv init - -zsh --no-rehash)"
 
 #The bin in the home directory should take priority
