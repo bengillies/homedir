@@ -1,0 +1,2 @@
+#!/bin/sh
+/Users/bengillies/Applications/MacVim.app/Contents/MacOS/Vim $@
