@@ -7,13 +7,12 @@ filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
-"Vundled packages
+"Vundled GitHub packages
 Bundle 'gmarik/vundle'
-Bundle 'scrooloose/nerdtree'
-Bundle 'wincent/Command-T'
+Bundle 'Shougo/vimproc.vim'
+Bundle 'Shougo/unite.vim'
 Bundle 'tsaleh/vim-matchit'
 Bundle 'tpope/vim-surround'
-Bundle 'int3/vim-taglist-plus'
 Bundle 'bengillies/vim-slime'
 Bundle 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
 Bundle 'ap/vim-css-color'
@@ -21,8 +20,9 @@ Bundle 'kchmck/vim-coffee-script'
 Bundle 'juvenn/mustache.vim'
 Bundle 'tpope/vim-haml'
 
-
+"Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
+Bundle 'taglist.vim'
 Bundle 'pydoc.vim'
 
 
@@ -86,7 +86,7 @@ autocmd FileType coffee setlocal expandtab
 autocmd FileType mustache setlocal expandtab
 
 "set compilers to check syntax
-autocmd FileType python compiler pylint
+autocmd FileType python set makeprg=pylint\ %
 autocmd FileType javascript set makeprg=jslint-wrapper\ --jshint\ %
 autocmd FileType css set makeprg=csslint\ %
 autocmd FileType coffee set makeprg=coffeelint\ %
@@ -99,9 +99,6 @@ nmap <Leader>m :!make<CR>
 "easy upload
 nmap <Leader>u :!make upload<CR><CR>
 
-"don't call pylint after _every_ single :w (it's really annoying)
-let g:pylint_onwrite = 0
-
 "Show trailing whitepace and spaces before a tab:
 match ErrorMsg /\s\+$\| \+\ze\t/
 
@@ -111,6 +108,9 @@ if exists("+colorcolumn")
 else
 	match ErrorMsg '\%>80v.\+'
 endif
+
+"set ctags up correctly
+let Tlist_Ctags_Cmd="/usr/local/bin/ctags"
 
 "pastetoggle (sane indentation on pastes) just press F5 when you are
 "going to paste several lines of text so they won't be indented.
@@ -169,11 +169,6 @@ autocmd filetype TiddlyWiki set wrapmargin=0
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
-"Map some function keys for NERDTree
-noremap <F2> :NERDTreeToggle<CR>
-noremap <F3> :NERDTreeFind<CR>
-noremap <F4> :NERDTreeClose<CR>
-
 "Map taglist to <F7>
 noremap <F7> :TlistToggle<CR>
 
@@ -203,11 +198,61 @@ let vimclojure#FuzzyIndent = 1
 "use matchit plugin
 runtime plugin/matchit.vim
 
+"easy splitting
+nmap \ :vsp<CR>
+nmap - :sp<CR>
+
+"unite.vim settings
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+let g:unite_cursor_line_highlight = 'Visual'
+
+"file drawer
+noremap <F2> :Unite -no-split file<CR>
+noremap <F3> :UniteWithBufferDir -no-split file<CR>
+
+"file search
+nnoremap <silent> <space>f :Unite -no-split -start-insert file_rec/async:!<CR>
+nnoremap <silent> <Leader>f :Unite -no-split -start-insert file_rec/async:!<CR>
+
+"file grep
+nnoremap <silent> <space>g :Unite -no-split -start-insert grep:.<CR>
+
+"yank search
+let g:unite_source_history_yank_enable = 1
+nnoremap <silent> <space>y :Unite -no-split -quick-match history/yank<CR>
+
+"buffer switch
+nnoremap <silent> <space>b :Unite -no-split -quick-match buffer<CR>
+nnoremap <silent> <Leader>b :Unite -no-split -quick-match buffer<CR>
+
+"most recently used
+nnoremap <silent> <space>m :Unite -no-split -quick-match file_mru<CR>
+
+"Custom mappings for the unite buffer
+autocmd FileType unite call s:unite_settings()
+function! s:unite_settings()
+	"Enable navigation with control-j and control-k in insert mode
+	imap <buffer> <C-j>   <Plug>(unite_select_next_line)
+	imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
+
+	"Exit Unite (at least, back up one level)
+	nmap <buffer> <C-g>   <Plug>(unite_exit)
+	imap <buffer> <C-g>   <Plug>(unite_exit)
+
+	"Open in split/vsplit/tab
+	nmap <silent><buffer><expr> <C-v>  unite#do_action('vsplit')
+	imap <silent><buffer><expr> <C-v>  unite#do_action('vsplit')
+	nmap <silent><buffer><expr> <C-i>  unite#do_action('split')
+	imap <silent><buffer><expr> <C-i>  unite#do_action('split')
+	nmap <silent><buffer><expr> <C-t>  unite#do_action('tabopen')
+	imap <silent><buffer><expr> <C-t>  unite#do_action('tabopen')
+endfunction
+
 "setup Command-T to use <Leader>f (cos 't' means test)
-nnoremap <silent> <Leader>f :CommandT<CR>
+"nnoremap <silent> <Leader>f :CommandT<CR>
 
 "setup Command-T to open files in split screen with C-i (like in NERDTree)
-let g:CommandTAcceptSelectionSplitMap=['<C-o>']
+"let g:CommandTAcceptSelectionSplitMap=['<C-o>']
 
 "add a status line
 set laststatus=2
