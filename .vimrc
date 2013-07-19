@@ -14,7 +14,7 @@ Bundle 'Shougo/unite.vim'
 Bundle 'tsaleh/vim-matchit'
 Bundle 'tpope/vim-surround'
 Bundle 'bengillies/vim-slime'
-Bundle 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
+Bundle 'bling/vim-airline'
 Bundle 'ap/vim-css-color'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'juvenn/mustache.vim'
@@ -215,7 +215,7 @@ nnoremap <silent> <space>f :Unite -no-split -start-insert file_rec/async:!<CR>
 nnoremap <silent> <Leader>f :Unite -no-split -start-insert file_rec/async:!<CR>
 
 "file grep
-nnoremap <silent> <space>g :Unite -no-split -start-insert grep:.<CR>
+nnoremap <silent> <space>g :Unite -no-split grep:.<CR>
 
 "yank search
 let g:unite_source_history_yank_enable = 1
@@ -280,8 +280,8 @@ autocmd InsertLeave * :set relativenumber
 "set slime to use tmux
 let g:slime_target = "tmux"
 
-"tell Powerline to use fance font rendering
-let g:Powerline_symbols = 'fancy'
+"tell Airline to use fance font rendering
+let g:airline_powerline_fonts = 1
 
 "make sure term is set to screen-256color
 set term=screen-256color
