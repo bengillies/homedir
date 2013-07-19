@@ -19,6 +19,7 @@ Bundle 'ap/vim-css-color'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'juvenn/mustache.vim'
 Bundle 'tpope/vim-haml'
+Bundle 'tpope/vim-fugitive'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
