@@ -92,6 +92,9 @@ alias lein='nocorrect lein'
 
 #g == git
 alias g='git'
+
+#manually specify unicorn startup
+alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
 #}}}
 
 #{{{ Folder locations
