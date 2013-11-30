@@ -9,12 +9,16 @@ GREEN=$'\033[38;5;72m'
 BLUE=$'\033\[38;5;117m'
 
 # prev_cmd_status pwd                                               gitbranch[status]
-function happy_or_sad() {
+function happy_or_sad_or_ssh() {
 	ret_code=$?
-	if [ $ret_code -eq 0 -o $ret_code -eq 18 ]; then # 18 == ctrl-z
-		echo 😃
+	if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+		echo 👽
 	else
-		echo 😡
+		if [ $ret_code -eq 0 -o $ret_code -eq 18 ]; then # 18 == ctrl-z
+			echo 😃
+		else
+			echo 😡
+		fi
 	fi
 }
 
@@ -132,6 +136,9 @@ PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home/bin:$PATH
 
 #add the cabal bin for haskell programs
 PATH=$HOME/.cabal/bin:$PATH
+
+#npm binaries
+PATH=/usr/local/share/npm/bin:$PATH
 
 #set up rbenv paths
 PATH=$HOME/.rbenv/bin:$PATH
