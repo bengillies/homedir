@@ -49,7 +49,7 @@ setopt EXTENDED_GLOB
 
 #{{{ Vi mode stuff
 setopt VI
-export EDITOR=/usr/bin/vim
+export EDITOR=vim
 set -o vi
 #}}}
 
