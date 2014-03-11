@@ -11,7 +11,7 @@
 	df = diff
 	co = checkout
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
-
+	last = log --oneline -3
 
 [color]
 	branch = auto
@@ -28,3 +28,5 @@
 	cmd = gitmerger vim $BASE $LOCAL $REMOTE $MERGED
 	trustExitCode = true
 	keepBackup = false
+[push]
+	default = matching
