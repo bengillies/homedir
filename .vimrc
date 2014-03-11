@@ -20,6 +20,8 @@ Bundle 'kchmck/vim-coffee-script'
 Bundle 'juvenn/mustache.vim'
 Bundle 'tpope/vim-haml'
 Bundle 'tpope/vim-fugitive'
+Bundle 'groenewege/vim-less'
+Bundle 'nono/vim-handlebars'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -204,6 +206,9 @@ nmap \ :vsp<CR>
 nmap - :sp<CR>
 
 "unite.vim settings
+call unite#custom_source('file_rec,file_rec/async', 'matchers', ['matcher_fuzzy'])
+"call unite#custom_source('file_rec,file_rec/async,grep', 'ignore_pattern', ['node_modules','components','log'])
+"call unite#custom_source('buffer,file,file_mru,file_rec,file_rec/async', 'sorters', ['sorter_rank'])
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 let g:unite_cursor_line_highlight = 'Visual'
 
