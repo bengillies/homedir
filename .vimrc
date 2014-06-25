@@ -4,14 +4,14 @@ set nocompatible
 "vundle config
 filetype off
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 "Vundled GitHub packages
-Bundle 'gmarik/vundle'
+Bundle 'gmarik/vundle.vim'
 Bundle 'Shougo/vimproc.vim'
 Bundle 'Shougo/unite.vim'
-Bundle 'tsaleh/vim-matchit'
+Bundle 'vim-scripts/matchit.zip'
 Bundle 'tpope/vim-surround'
 Bundle 'bengillies/vim-slime'
 Bundle 'bling/vim-airline'
@@ -27,6 +27,8 @@ Bundle 'nono/vim-handlebars'
 Bundle 'VimClojure'
 Bundle 'taglist.vim'
 Bundle 'pydoc.vim'
+
+call vundle#end()
 
 
 "set less timeout to speed vim up
@@ -269,7 +271,7 @@ set laststatus=2
 "set up relative line numbering
 function! RelNumToggle()
   if(&relativenumber == 1)
-    set number
+    set norelativenumber
   else
     set relativenumber
   endif

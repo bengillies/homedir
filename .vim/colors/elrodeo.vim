@@ -34,7 +34,7 @@ hi StatusLineNC ctermfg=59 ctermbg=15
 hi VertSplit	ctermfg=59
 hi Folded		ctermbg=59 ctermfg=145
 hi Title		ctermfg=230 ctermbg=NONE	cterm=bold
-hi Visual		ctermfg=230 ctermbg=101
+hi Visual		ctermfg=59 ctermbg=101
 hi SpecialKey	ctermfg=102
 
 
