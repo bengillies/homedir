@@ -208,9 +208,13 @@ nmap \ :vsp<CR>
 nmap - :sp<CR>
 
 "unite.vim settings
-call unite#custom_source('file_rec,file_rec/async', 'matchers', ['matcher_fuzzy'])
-"call unite#custom_source('file_rec,file_rec/async,grep', 'ignore_pattern', ['node_modules','components','log'])
-"call unite#custom_source('buffer,file,file_mru,file_rec,file_rec/async', 'sorters', ['sorter_rank'])
+
+"set of folders to ignore
+let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer']
+
+call unite#custom#source('file_rec,file_rec/async',
+	\ 'ignore_pattern', unite#get_all_sources('file_rec')['ignore_pattern'] .
+	\ join(s:unite_ignores, '\|'))
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 let g:unite_cursor_line_highlight = 'Visual'
 

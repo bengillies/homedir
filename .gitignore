@@ -1,2 +1,4 @@
 .vim/.netrwhist
 upload-db
+.*.swp
+.DS_Store

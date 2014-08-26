@@ -5,4 +5,5 @@
                   [radagast "1.1.1"]
                   [lein-drip "0.1.1-SNAPSHOT"]
                   [lein-ancient "0.3.1"]
-                  [lein-kibit "0.0.8"]]}}
+                  [lein-kibit "0.0.8"]
+                  [lein-try "0.4.1"]]}}

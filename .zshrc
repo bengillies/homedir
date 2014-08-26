@@ -142,7 +142,7 @@ PATH=/usr/local/share/npm/bin:$PATH
 
 #set up rbenv paths
 PATH=$HOME/.rbenv/bin:$PATH
-PATH=$HOME/.rbenv/versions/1.9.3-p448/bin:$PATH
+PATH=$HOME/.rbenv/versions/2.0.0-p481/bin:$PATH
 eval "$(rbenv init - -zsh --no-rehash)"
 
 #The bin in the home directory should take priority

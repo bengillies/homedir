@@ -65,3 +65,6 @@ if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach
 fi
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
