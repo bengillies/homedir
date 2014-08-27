@@ -210,7 +210,7 @@ nmap - :sp<CR>
 "unite.vim settings
 
 "set of folders to ignore
-let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer']
+let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
 call unite#custom#source('file_rec,file_rec/async',
 	\ 'ignore_pattern', unite#get_all_sources('file_rec')['ignore_pattern'] .
