@@ -2,3 +2,7 @@
 upload-db
 .*.swp
 .DS_Store
+.swp
+.lein/repl-history
+.lein/self-installs
+bin/irc-proxy

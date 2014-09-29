@@ -22,6 +22,7 @@ Bundle 'tpope/vim-haml'
 Bundle 'tpope/vim-fugitive'
 Bundle 'groenewege/vim-less'
 Bundle 'nono/vim-handlebars'
+Bundle 'christoomey/vim-tmux-navigator'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -188,11 +189,11 @@ nmap <silent> <Leader>/ :let @/=""<CR>
 map <silent> <Leader>y :w !pbcopy<CR><CR>
 map <silent> <Leader>p "*p
 
-"easier navigation around windows
-noremap <C-h> <C-w>h
-noremap <C-j> <C-w>j
-noremap <C-k> <C-w>k
-noremap <C-l> <C-w>l
+"easier navigation around windows (handled by vim-tmux-navigator)
+" noremap <C-h> <C-w>h
+" noremap <C-j> <C-w>j
+" noremap <C-k> <C-w>k
+" noremap <C-l> <C-w>l
 
 "vimclojure settings
 let vimclojure#HighlightBuiltins = 1
@@ -212,7 +213,7 @@ nmap - :sp<CR>
 "set of folders to ignore
 let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
-call unite#custom#source('file_rec,file_rec/async',
+call unite#custom#source('file_rec,file_rec/async,grep',
 	\ 'ignore_pattern', unite#get_all_sources('file_rec')['ignore_pattern'] .
 	\ join(s:unite_ignores, '\|'))
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
