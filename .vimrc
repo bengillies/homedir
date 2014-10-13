@@ -23,6 +23,7 @@ Bundle 'tpope/vim-fugitive'
 Bundle 'groenewege/vim-less'
 Bundle 'nono/vim-handlebars'
 Bundle 'christoomey/vim-tmux-navigator'
+Bundle 'conormcd/matchindent.vim'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -207,6 +208,7 @@ runtime plugin/matchit.vim
 "easy splitting
 nmap \ :vsp<CR>
 nmap - :sp<CR>
+nmap <C-t> :tabnew<CR>
 
 "unite.vim settings
 
@@ -214,7 +216,7 @@ nmap - :sp<CR>
 let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
 call unite#custom#source('file_rec,file_rec/async,grep',
-	\ 'ignore_pattern', unite#get_all_sources('file_rec')['ignore_pattern'] .
+	\ 'ignore_pattern', unite#get_all_sources('file_rec/async')['ignore_pattern'] .
 	\ join(s:unite_ignores, '\|'))
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 let g:unite_cursor_line_highlight = 'Visual'
@@ -237,9 +239,6 @@ nnoremap <silent> <space>y :Unite -no-split -quick-match history/yank<CR>
 "buffer switch
 nnoremap <silent> <space>b :Unite -no-split -quick-match buffer<CR>
 nnoremap <silent> <Leader>b :Unite -no-split -quick-match buffer<CR>
-
-"most recently used
-nnoremap <silent> <space>m :Unite -no-split -quick-match file_mru<CR>
 
 "Custom mappings for the unite buffer
 autocmd FileType unite call s:unite_settings()
@@ -293,6 +292,9 @@ autocmd InsertLeave * :set relativenumber
 "set slime to use tmux
 let g:slime_target = "tmux"
 
+"remove slime default key mappings
+let g:slime_no_mappings = 1
+
 "tell Airline to use fance font rendering
 let g:airline_powerline_fonts = 1
 
@@ -300,8 +302,14 @@ let g:airline_powerline_fonts = 1
 set term=screen-256color
 
 "set up keybindings for slime (C-c is an awful default)
-let g:slime_send_key = '<leader>e'
-let g:slime_config_key = '<Leader>v'
+"<C-e> in visual mode to send region
+"<C-e> + motion to send motion
+"<C-e><C-e> to send line
+"<leader>v to switch to a different target pane
+xmap <C-e> <Plug>SlimeRegionSend
+nmap <C-e> <Plug>SlimeMotionSend
+nmap <C-e><C-e> <Plug>SlimeLineSend
+nmap <leader>v <Plug>SlimeConfig
 
 "set the colorcolumn to dark
 hi ColorColumn ctermbg=0
