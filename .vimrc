@@ -215,6 +215,16 @@ nmap <C-t> :tabnew<CR>
 "set of folders to ignore
 let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
+"use ag instead of find
+let g:unite_source_rec_async_command = 'ag --follow --nocolor --nogroup --hidden -g ""'
+
+"use ag instead of grep
+let g:unite_source_grep_command = 'ag'
+
+"default ag grep options
+let g:unite_source_grep_default_opts = ' --follow --nocolor --nogroup --hidden'
+let g:unite_source_grep_recursive_opt = ''
+
 call unite#custom#source('file_rec,file_rec/async,grep',
 	\ 'ignore_pattern', unite#get_all_sources('file_rec/async')['ignore_pattern'] .
 	\ join(s:unite_ignores, '\|'))
