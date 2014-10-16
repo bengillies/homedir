@@ -4,11 +4,12 @@
 
 [core]
 	excludesfile = /Users/bengillies/.gitignore
+	pager = less -r
 
 [alias]
 	c = commit
 	st = status
-	df = diff
+	df = diff -w --word-diff=color
 	co = checkout
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
 	last = log --oneline -3

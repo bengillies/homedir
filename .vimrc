@@ -24,10 +24,11 @@ Bundle 'groenewege/vim-less'
 Bundle 'nono/vim-handlebars'
 Bundle 'christoomey/vim-tmux-navigator'
 Bundle 'conormcd/matchindent.vim'
+Bundle 'marijnh/tern_for_vim'
+Bundle 'majutsushi/tagbar'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
-Bundle 'taglist.vim'
 Bundle 'pydoc.vim'
 
 call vundle#end()
@@ -176,8 +177,12 @@ autocmd filetype TiddlyWiki set wrapmargin=0
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
-"Map taglist to <F7>
-noremap <F7> :TlistToggle<CR>
+"Map tagbar to <F7>
+noremap <F7> :TagbarToggle<CR>
+
+"set JS jump to definition to use ternjs
+autocmd filetype javascript nmap <silent> gd :TernDef<CR>
+autocmd filetype javascript nmap <silent> gD :TernDef<CR>
 
 "write files without opening vim up as sudo ...
 cmap w!! w !sudo tee % > /dev/null
