@@ -7,3 +7,4 @@ upload-db
 .lein/self-installs
 bin/irc-proxy
 debug.js
+.*.swo
