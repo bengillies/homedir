@@ -109,7 +109,7 @@ export DROPBOX=$HOME/Dropbox
 export DOWNLOAD=$HOME/Downloads
 
 #set java to run version 1.6 by default
-export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home
 
 #export a NODE_PATH variable to pick up scripts installed by npm
 export NODE_PATH=/usr/local/lib/node_modules
@@ -132,7 +132,7 @@ PATH=/usr/local/mysql/bin:$PATH
 PATH=/usr/local/android/tools:$PATH
 
 #add Java 1.6
-PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home/bin:$PATH
+PATH=/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/bin:$PATH
 
 #add the cabal bin for haskell programs
 PATH=$HOME/.cabal/bin:$PATH
