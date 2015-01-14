@@ -657,6 +657,14 @@
 					KeyCode::KEY_0, ModifierFlag::SHIFT_L,
 					KeyCode::F17
 			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::SLASH, ModifierFlag::OPTION_R,
+					KeyCode::F17, KeyCode::KEY_2,
+					ModifierFlag::OPTION_L, KeyCode::KEY_7,
+					ModifierFlag::OPTION_L, KeyCode::KEY_1,
+					ModifierFlag::OPTION_L, KeyCode::KEY_3,
+					ModifierFlag::OPTION_L, KeyCode::F17
+			</autogen>
 		</item>
 	</item>
 </root>
