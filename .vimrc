@@ -8,24 +8,24 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 "Vundled GitHub packages
-Bundle 'gmarik/vundle.vim'
-Bundle 'Shougo/vimproc.vim'
-Bundle 'Shougo/unite.vim'
-Bundle 'vim-scripts/matchit.zip'
-Bundle 'tpope/vim-surround'
-Bundle 'bengillies/vim-slime'
-Bundle 'bling/vim-airline'
-Bundle 'ap/vim-css-color'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'juvenn/mustache.vim'
-Bundle 'tpope/vim-haml'
-Bundle 'tpope/vim-fugitive'
-Bundle 'groenewege/vim-less'
-Bundle 'nono/vim-handlebars'
-Bundle 'christoomey/vim-tmux-navigator'
-Bundle 'conormcd/matchindent.vim'
-Bundle 'marijnh/tern_for_vim'
-Bundle 'majutsushi/tagbar'
+Plugin 'gmarik/vundle.vim'
+Plugin 'Shougo/vimproc.vim'
+Plugin 'Shougo/unite.vim'
+Plugin 'vim-scripts/matchit.zip'
+Plugin 'tpope/vim-surround'
+Plugin 'bengillies/vim-slime'
+Plugin 'bling/vim-airline'
+Plugin 'ap/vim-css-color'
+Plugin 'kchmck/vim-coffee-script'
+Plugin 'juvenn/mustache.vim'
+Plugin 'tpope/vim-haml'
+Plugin 'tpope/vim-fugitive'
+Plugin 'groenewege/vim-less'
+Plugin 'nono/vim-handlebars'
+Plugin 'christoomey/vim-tmux-navigator'
+Plugin 'conormcd/matchindent.vim'
+Plugin 'marijnh/tern_for_vim'
+Plugin 'majutsushi/tagbar'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -99,9 +99,14 @@ autocmd FileType javascript set makeprg=jslint-wrapper\ --jshint\ %
 autocmd FileType css set makeprg=csslint\ %
 autocmd FileType coffee set makeprg=coffeelint\ %
 
+"beautify json files (use jq which gives 2 space indentation)
+autocmd BufNewFile,BufRead *.json set filetype=json
+autocmd BufNewFile,BufRead *.json set syntax=javascript
+autocmd FileType json vmap = :!jq .<CR>
+
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
-nmap <Leader>t :!if [ -e Makefile ]; then make test; else rake test; fi<CR>
+nmap <Leader>t :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; fi<CR>
 nmap <Leader>m :!make<CR>
 
 "easy upload
