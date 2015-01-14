@@ -8,3 +8,5 @@ upload-db
 bin/irc-proxy
 debug.js
 .*.swo
+.idea
+.lein-repl-history
