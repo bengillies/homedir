@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Report current ip address. -e switch returns external IP address
+#
+
+EXTERNAL=false
+if [ $# -gt 0 ]; then
+	while getopts "eh" flags; do
+		case $flags in
+			e) EXTERNAL=true ;;
+			h)
+				echo ip ☜ current IP address
+				echo ip -e ☜ IP address as seen by external world
+				exit 0
+				;;
+		esac
+	done
+fi
+
+if [ "$EXTERNAL" == true ]; then
+	curl -s http://jsonip.com | jq -r .ip
+else
+	ifconfig | egrep 'inet ' | cut -d ' ' -f 2 | egrep -v '127|172'
+fi
