@@ -34,14 +34,15 @@ gitRepo=$(isGit $currDir)
 if [ "$gitRepo" != "" ]; then
 	gitBranch=$(cd "$currDir" && git branch | sed "/^[^\*].*/d" | sed "s/^\* //")
 	gitStatus=$(echo $(git status --porcelain | sed 's/^[A-Z]\{2\}/C/' | sed 's/^R/s/' | sed 's/A/s/' | sed 's/^D/s/' | sed 's/^ D/m/' | sed 's/^M/s/' | sed 's/^ M/m/' | sed 's/^??/u/' | cut -d ' ' -f 1 | sort | uniq) | sed 's/ //g')
+	gitStatus=$(echo $gitStatus | sed 's/C/💥 /' | sed 's/s/🎬 /' | sed 's/m/🚧 /' | sed 's/u/🙈 /')
 	if [ -z "`git status | head -n 2 | tail -n 1 | grep "ahead of 'origin"`" ]; then
 		gitPushStatus=''
 	else
-		gitPushStatus='p'
+		gitPushStatus='🏁 '
 	fi
 
 	if [ "$gitPushStatus$gitStatus" != "" ]; then
-		gitShortFlag="[$gitPushStatus$gitStatus]"
+		gitShortFlag=" $gitPushStatus$gitStatus"
 	fi
 
 	if [ "$gitBranch" == "(no branch)" ]; then
