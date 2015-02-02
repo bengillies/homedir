@@ -23,7 +23,7 @@ function happy_or_sad_or_ssh() {
 }
 
 function precmd() {
-	PROMPT="$(happy_or_sad_or_ssh)  %{$GREEN%}%~%{$reset_color%} %# "
+	PROMPT="$(happy_or_sad_or_ssh)  %{$GREEN%}%~%{$reset_color%} %(1j.%j.%#) "
 	RPROMPT="%{$BLUE%}$(ginfo)%{$reset_color%}"
 }
 #}}}
