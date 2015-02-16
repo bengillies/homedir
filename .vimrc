@@ -303,6 +303,9 @@ endfunc
 
 nnoremap <Leader>n :call RelNumToggle()<cr>
 
+"set spellcheck
+nmap <Leader>s :setlocal spell! spelllang=en_gb<CR>
+
 "set absolute line numbering automatically on certain events
 :au FocusLost * :set number
 :au FocusGained * :set relativenumber
