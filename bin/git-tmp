@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if git branch | egrep -E '^  tmp$' > /dev/null; then
+	git branch -D tmp
+fi
+
+git checkout -b tmp
