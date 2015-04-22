@@ -5,3 +5,21 @@ if git branch | egrep -E '^  tmp$' > /dev/null; then
 fi
 
 git checkout -b tmp
+
+if [[ $# -ne 0 ]]; then
+	BRANCH=""
+
+	if [[ $# -eq 2 ]]; then
+		BRANCH="$1/$2"
+	else
+		BRANCH="origin/$1"
+
+		if ! git branch -r | fgrep "  $BRANCH"; then
+			BRANCH="$1"
+		fi
+	fi
+
+	GIT_EDITOR=true
+	git merge "$BRANCH"
+	echo "Merged branch '$BRANCH' into 'tmp'"
+fi
