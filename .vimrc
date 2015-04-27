@@ -179,6 +179,9 @@ autocmd filetype TiddlyWiki set nolist "list disables linebreak
 autocmd filetype TiddlyWiki set textwidth=0
 autocmd filetype TiddlyWiki set wrapmargin=0
 
+"fix spelling mistakes
+autocmd filetype javascript iabbrev retrun return
+
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
