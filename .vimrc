@@ -146,7 +146,7 @@ set hlsearch
 set backspace=indent,eol,start
 
 "ignore case when searching
-set ignorecase
+"set ignorecase
 
 " display whitespace characters
 set list
