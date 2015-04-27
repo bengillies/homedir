@@ -67,6 +67,7 @@ hi Title		ctermfg=221
 "JavaScript Highlighting
 hi javaScriptParens		ctermfg=72
 hi javaScriptBraces		ctermfg=221
+hi es6BuiltInType     ctermfg=173
 
 "HTML Highlighting
 hi htmlTagName			ctermfg=79
