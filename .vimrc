@@ -182,6 +182,9 @@ autocmd filetype TiddlyWiki set wrapmargin=0
 "fix spelling mistakes
 autocmd filetype javascript iabbrev retrun return
 
+"set *.es6 = JavaScript
+autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
+
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
