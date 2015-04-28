@@ -115,7 +115,7 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home
 export NODE_PATH=/usr/local/lib/node_modules
 
 #add jsctags to the NODE_PATH
-export NODE_PATH='/usr/local/lib/jsctags:${NODE_PATH}'
+export NODE_PATH=/usr/local/lib/jsctags:$NODE_PATH
 #}}}
 
 #{{{ Path variable
