@@ -8,6 +8,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 "Vundled GitHub packages
+Plugin 'Vundle.vim'
 Plugin 'gmarik/vundle.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/unite.vim'
@@ -71,7 +72,7 @@ vnoremap < <gv
 set autoindent
 set smartindent
 
-"use indents of 4 spaces apart from ruby, handlebars and coffeescript, where we want 2
+"use indents of 4 spaces apart from ruby, handlebars and coffeescript, js where we want 2
 set softtabstop=4
 set shiftwidth=4
 set tabstop=4
@@ -81,6 +82,9 @@ autocmd FileType ruby setlocal tabstop=2
 autocmd FileType coffee setlocal softtabstop=2
 autocmd FileType coffee setlocal shiftwidth=2
 autocmd FileType coffee setlocal tabstop=2
+autocmd FileType javascript setlocal softtabstop=2
+autocmd FileType javascript setlocal shiftwidth=2
+autocmd FileType javascript setlocal tabstop=2
 autocmd FileType mustache setlocal softtabstop=2
 autocmd FileType mustache setlocal shiftwidth=2
 autocmd FileType mustache setlocal tabstop=2
@@ -91,6 +95,7 @@ set noexpandtab
 autocmd FileType python setlocal expandtab
 autocmd FileType ruby setlocal expandtab
 autocmd FileType coffee setlocal expandtab
+autocmd FileType javascript setlocal expandtab
 autocmd FileType mustache setlocal expandtab
 
 "set compilers to check syntax
@@ -181,6 +186,7 @@ autocmd filetype TiddlyWiki set wrapmargin=0
 
 "fix spelling mistakes
 autocmd filetype javascript iabbrev retrun return
+autocmd filetype javascript iabbrev lenght length
 
 "set *.es6 = JavaScript
 autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
