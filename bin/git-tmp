@@ -19,7 +19,6 @@ if [[ $# -ne 0 ]]; then
 		fi
 	fi
 
-	GIT_EDITOR=true
-	git merge "$BRANCH"
+	git merge --no-edit "$BRANCH"
 	echo "Merged branch '$BRANCH' into 'tmp'"
 fi
