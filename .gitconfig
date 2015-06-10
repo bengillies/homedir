@@ -13,6 +13,7 @@
 	co = checkout
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
 	last = log --oneline -3
+	amend = commit --amend --no-edit
 
 [color]
 	branch = auto
@@ -31,3 +32,7 @@
 	keepBackup = false
 [push]
 	default = matching
+
+# use https instead of git when the git protocol is blocked by the firewall
+[url "https://github.com"]
+	insteadOf = git://github.com
