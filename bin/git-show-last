@@ -1,0 +1,1 @@
+git show `git last -1 | cut -d ' ' -f 1`
