@@ -665,6 +665,41 @@
 					ModifierFlag::OPTION_L, KeyCode::KEY_3,
 					ModifierFlag::OPTION_L, KeyCode::F17
 			</autogen>
+			<autogen>
+				--KeyToKey-- KeyCode::P, ModifierFlag::OPTION_R,
+					KeyCode::F17,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::BACKSLASH,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_2, ModifierFlag::OPTION_L,
+					KeyCode::KEY_8, ModifierFlag::OPTION_L,
+					KeyCode::KEY_3, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::C, ModifierFlag::OPTION_L,
+					KeyCode::KEY_4, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_2, ModifierFlag::OPTION_L,
+					KeyCode::KEY_9, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_5, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::SLASH,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::KEY_0, ModifierFlag::OPTION_L,
+					KeyCode::A, ModifierFlag::OPTION_L,
+					KeyCode::F, ModifierFlag::OPTION_L,
+					KeyCode::F17,
+			</autogen>
 		</item>
 	</item>
 </root>
