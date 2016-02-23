@@ -36,3 +36,6 @@
 # use https instead of git when the git protocol is blocked by the firewall
 [url "https://github.com"]
 	insteadOf = git://github.com
+
+[credential]
+	helper = osxkeychain
