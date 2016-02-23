@@ -79,7 +79,7 @@ syn match   es6Rest                     "\.\.\.\w*\>"
 syn match   es6Binary                   "-\=\<\d\+L\=\>\|0[b][01]\+\>"
 syn match   es6Octal                    "-\=\<\d\+L\=\>\|0[o][0-7]\+\>"
 syn match   es6Hex                      "-\=\<\d\+L\=\>\|0[x][0-9a-fA-F]\+\>"
-syn match   es6Declaration              +\<\w\+\>\s*=+he=e-1
+syn match   es6Declaration              +\<\w\+\>\s*=\s+he=e-2
 
 if exists("javaScript_fold")
     syn match	javaScriptFunction	"\<function\>"
