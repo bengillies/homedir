@@ -129,7 +129,7 @@ PATH=/usr/local/git/bin:$PATH
 PATH=/usr/local/mysql/bin:$PATH
 
 #add the android sdk
-PATH=/usr/local/android/tools:$PATH
+PATH=/usr/local/android/tools:~/Library/Android/sdk/tools:~/Library/android/sdk/platform-tools:$PATH
 
 #add Java 1.6
 PATH=/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/bin:$PATH
@@ -144,6 +144,10 @@ PATH=/usr/local/share/npm/bin:$PATH
 PATH=$HOME/.rbenv/bin:$PATH
 PATH=$HOME/.rbenv/versions/2.0.0-p481/bin:$PATH
 eval "$(rbenv init - -zsh --no-rehash)"
+
+#set up nvm paths
+export NVM_DIR="/Users/bengillies/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
