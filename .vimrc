@@ -25,7 +25,7 @@ Plugin 'groenewege/vim-less'
 Plugin 'nono/vim-handlebars'
 Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
-Plugin 'marijnh/tern_for_vim'
+Plugin 'ternjs/tern_for_vim'
 Plugin 'majutsushi/tagbar'
 
 "Bundles from https://github.com/vim-scripts
@@ -33,7 +33,6 @@ Bundle 'VimClojure'
 Bundle 'pydoc.vim'
 
 call vundle#end()
-
 
 "set less timeout to speed vim up
 set notimeout
@@ -111,7 +110,7 @@ autocmd FileType json vmap = :!jq .<CR>
 
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
-nmap <Leader>t :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; fi<CR>
+nmap <Leader>t :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; elif [ -e package.json ]; then npm run test --silent; fi<CR>
 nmap <Leader>m :!make<CR>
 
 "easy upload
@@ -231,6 +230,8 @@ runtime plugin/matchit.vim
 nmap \ :vsp<CR>
 nmap - :sp<CR>
 nmap <C-t> :tabnew<CR>
+nmap <C-n> :tabnext<CR>
+nmap <C-p> :tabprevious<CR>
 
 "unite.vim settings
 
@@ -238,7 +239,7 @@ nmap <C-t> :tabnew<CR>
 let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
 "use ag instead of find
-let g:unite_source_rec_async_command = 'ag --follow --nocolor --nogroup --hidden -g ""'
+let g:unite_source_rec_async_command = ['ag --follow --nocolor --nogroup --hidden -g ""']
 
 "use ag instead of grep
 let g:unite_source_grep_command = 'ag'
