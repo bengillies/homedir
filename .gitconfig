@@ -12,8 +12,10 @@
 	df = diff -w --word-diff=color
 	co = checkout
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
-	last = log --oneline -3
+	last = log --oneline -10
 	amend = commit --amend --no-edit
+	log-branch = log --oneline -10 master..
+
 
 [color]
 	branch = auto
