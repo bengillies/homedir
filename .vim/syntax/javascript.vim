@@ -79,7 +79,8 @@ syn match   es6Rest                     "\.\.\.\w*\>"
 syn match   es6Binary                   "-\=\<\d\+L\=\>\|0[b][01]\+\>"
 syn match   es6Octal                    "-\=\<\d\+L\=\>\|0[o][0-7]\+\>"
 syn match   es6Hex                      "-\=\<\d\+L\=\>\|0[x][0-9a-fA-F]\+\>"
-syn match   es6Declaration              +\<\w\+\>\s*=\s+he=e-2
+syn match   es6DeclarationSpaces        +\<\w\+\>\s*=\s+he=e-2
+syn match   es6DeclarationNoSpaces        +\<\w\+\>=+he=e-1
 
 if exists("javaScript_fold")
     syn match	javaScriptFunction	"\<function\>"
@@ -162,7 +163,8 @@ if version >= 508 || !exists("did_javascript_syn_inits")
   HiLink es6Octal                       es6Number
   HiLink es6Hex                         es6Number
   HiLink es6Number                      Number
-  HiLink es6Declaration                 Type
+  HiLink es6DeclarationSpaces           Type
+  HiLink es6DeclarationNoSpaces         Type
 
   delcommand HiLink
 endif
