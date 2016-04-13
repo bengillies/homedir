@@ -14,7 +14,7 @@
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
 	last = log --oneline -10
 	amend = commit --amend --no-edit
-	log-branch = log --oneline -10 master..
+	last-branch = log --oneline -10 master..
 
 
 [color]
