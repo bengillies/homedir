@@ -118,7 +118,7 @@ nmap <Leader>m :!make<CR>
 nmap <Leader>u :!make upload<CR><CR>
 
 "Show trailing whitepace and spaces before a tab:
-match ErrorMsg /\s\+$\| \+\ze\t/
+2match ErrorMsg '\s\+$\| \+\ze\t'
 
 "Do >80 column line indication
 if exists("+colorcolumn")
@@ -242,6 +242,9 @@ let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', '
 
 "use ag instead of find
 let g:unite_source_rec_async_command = ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', '']
+
+"increase the number of files that can be cached
+let g:unite_source_file_rec_max_cache_files = 200000
 
 "use ag instead of grep
 let g:unite_source_grep_command = 'ag'
