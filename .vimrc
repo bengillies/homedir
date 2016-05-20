@@ -12,6 +12,7 @@ Plugin 'Vundle.vim'
 Plugin 'gmarik/vundle.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/unite.vim'
+Plugin 'Shougo/neoyank.vim'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'tpope/vim-surround'
 Plugin 'bengillies/vim-slime'
@@ -235,11 +236,12 @@ nmap <C-p> :tabprevious<CR>
 
 "unite.vim settings
 
+
 "set of folders to ignore
 let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
 
 "use ag instead of find
-let g:unite_source_rec_async_command = ['ag --follow --nocolor --nogroup --hidden -g ""']
+let g:unite_source_rec_async_command = ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', '']
 
 "use ag instead of grep
 let g:unite_source_grep_command = 'ag'
