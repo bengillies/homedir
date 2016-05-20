@@ -1,5 +1,5 @@
 " Vim color file
-" Name: elrodeo
+" Name: elrodeo     
 " Maintainer: Christian Müller (@chmllr)
 " Version: 1.0
 "
@@ -14,7 +14,7 @@ endif
 
 let g:colors_name="elrodeo"
 
-" the nexz block is copied from the wombat theme:
+" the next block is copied from the wombat theme:
 " Vim >= 7.0 specific colors
 if version >= 700
 "  hi CursorLine ctermbg=59
@@ -24,6 +24,7 @@ if version >= 700
   hi Pmenu		ctermfg=230 ctermbg=59
   hi PmenuSel	ctermfg=16
 endif
+
 " General colors
 hi Normal		ctermfg=230
 hi Cursor		ctermfg=59
@@ -54,7 +55,7 @@ hi Conditional  ctermfg=72
 hi Boolean      ctermfg=114
 hi Delimiter    ctermfg=102
 hi Character    ctermfg=81
-hi Search       ctermfg=black ctermbg=72
+hi Search       ctermfg=white  ctermbg=66
 hi Visual       ctermbg=101
 
 " not used in Clojure (left as in wombat)
@@ -75,5 +76,6 @@ hi htmlTagName			ctermfg=79
 hi htmlSpecialTagName	ctermfg=79
 
 "Extra
-hi DiffDelete	ctermfg=15
-hi WarningMsg	ctermfg=red
+hi DiffDelete	 ctermfg=15
+hi WarningMsg	 ctermfg=red
+hi ErrorMsg    ctermbg=red   ctermfg=black
