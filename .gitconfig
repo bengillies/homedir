@@ -15,6 +15,7 @@
 	last = log --oneline -10
 	amend = commit --amend --no-edit
 	last-branch = log --oneline -10 master..
+	diff-branch = diff --color -w master..
 
 
 [color]
