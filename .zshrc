@@ -22,8 +22,17 @@ function happy_or_sad_or_ssh() {
 	fi
 }
 
+# current vi mode status (i.e. insert mode or command mode) or jobs or root (i.e. # or %)
+function command_mode_or_jobs() {
+	if [ "$VIMODE" == "M:command" ]; then
+		echo "✏️ "
+	else
+		echo " %(1j.%j.%#)"
+	fi
+}
+
 function precmd() {
-	PROMPT="$(happy_or_sad_or_ssh)  %{$GREEN%}%~%{$reset_color%} %(1j.%j.%#) "
+	PROMPT="$(happy_or_sad_or_ssh)  %{$GREEN%}%~%{$reset_color%} $(command_mode_or_jobs) "
 	RPROMPT="%{$BLUE%}$(ginfo)%{$reset_color%}"
 }
 #}}}
@@ -51,6 +60,17 @@ setopt EXTENDED_GLOB
 setopt VI
 export EDITOR=vim
 set -o vi
+
+# set VIMODE variable to M:command when in command mode
+function zle-line-init zle-keymap-select {
+	VIMODE="${${KEYMAP/vicmd/M:command}/(main|viins)/}"
+	precmd
+	zle reset-prompt
+}
+
+# load plugins
+zle -N zle-line-init
+zle -N zle-keymap-select
 #}}}
 
 # better array expansion
