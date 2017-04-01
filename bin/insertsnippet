@@ -1,0 +1,48 @@
+#!/bin/bash
+
+read -s -n1 key
+
+case $key in
+	h)
+		echo -e "\u261c" | pbcopy
+		;;
+	j)
+		echo -e "\u261f" | pbcopy
+		;;
+	k)
+		echo -e "\u261d" | pbcopy
+		;;
+	l)
+		echo -e "\u261e" | pbcopy
+		;;
+	8)
+		echo -e "\u2603" | pbcopy
+		;;
+	0)
+		echo -e "😀" | pbcopy
+		;;
+	9)
+		echo -e "☹️" | pbcopy
+		;;
+	\/)
+		echo -e "✅" | pbcopy
+		;;
+	x)
+		echo -e "❌" | pbcopy
+		;;
+	-)
+		echo "(╯°□°) ╯︵┻━┻" | pbcopy
+		;;
+	=)
+		echo "┬─┬◡ﾉ(° -°ﾉ)" | pbcopy
+		;;
+	p)
+		echo '¯\_(ツ)_/¯' | pbcopy
+		;;
+	P)
+		echo '¯\\\_(ツ)_/¯' | pbcopy
+		;;
+	o)
+		echo "ಠ_ಠ" | pbcopy
+		;;
+esac
