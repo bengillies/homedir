@@ -1,0 +1,61 @@
+{
+    /**
+     * See http://osxnotes.net/keybindings.html for more
+     /
+
+    "§" = {
+
+        /**
+         * syntax:
+         *
+         * "k" = {
+         *     "e" = {
+         *         "y" = ("insertText:", "replace text");
+         *     };
+         * };
+         */
+
+        /**
+         * Arrow Keys
+         */
+        "\UF700" = ("insertText:", "↑");
+        "\UF701" = ("insertText:", "↓");
+        "\UF702" = ("insertText:", "←");
+        "\UF703" = ("insertText:", "→");
+
+        /**
+         * Pointing hands
+         */
+        "h" = ("insertText:", "\U261C");
+        "j" = ("insertText:", "\U261F");
+        "k" = ("insertText:", "\U261D");
+        "l" = ("insertText:", "\U261E");
+
+        /**
+         * Unicode Snowman
+         */
+        "8" = ("insertText:", "\U2603");
+
+        /**
+         * Smiley face/sad face
+         */
+        "0" = ("insertText:", "😀");
+        "9" = ("insertText:", "☹️");
+
+        /**
+         * Tick/cross
+         */
+        "/" = ("insertText:", "✅");
+        "x" = ("insertText:", "❌");
+
+
+        /**
+         * Ascii art
+         */
+        "-" = ("insertText:", "(╯°□°) ╯︵┻━┻");
+        "=" = ("insertText:", "┬─┬◡ﾉ(° -°ﾉ)");
+        "p" = ("insertText:", "¯\_(ツ)_/¯");
+        "P" = ("insertText:", "¯\\\_(ツ)_/¯");
+        "o" = ("insertText:", "ಠ_ಠ");
+    };
+}
