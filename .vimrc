@@ -8,10 +8,11 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 "Vundled GitHub packages
-Plugin 'Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 Plugin 'gmarik/vundle.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/unite.vim'
+Plugin 'Shougo/denite.nvim'
 Plugin 'Shougo/neoyank.vim'
 Plugin 'vim-scripts/matchit.zip'
 Plugin 'tpope/vim-surround'
@@ -28,6 +29,8 @@ Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
 Plugin 'ternjs/tern_for_vim'
 Plugin 'majutsushi/tagbar'
+Plugin 'skywind3000/asyncrun.vim'
+Plugin 'vim-scripts/AnsiEsc.vim'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -234,75 +237,51 @@ nmap <C-t> :tabnew<CR>
 nmap <C-n> :tabnext<CR>
 nmap <C-p> :tabprevious<CR>
 
-"unite.vim settings
+"denite.nvim settings
 
+"ignore directories
+call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['.git/', 'node_modules/', 'build/', 'dist/', 'tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
+"increase cache
+call denite#custom#source('<', 'min_cache_files', 200000)
 
-"set of folders to ignore
-let s:unite_ignores = ['\.git', 'node_modules', 'build', 'dist', 'tmp', 'log', 'coverage', '\.node-mailer', '\.sass-cache', 'bower_components']
+"keymappings
+call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
+call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+call denite#custom#map('insert', '<C-d>', '<denite:scroll_window_downwards>', 'noremap')
+call denite#custom#map('insert', '<C-u>', '<denite:scroll_window_upwards>', 'noremap')
+call denite#custom#map('insert', '<C-t>', '<denite:do_action:tabopen>', 'noremap')
+call denite#custom#map('insert', '<C-l>', '<denite:redraw>', 'noremap')
 
-"use ag instead of find
-let g:unite_source_rec_async_command = ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', '']
+"use ag to search with
+call denite#custom#var('file_rec', 'command', ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', ''])
+call denite#custom#source('file_rec', 'matchers', ['matcher_fuzzy', 'matcher_ignore_globs'])
 
-"increase the number of files that can be cached
-let g:unite_source_file_rec_max_cache_files = 200000
+"use ag to grep
+call denite#custom#var('grep', 'command', ['ag'])
 
-"use ag instead of grep
-let g:unite_source_grep_command = 'ag'
+"command shortcuts
 
-"default ag grep options
-let g:unite_source_grep_default_opts = ' --follow --nocolor --nogroup --hidden'
-let g:unite_source_grep_recursive_opt = ''
-
-call unite#custom#source('file_rec,file_rec/async,grep',
-	\ 'ignore_pattern', unite#get_all_sources('file_rec/async')['ignore_pattern'] .
-	\ join(s:unite_ignores, '\|'))
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-let g:unite_cursor_line_highlight = 'Visual'
-
-"file drawer
+"legacy unite file drawer
 noremap <F2> :Unite -no-split file<CR>
 noremap <F3> :UniteWithBufferDir -no-split file<CR>
 
-"file search
-nnoremap <silent> <space>f :Unite -no-split -start-insert file_rec/async:!<CR>
-nnoremap <silent> <Leader>f :Unite -no-split -start-insert file_rec/async:!<CR>
+"file search from base dir
+nnoremap <silent> <space>f :Denite file_rec<CR>
+nnoremap <silent> <Leader>f :Denite file_rec<CR>
+"file search from current dir
+nnoremap <silent> <space>F :DeniteBufferDir file_rec<CR>
+nnoremap <silent> <Leader>F :DeniteBufferDir file_rec<CR>
+"grep across files
+nnoremap <silent> <space>g :Denite grep<CR>
+"grep for word inside file
+nnoremap <silent> * :DeniteCursorWord line<CR>
+"yank search (with neoyank)
+nnoremap <silent> <space>y :Denite neoyank<CR>
+"buffer search
+nnoremap <silent> <space>b :Denite buffer<CR>
+nnoremap <silent> <Leader>b :Denite buffer<CR>
 
-"file grep
-nnoremap <silent> <space>g :Unite -no-split grep:.<CR>
-
-"yank search
-let g:unite_source_history_yank_enable = 1
-nnoremap <silent> <space>y :Unite -no-split -quick-match history/yank<CR>
-
-"buffer switch
-nnoremap <silent> <space>b :Unite -no-split -quick-match buffer<CR>
-nnoremap <silent> <Leader>b :Unite -no-split -quick-match buffer<CR>
-
-"Custom mappings for the unite buffer
-autocmd FileType unite call s:unite_settings()
-function! s:unite_settings()
-	"Enable navigation with control-j and control-k in insert mode
-	imap <buffer> <C-j>   <Plug>(unite_select_next_line)
-	imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
-
-	"Exit Unite (at least, back up one level)
-	nmap <buffer> <C-g>   <Plug>(unite_exit)
-	imap <buffer> <C-g>   <Plug>(unite_exit)
-
-	"Open in split/vsplit/tab
-	nmap <silent><buffer><expr> <C-v>  unite#do_action('vsplit')
-	imap <silent><buffer><expr> <C-v>  unite#do_action('vsplit')
-	nmap <silent><buffer><expr> <C-i>  unite#do_action('split')
-	imap <silent><buffer><expr> <C-i>  unite#do_action('split')
-	nmap <silent><buffer><expr> <C-t>  unite#do_action('tabopen')
-	imap <silent><buffer><expr> <C-t>  unite#do_action('tabopen')
-endfunction
-
-"setup Command-T to use <Leader>f (cos 't' means test)
-"nnoremap <silent> <Leader>f :CommandT<CR>
-
-"setup Command-T to open files in split screen with C-i (like in NERDTree)
-"let g:CommandTAcceptSelectionSplitMap=['<C-o>']
+"end denite.nvim settings
 
 "add a status line
 set laststatus=2
