@@ -275,6 +275,8 @@ nnoremap <silent> <Leader>F :DeniteBufferDir file_rec<CR>
 nnoremap <silent> <space>g :Denite grep<CR>
 "grep for word inside file
 nnoremap <silent> * :DeniteCursorWord line<CR>
+"grep for search term inside file
+nnoremap <silent> <Leader>* :Denite line -input=<C-r>/<CR>
 "yank search (with neoyank)
 nnoremap <silent> <space>y :Denite neoyank<CR>
 "buffer search
