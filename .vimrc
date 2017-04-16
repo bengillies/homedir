@@ -210,11 +210,6 @@ cmap w!! w !sudo tee % > /dev/null
 "clear highlighted searches
 nmap <silent> <Leader>/ :let @/=""<CR>
 
-
-"copy/paste contents of file to/from the clipboard
-map <silent> <Leader>y :w !pbcopy<CR><CR>
-map <silent> <Leader>p "*p
-
 "easier navigation around windows (handled by vim-tmux-navigator)
 " noremap <C-h> <C-w>h
 " noremap <C-j> <C-w>j
@@ -258,6 +253,11 @@ call denite#custom#source('file_rec', 'matchers', ['matcher_fuzzy', 'matcher_ign
 
 "use ag to grep
 call denite#custom#var('grep', 'command', ['ag'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
+call denite#custom#var('grep', 'recursive_opts', [])
+call denite#custom#var('grep', 'pattern_opt', [])
+call denite#custom#var('grep', 'separator', ['--'])
+call denite#custom#var('grep', 'final_opts', [])
 
 "command shortcuts
 
@@ -273,11 +273,13 @@ nnoremap <silent> <space>F :DeniteBufferDir file_rec<CR>
 nnoremap <silent> <Leader>F :DeniteBufferDir file_rec<CR>
 "grep across files
 nnoremap <silent> <space>g :Denite grep<CR>
+nnoremap <silent> <Leader>g :Denite grep<CR>
 "grep for word inside file
-nnoremap <silent> * :DeniteCursorWord line<CR>
+nnoremap <silent> <Leader><Leader> :DeniteCursorWord line<CR>
 "grep for search term inside file
 nnoremap <silent> <Leader>* :Denite line -input=<C-r>/<CR>
 "yank search (with neoyank)
+nnoremap <silent> <Leader>y :Denite neoyank<CR>
 nnoremap <silent> <space>y :Denite neoyank<CR>
 "buffer search
 nnoremap <silent> <space>b :Denite buffer<CR>
