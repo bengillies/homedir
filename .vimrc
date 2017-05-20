@@ -259,6 +259,9 @@ call denite#custom#var('grep', 'pattern_opt', [])
 call denite#custom#var('grep', 'separator', ['--'])
 call denite#custom#var('grep', 'final_opts', [])
 
+"use jsctags to outline with javascript
+autocmd filetype javascript call denite#custom#var('outline', 'command', ['js-vim-tags'])
+
 "command shortcuts
 
 "legacy unite file drawer

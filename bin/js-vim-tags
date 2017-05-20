@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Use this on JS files with Denite.nvim :Denite outline
+
+OUTFILE=$2
+
+
+jsctags -f - "${!#}" | perl -pe 'chomp if eof' > $OUTFILE
