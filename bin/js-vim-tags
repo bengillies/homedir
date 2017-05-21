@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Use this on JS files with Denite.nvim :Denite outline
 
+#TODO: specify the exact line number to jump to
+
 OUTFILE=$2
+FILE="${!#}"
 
 
-jsctags -f - "${!#}" | perl -pe 'chomp if eof' > $OUTFILE
+jsctags $FILE | jq -r '.[] | (if (.namespace) then (.namespace + "#") else "" end) + .name + "	" + .tagfile + "	" + .addr + ";\"	" + .kind + "	type:" + (.type // "unknown")' | perl -pe "chomp if eof" > $OUTFILE

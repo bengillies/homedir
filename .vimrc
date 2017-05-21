@@ -197,8 +197,9 @@ autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
-"Map tagbar to <F7>
-noremap <F7> :TagbarToggle<CR>
+"TODO: remove if denite works better
+"Map tagbar to <F7> (disabled in favour of denite)
+"noremap <F7> :TagbarToggle<CR>
 
 "set JS jump to definition to use ternjs
 autocmd filetype javascript nmap <silent> gd :TernDef<CR>
@@ -287,6 +288,8 @@ nnoremap <silent> <space>y :Denite neoyank<CR>
 "buffer search
 nnoremap <silent> <space>b :Denite buffer<CR>
 nnoremap <silent> <Leader>b :Denite buffer<CR>
+"outline current file
+nnoremap <silent> <F7> :Denite outline<CR>
 
 "end denite.nvim settings
 
