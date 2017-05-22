@@ -1,10 +1,28 @@
 #!/usr/bin/env bash
+# Generate better tagfiles for JS
 # Use this on JS files with Denite.nvim :Denite outline
-
-#TODO: specify the exact line number to jump to
 
 OUTFILE=$2
 FILE="${!#}"
 
+##
+# Custom tag file format using jq:
+#
+# jsctags reports namespace, variable name, file, line number, regex address, kind and type.
+#
+# tagfiles expect:
+#
+# name	file	address;"	type	key:value	key:value	...
+#
+# Build a tag file that looks like:
+#
+# namespace#name	file	/\%linenumberlregex address/;"	kind	type:type
+#
+# e.g.:
+#
+# MyClass.prototype#render	foo.js	/\%300lrender/;"	f	type:void function()
+#
+# where /\%300lrender/ is vim/ex code for: go to line 300, search for the pattern
+# "render" and place the cursor at the start of it
 
-jsctags $FILE | jq -r '.[] | (if (.namespace) then (.namespace + "#") else "" end) + .name + "	" + .tagfile + "	" + .addr + ";\"	" + .kind + "	type:" + (.type // "unknown")' | perl -pe "chomp if eof" > $OUTFILE
+jsctags $FILE | jq -r '.[] | (if (.namespace) then (.namespace + "#") else "" end) + .name + "	" + .tagfile + "	\/\\%" + (.lineno | tostring) + "l" + (.addr | sub("\/"; "")) + ";\"	" + .kind + "	type:" + (.type // "unknown")' | perl -pe "chomp if eof" > $OUTFILE
