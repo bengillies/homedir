@@ -1,0 +1,62 @@
+{
+    "title": "Custom modifications",
+    "rules": [
+        {
+            "description": "Bring up iTerm2 (§) from within VirtualBox",
+            "manipulators": [
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "f20"
+                    },
+                    "to": [
+                        {
+                            "key_code": "left_command"
+                        },
+                        {
+                            "key_code": "f20"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "description": "Caps lock to control, § <-> right alt swap",
+            "manipulators": [
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "caps_lock"
+                    },
+                    "to": [
+                        {
+                            "key_code": "left_control"
+                        }
+                    ]
+                },
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "non_us_backslash"
+                    },
+                    "to": [
+                        {
+                            "key_code": "f20"
+                        }
+                    ]
+                },
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "right_option"
+                    },
+                    "to": [
+                        {
+                            "key_code": "non_us_backslash"
+                        }
+                    ]
+                },
+            ]
+        }
+    ]
+}
