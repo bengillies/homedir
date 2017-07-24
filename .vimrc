@@ -28,7 +28,6 @@ Plugin 'nono/vim-handlebars'
 Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
 Plugin 'ternjs/tern_for_vim'
-Plugin 'majutsushi/tagbar'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
 
@@ -197,10 +196,6 @@ autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
-"TODO: remove if denite works better
-"Map tagbar to <F7> (disabled in favour of denite)
-"noremap <F7> :TagbarToggle<CR>
-
 "set JS jump to definition to use ternjs
 autocmd filetype javascript nmap <silent> gd :TernDef<CR>
 autocmd filetype javascript nmap <silent> gD :TernDef<CR>
@@ -293,8 +288,27 @@ nnoremap <silent> <F7> :Denite outline<CR>
 
 "end denite.nvim settings
 
+"start airline settings
+
 "add a status line
 set laststatus=2
+
+"tell airline to use fancy font rendering
+let g:airline_powerline_fonts = 1
+
+"customise the statusline
+"a=mode
+"b=branch
+"c=filename
+"x=tag + filetype
+"y=file encoding
+"z=percentage + line number
+let g:airline#extensions#default#layout = [
+  \ [ 'a', 'c' ],
+  \ [ 'x', 'error', 'warning' ]
+\ ]
+
+"end airline settings
 
 "set 8 colors
 "set t_Co=8
@@ -324,9 +338,6 @@ let g:slime_target = "tmux"
 
 "remove slime default key mappings
 let g:slime_no_mappings = 1
-
-"tell Airline to use fance font rendering
-let g:airline_powerline_fonts = 1
 
 "make sure term is set to screen-256color
 set term=screen-256color
