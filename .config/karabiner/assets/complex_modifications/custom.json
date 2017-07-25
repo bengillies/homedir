@@ -21,7 +21,7 @@
             ]
         },
         {
-            "description": "Caps lock to control, § <-> right alt swap",
+            "description": "Caps lock to control, § <-> right alt swap (if pressed on own)",
             "manipulators": [
                 {
                     "type": "basic",
@@ -52,10 +52,96 @@
                     },
                     "to": [
                         {
+                            "key_code": "right_option"
+                        }
+                    ],
+                    "to_if_alone": [
+                        {
                             "key_code": "non_us_backslash"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "description": "Emoji finger pointers",
+            "manipulators": [
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "h",
+                        "modifiers": {
+                            "mandatory": [
+                                "right_command"
+                            ]
+                        }
+                    },
+                    "to": [
+                        { "key_code": "f17" },
+                        { "key_code": "2", "modifiers": ["left_option"] },
+                        { "key_code": "6", "modifiers": ["left_option"] },
+                        { "key_code": "1", "modifiers": ["left_option"] },
+                        { "key_code": "c", "modifiers": ["left_option"] },
+                        { "key_code": "f17" }
+                    ]
                 },
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "j",
+                        "modifiers": {
+                            "mandatory": [
+                                "right_command"
+                            ]
+                        }
+                    },
+                    "to": [
+                        { "key_code": "f17" },
+                        { "key_code": "2", "modifiers": ["left_option"] },
+                        { "key_code": "6", "modifiers": ["left_option"] },
+                        { "key_code": "1", "modifiers": ["left_option"] },
+                        { "key_code": "f", "modifiers": ["left_option"] },
+                        { "key_code": "f17" }
+                    ]
+                },
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "k",
+                        "modifiers": {
+                            "mandatory": [
+                                "right_command"
+                            ]
+                        }
+                    },
+                    "to": [
+                        { "key_code": "f17" },
+                        { "key_code": "2", "modifiers": ["left_option"] },
+                        { "key_code": "6", "modifiers": ["left_option"] },
+                        { "key_code": "1", "modifiers": ["left_option"] },
+                        { "key_code": "d", "modifiers": ["left_option"] },
+                        { "key_code": "f17" }
+                    ]
+                },
+                {
+                    "type": "basic",
+                    "from": {
+                        "key_code": "l",
+                        "modifiers": {
+                            "mandatory": [
+                                "right_command"
+                            ]
+                        }
+                    },
+                    "to": [
+                        { "key_code": "f17" },
+                        { "key_code": "2", "modifiers": ["left_option"] },
+                        { "key_code": "6", "modifiers": ["left_option"] },
+                        { "key_code": "1", "modifiers": ["left_option"] },
+                        { "key_code": "e", "modifiers": ["left_option"] },
+                        { "key_code": "f17" }
+                    ]
+                }
             ]
         }
     ]
