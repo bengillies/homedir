@@ -233,7 +233,7 @@ nmap <C-p> :tabprevious<CR>
 "ignore directories
 call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['.git/', 'node_modules/', 'build/', 'dist/', 'tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
 "increase cache
-call denite#custom#source('<', 'min_cache_files', 200000)
+call denite#custom#var('<', 'min_cache_files', 200000)
 
 "keymappings
 call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')

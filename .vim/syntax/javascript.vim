@@ -64,14 +64,14 @@ syn keyword javaScriptMember		document event location
 syn keyword javaScriptDeprecated	escape unescape
 syn keyword javaScriptReserved		abstract boolean byte char class const debugger double enum export extends final float goto implements import int interface long native package private protected public short static super synchronized throws transient volatile 
 
-syn keyword es6Function                 get set
+syn keyword es6Function                 get set async
 syn match   es6Function                 "=>"
 syn match   es6CustomType               "\<[A-Z]\w*\>"
 syn keyword es6BuiltInType              Array Boolean Date Function Number Object String RegExp Map WeakMap Promise Math Proxy Set WeakSet Symbol System Error TypeError ReferenceError SyntaxError
 syn keyword es6Identifier               const
 syn keyword es6Repeat                   of
 syn keyword es6Special                  __proto__ toString toValue constructor
-syn keyword es6Reserved                 yield from
+syn keyword es6Reserved                 yield from await
 syn region  es6TemplateVar              start="${" end="}" contained
 syn region  es6Template                 start="`" end="`" contains=es6TemplateVar
 syn match   es6Rest                     "\.\.\."
