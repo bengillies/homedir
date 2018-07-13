@@ -24,7 +24,7 @@ function happy_or_sad_or_ssh() {
 
 # current vi mode status (i.e. insert mode or command mode) or jobs or root (i.e. # or %)
 function command_mode_or_jobs() {
-	if [ "$VIMODE" == "M:command" ]; then
+	if [ "$VIMODE" '==' "M:command" ]; then
 		echo "✏️ "
 	else
 		echo " %(1j.%j.%#)"
