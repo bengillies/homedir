@@ -285,6 +285,8 @@ nnoremap <silent> <space>b :Denite buffer<CR>
 nnoremap <silent> <Leader>b :Denite buffer<CR>
 "outline current file
 nnoremap <silent> <F7> :Denite outline<CR>
+"new file in current file directory
+nnoremap <silent> <Leader>o :DeniteBufferDir file:new<CR>
 
 "end denite.nvim settings
 
