@@ -3,7 +3,7 @@
 	email = bengillies@gmail.com
 
 [core]
-	excludesfile = /Users/bengillies/.gitignore
+	excludesfile = /Users/ben_gillies/.gitignore
 	pager = less -r
 
 [alias]
