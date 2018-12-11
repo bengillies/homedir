@@ -166,8 +166,8 @@ PATH=$HOME/.rbenv/versions/2.0.0-p481/bin:$PATH
 eval "$(rbenv init - -zsh --no-rehash)"
 
 #set up nvm paths
-export NVM_DIR="/Users/bengillies/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+export NVM_DIR="$HOME/.nvm"
+  . "/usr/local/opt/nvm/nvm.sh"
 
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
