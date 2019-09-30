@@ -249,7 +249,7 @@ call denite#custom#source('file_rec', 'matchers', ['matcher_fuzzy', 'matcher_ign
 
 "use ag to grep
 call denite#custom#var('grep', 'command', ['ag'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--ignore', '.git/', '--ignore', 'node_modules/', '--ignore', 'build/', '--ignore', 'dist/', '--ignore', 'tmp/', '--ignore', 'log/', '--ignore', 'coverage/', '--ignore', '.node-mailer', '--ignore', '.sass-cache/', '--ignore', 'bower_components/', '--ignore', '.happypack/'])
 call denite#custom#var('grep', 'recursive_opts', [])
 call denite#custom#var('grep', 'pattern_opt', [])
 call denite#custom#var('grep', 'separator', ['--'])
