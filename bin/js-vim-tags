@@ -20,9 +20,9 @@ FILE="${!#}"
 #
 # e.g.:
 #
-# MyClass#render	foo.js	/\%300lrender/;"	fn	type:fn()
+# MyClass::render	foo.js	300;"	fn	type:fn()
 #
-# where /\%300lrender/ is vim/ex code for: go to line 300, search for the pattern
+# where 300;" is vim/ex code for: go to line 300, search for the pattern
 # "render" and place the cursor at the start of it
 
-jsctags $FILE | sed -E 's/!(data|type)/\1/g' | jq -r '.[] | select(has("namespace") and .kind == "v" | not) | (if (.namespace) then ((.namespace | rtrimstr(".prototype")) + "#") else "" end) + .name + "	" + .tagfile + "	\/\\%" + (.lineno | tostring) + "l" + (.addr | sub("\/"; "")) + ";\"	" + (if (.kind == "v") then "var" else (if (.kind == "f") then "fn" else .kind end) end) + "	type:" + (if (.origin.type) then (.origin.type) else (if (.type) then (.type) else (if (.origin.data.type) then (.origin.data.type | rtrimstr(".prototype")) else "unknown" end) end) end)' | egrep -Ev 'type:unknown$' | perl -pe "chomp if eof" > $OUTFILE
+jsctags $FILE | sed -E 's/!(data|type)/\1/g' | jq -r '.[] | select(has("namespace") and .kind == "v" | not) | (if (.namespace) then ((.namespace | rtrimstr(".prototype")) + "::") else "" end) + .name + "	" + .tagfile + "	" + (.lineno | tostring) + ";\"	" + (if (.kind == "v") then "var" else (if (.kind == "f") then "fn" else .kind end) end) + "	type:" + (if (.origin.type) then (.origin.type) else (if (.type) then (.type) else (if (.origin.data.type) then (.origin.data.type | rtrimstr(".prototype")) else "unknown" end) end) end)' | egrep -Ev 'type:unknown$' | perl -pe "chomp if eof" > $OUTFILE
