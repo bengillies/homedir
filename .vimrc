@@ -241,7 +241,7 @@ function! s:denite_list_settings() abort
   nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
   nnoremap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
   nnoremap <silent><buffer><expr> <C-l> denite#do_map('redraw')
-  nnoremap <silent><buffer><expr> <C-u> denite#do_map('move_up_path')
+  nnoremap <silent><buffer><expr> <Leader>. denite#do_map('move_up_path')
 endfunction
 
 "denite insert mode keymappings
@@ -295,7 +295,7 @@ nnoremap <silent> <Leader>g :Denite -start-filter grep<CR>
 "grep for word inside file
 nnoremap <silent> <Leader><Leader> :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b<CR>
 "grep for search term inside file
-nnoremap <silent> <Leader>* :Denite -start-filter line -input=<C-r>/<CR>
+nnoremap <silent> <Leader>* :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b grep:::<C-r>=expand("<cword>")<CR><CR>
 "yank search (with neoyank)
 nnoremap <silent> <Leader>y :Denite neoyank<CR>
 nnoremap <silent> <space>y :Denite neoyank<CR>
