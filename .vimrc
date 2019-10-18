@@ -11,7 +11,6 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'gmarik/vundle.vim'
 Plugin 'Shougo/vimproc.vim'
-Plugin 'Shougo/unite.vim'
 Plugin 'Shougo/denite.nvim'
 Plugin 'Shougo/neoyank.vim'
 Plugin 'vim-scripts/matchit.zip'
@@ -30,6 +29,8 @@ Plugin 'conormcd/matchindent.vim'
 Plugin 'ternjs/tern_for_vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
+Plugin 'roxma/nvim-yarp'
+Plugin 'roxma/vim-hug-neovim-rpc'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -230,22 +231,44 @@ nmap <C-p> :tabprevious<CR>
 
 "denite.nvim settings
 
+"denite buffer keymappings
+autocmd FileType denite call s:denite_list_settings()
+function! s:denite_list_settings() abort
+  nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+  nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+  nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+  nnoremap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
+  nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+  nnoremap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
+  nnoremap <silent><buffer><expr> <C-l> denite#do_map('redraw')
+  nnoremap <silent><buffer><expr> <Leader>. denite#do_map('move_up_path')
+endfunction
+
+"denite insert mode keymappings
+autocmd FileType denite-filter call s:denite_insert_settings()
+function! s:denite_insert_settings() abort
+  nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+  imap <silent><buffer> <Esc> <Plug>(denite_filter_quit)
+  imap <silent><buffer> <C-j> <C-c><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
+  imap <silent><buffer> <C-k> <C-c><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
+  imap <silent><buffer> <C-d> <C-c><C-w>p:call cursor(line('.')+15,0)<CR><C-w>pA
+  imap <silent><buffer> <C-u> <C-c><C-w>p:call cursor(line('.')-15,0)<CR><C-w>pA
+
+  imap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
+  imap <silent><buffer><expr> <CR> denite#do_map('do_action')
+  imap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
+  imap <silent><buffer><expr> <C-l> denite#do_map('redraw')
+endfunction
+
 "ignore directories
-call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['.git/', 'node_modules/', 'build/', 'dist/', 'tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
+call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['*.swp', '*.swo', '.git/', 'node_modules/', 'build/', 'dist/', 'tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
 "increase cache
 call denite#custom#var('<', 'min_cache_files', 200000)
-
-"keymappings
-call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
-call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
-call denite#custom#map('insert', '<C-d>', '<denite:scroll_window_downwards>', 'noremap')
-call denite#custom#map('insert', '<C-u>', '<denite:scroll_window_upwards>', 'noremap')
-call denite#custom#map('insert', '<C-t>', '<denite:do_action:tabopen>', 'noremap')
-call denite#custom#map('insert', '<C-l>', '<denite:redraw>', 'noremap')
+call denite#custom#option('_', 'max_dynamic_update_candidates', 200000)
 
 "use ag to search with
-call denite#custom#var('file_rec', 'command', ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', ''])
-call denite#custom#source('file_rec', 'matchers', ['matcher_fuzzy', 'matcher_ignore_globs'])
+call denite#custom#var('file/rec', 'command', ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', ''])
+call denite#custom#source('file/rec', 'matchers', ['matcher_fuzzy', 'matcher_ignore_globs'])
 
 "use ag to grep
 call denite#custom#var('grep', 'command', ['ag'])
@@ -260,23 +283,19 @@ autocmd filetype javascript call denite#custom#var('outline', 'command', ['js-vi
 
 "command shortcuts
 
-"legacy unite file drawer
-noremap <F2> :Unite -no-split file<CR>
-noremap <F3> :UniteWithBufferDir -no-split file<CR>
-
 "file search from base dir
-nnoremap <silent> <space>f :Denite file_rec<CR>
-nnoremap <silent> <Leader>f :Denite file_rec<CR>
+nnoremap <silent> <space>f :Denite -start-filter file/rec<CR>
+nnoremap <silent> <Leader>f :Denite -start-filter file/rec<CR>
 "file search from current dir
-nnoremap <silent> <space>F :DeniteBufferDir file_rec<CR>
-nnoremap <silent> <Leader>F :DeniteBufferDir file_rec<CR>
+nnoremap <silent> <space>F :DeniteBufferDir -start-filter file/rec<CR>
+nnoremap <silent> <Leader>F :DeniteBufferDir -start-filter file/rec<CR>
 "grep across files
-nnoremap <silent> <space>g :Denite grep<CR>
-nnoremap <silent> <Leader>g :Denite grep<CR>
+nnoremap <silent> <space>g :Denite -start-filter grep<CR>
+nnoremap <silent> <Leader>g :Denite -start-filter grep<CR>
 "grep for word inside file
-nnoremap <silent> <Leader><Leader> :DeniteCursorWord line<CR>
+nnoremap <silent> <Leader><Leader> :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b<CR>
 "grep for search term inside file
-nnoremap <silent> <Leader>* :Denite line -input=<C-r>/<CR>
+nnoremap <silent> <Leader>* :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b grep:::<C-r>=expand("<cword>")<CR><CR>
 "yank search (with neoyank)
 nnoremap <silent> <Leader>y :Denite neoyank<CR>
 nnoremap <silent> <space>y :Denite neoyank<CR>
@@ -286,7 +305,7 @@ nnoremap <silent> <Leader>b :Denite buffer<CR>
 "outline current file
 nnoremap <silent> <F7> :Denite outline<CR>
 "new file in current file directory
-nnoremap <silent> <Leader>o :DeniteBufferDir file:new<CR>
+nnoremap <silent> <Leader>o :DeniteBufferDir -start-input file:new<CR>
 
 "end denite.nvim settings
 
