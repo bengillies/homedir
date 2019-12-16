@@ -10,15 +10,10 @@ BLUE=$'\033\[38;5;117m'
 
 # prev_cmd_status pwd                                               gitbranch[status]
 function happy_or_sad_or_ssh() {
-	ret_code=$?
 	if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
 		echo 👽
 	else
-		if [ $ret_code -eq 0 -o $ret_code -eq 18 ]; then # 18 == ctrl-z
-			echo 😃
-		else
-			echo 😡
-		fi
+		echo "%(?.😃.😡)"
 	fi
 }
 
