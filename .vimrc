@@ -261,7 +261,7 @@ function! s:denite_insert_settings() abort
 endfunction
 
 "ignore directories
-call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['*.swp', '*.swo', '.git/', 'node_modules/', 'build/', 'dist/', 'tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
+call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['*.swp', '*.swo', '.git/', 'node_modules/', 'build/', 'dist/', './tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
 "increase cache
 call denite#custom#var('<', 'min_cache_files', 200000)
 call denite#custom#option('_', 'max_dynamic_update_candidates', 200000)
@@ -272,7 +272,7 @@ call denite#custom#source('file/rec', 'matchers', ['matcher_fuzzy', 'matcher_ign
 
 "use ag to grep
 call denite#custom#var('grep', 'command', ['ag'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--ignore', '.git/', '--ignore', 'node_modules/', '--ignore', 'build/', '--ignore', 'dist/', '--ignore', 'tmp/', '--ignore', 'log/', '--ignore', 'coverage/', '--ignore', '.node-mailer', '--ignore', '.sass-cache/', '--ignore', 'bower_components/', '--ignore', '.happypack/'])
+call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--ignore', '.git/', '--ignore', 'node_modules/', '--ignore', 'build/', '--ignore', 'dist/', '--ignore', './tmp/', '--ignore', 'log/', '--ignore', 'coverage/', '--ignore', '.node-mailer', '--ignore', '.sass-cache/', '--ignore', 'bower_components/', '--ignore', '.happypack/'])
 call denite#custom#var('grep', 'recursive_opts', [])
 call denite#custom#var('grep', 'pattern_opt', [])
 call denite#custom#var('grep', 'separator', ['--'])
@@ -305,7 +305,7 @@ nnoremap <silent> <Leader>b :Denite buffer<CR>
 "outline current file
 nnoremap <silent> <F7> :Denite outline<CR>
 "new file in current file directory
-nnoremap <silent> <Leader>o :DeniteBufferDir -start-input file:new<CR>
+nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 
 "end denite.nvim settings
 

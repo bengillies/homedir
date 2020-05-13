@@ -113,7 +113,7 @@ alias lein='nocorrect lein'
 alias g='git'
 
 #manually specify unicorn startup
-alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
+#alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
 #}}}
 
 #{{{ Folder locations
@@ -139,6 +139,9 @@ PATH=/usr/local/bin:/usr/sbin:$PATH
 
 #add git
 PATH=/usr/local/git/bin:$PATH
+
+#add modern python
+PATH=/usr/local/opt/python@3.8/bin:$PATH
 
 #add mysql
 PATH=/usr/local/mysql/bin:$PATH
@@ -173,5 +176,5 @@ export PATH
 #start tmux (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
 	echo "connecting to tmux..."
-	tmux attach
+	tmux attach-session
 fi
