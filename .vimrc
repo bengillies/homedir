@@ -111,9 +111,14 @@ autocmd BufNewFile,BufRead *.json set filetype=json
 autocmd BufNewFile,BufRead *.json set syntax=javascript
 autocmd FileType json vmap = :!jq .<CR>
 
+" force javascriptreact files to be javascript (at least, until I fix up the
+" default javascriptreact mode to be more like my custom javascript one
+autocmd BufNewFile,BufRead *.jsx set filetype=javascript
+
 "set up easy testing and linting
 nmap <Leader>l :make<CR><CR>:copen<CR>
 nmap <Leader>t :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; elif [ -e package.json ]; then npm run test --silent; fi<CR>
+nmap <Leader>T :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; elif [ -e package.json ]; then npm run test --silent -- %; fi<CR>
 nmap <Leader>m :!make<CR>
 
 "easy upload
