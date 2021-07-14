@@ -249,7 +249,7 @@ endfunction
 autocmd FileType denite-filter call s:denite_insert_settings()
 function! s:denite_insert_settings() abort
   nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-  imap <silent><buffer> <Esc> <Plug>(denite_filter_quit)
+  imap <silent><buffer> <Esc> <Plug>(denite_filter_update)
   imap <silent><buffer> <C-j> <C-c><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
   imap <silent><buffer> <C-k> <C-c><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
   imap <silent><buffer> <C-d> <C-c><C-w>p:call cursor(line('.')+15,0)<CR><C-w>pA
