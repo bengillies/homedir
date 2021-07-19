@@ -271,6 +271,9 @@ call denite#custom#option('_', 'max_dynamic_update_candidates', 200000)
 call denite#custom#var('file/rec', 'command', ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', ''])
 call denite#custom#source('file/rec', 'matchers', ['matcher_fuzzy', 'matcher_ignore_globs'])
 
+"ensure we can highlight matches properly
+call denite#custom#source('line', 'matchers', ['matcher/regexp'])
+
 "use ag to grep
 call denite#custom#var('grep', 'command', ['ag'])
 call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--ignore', '.git/', '--ignore', 'node_modules/', '--ignore', 'build/', '--ignore', 'dist/', '--ignore', './tmp/', '--ignore', 'log/', '--ignore', 'coverage/', '--ignore', '.node-mailer', '--ignore', '.sass-cache/', '--ignore', 'bower_components/', '--ignore', '.happypack/'])
@@ -281,6 +284,7 @@ call denite#custom#var('grep', 'final_opts', [])
 
 "use jsctags to outline with javascript
 autocmd filetype javascript call denite#custom#var('outline', 'command', ['js-vim-tags'])
+
 
 "command shortcuts
 
@@ -293,10 +297,9 @@ nnoremap <silent> <Leader>F :DeniteBufferDir -start-filter file/rec<CR>
 "grep across files
 nnoremap <silent> <space>g :Denite -start-filter grep<CR>
 nnoremap <silent> <Leader>g :Denite -start-filter grep<CR>
-"grep for word inside file
+"grep for word or highlight inside file (word under cursor in normal mode, selection in visual mode)
 nnoremap <silent> <Leader><Leader> :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b<CR>
-"grep for search term inside file
-nnoremap <silent> <Leader>* :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b grep:::<C-r>=expand("<cword>")<CR><CR>
+vnoremap <silent> <Leader><Leader> "uy:Denite line -input=<C-r>=escape(escape(getreg("u"), '^$.*?\[]() '), '\"' . "'")<CR><CR>
 "yank search (with neoyank)
 nnoremap <silent> <Leader>y :Denite neoyank<CR>
 nnoremap <silent> <space>y :Denite neoyank<CR>
