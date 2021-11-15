@@ -17,19 +17,21 @@ Plugin 'tpope/vim-surround'
 Plugin 'bengillies/vim-slime'
 Plugin 'bling/vim-airline'
 Plugin 'ap/vim-css-color'
-Plugin 'kchmck/vim-coffee-script'
-Plugin 'juvenn/mustache.vim'
-Plugin 'tpope/vim-haml'
-Plugin 'tpope/vim-fugitive'
-Plugin 'groenewege/vim-less'
 Plugin 'nono/vim-handlebars'
 Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
-Plugin 'ternjs/tern_for_vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
 Plugin 'roxma/nvim-yarp'
 Plugin 'roxma/vim-hug-neovim-rpc'
+Plugin 'prabirshrestha/vim-lsp'
+Plugin 'mattn/vim-lsp-settings'
+Plugin 'vim-denops/denops.vim'
+Plugin 'Shougo/ddc.vim'
+Plugin 'shun/ddc-vim-lsp'
+Plugin 'Shougo/ddc-matcher_head'
+Plugin 'Shougo/ddc-sorter_rank'
+Plugin 'matsui54/ddc-buffer'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -174,8 +176,8 @@ set background=dark
 colorscheme elrodeo
 
 "<Enter> and <Shift><Enter> insert lines without going into insert mode
-map <Enter> o<ESC>
-map <S-Enter> O<ESC>
+nmap <silent><Enter> o<ESC>
+nmap <silent><S-Enter> O<ESC>
 
 "turn off the bell
 set vb t_vb= 
@@ -201,9 +203,20 @@ autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
 "set *.md = Markdown
 autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 
-"set JS jump to definition to use ternjs
-autocmd filetype javascript nmap <silent> gd :TernDef<CR>
-autocmd filetype javascript nmap <silent> gD :TernDef<CR>
+"start of vim-lsp settings
+
+"open quickfix with all references to variable in
+autocmd filetype javascript nmap <silent> gd <plug>(lsp-references)
+"jump to definition in same file, or open a new buffer with the definition in
+autocmd filetype javascript nmap <silent> gD :keepalt LspDefinition<CR>
+
+"turn off 2 column hint next to line number column
+set signcolumn=no
+
+"end of vim-lsp end settings
+
+"jump to quickfix line with enter
+autocmd filetype qf nmap <silent><Enter> :.cc<CR>
 
 "write files without opening vim up as sudo ...
 cmap w!! w !sudo tee % > /dev/null
@@ -312,6 +325,37 @@ nnoremap <silent> <F7> :Denite outline<CR>
 nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 
 "end denite.nvim settings
+
+"start of ddc (autocomplete settings)
+call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
+call ddc#custom#patch_global('sourceOptions', {
+  \ 'vim-lsp': {
+  \   'sorters': ['sorter_rank'],
+  \   'mark': 'lsp',
+  \ },
+  \ 'buffer': {
+  \   'sorters': ['sorter_rank'],
+  \   'mark': 'B'
+  \ }
+  \ })
+
+call ddc#custom#patch_global('sourceParams', {
+  \ 'buffer': {
+  \   'requireSameFiletype': v:false,
+  \   'limitBytes': 5000000,
+  \   'fromAltBuf': v:true,
+  \   'forceCollect': v:true,
+  \ }
+  \ })
+
+"turn off autocomplete on type
+call ddc#custom#patch_global('completionMode', 'manual')
+
+"set regular autocomplete (C-n) to use ddc
+:inoremap <expr><C-n> ddc#map#manual_complete()
+
+call ddc#enable()
+"end of ddc (autocomplete settings)
 
 "start airline settings
 
