@@ -330,10 +330,12 @@ nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
 call ddc#custom#patch_global('sourceOptions', {
   \ 'vim-lsp': {
+  \   'matchers': ['matcher_head'],
   \   'sorters': ['sorter_rank'],
   \   'mark': 'lsp',
   \ },
   \ 'buffer': {
+  \   'matchers': ['matcher_head'],
   \   'sorters': ['sorter_rank'],
   \   'mark': 'B'
   \ }
