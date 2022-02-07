@@ -86,9 +86,9 @@ autocmd FileType ruby setlocal tabstop=2
 autocmd FileType coffee setlocal softtabstop=2
 autocmd FileType coffee setlocal shiftwidth=2
 autocmd FileType coffee setlocal tabstop=2
-autocmd FileType javascript setlocal softtabstop=2
-autocmd FileType javascript setlocal shiftwidth=2
-autocmd FileType javascript setlocal tabstop=2
+autocmd FileType javascript,typescript setlocal softtabstop=2
+autocmd FileType javascript,typescript setlocal shiftwidth=2
+autocmd FileType javascript,typescript setlocal tabstop=2
 autocmd FileType mustache setlocal softtabstop=2
 autocmd FileType mustache setlocal shiftwidth=2
 autocmd FileType mustache setlocal tabstop=2
@@ -99,7 +99,7 @@ set noexpandtab
 autocmd FileType python setlocal expandtab
 autocmd FileType ruby setlocal expandtab
 autocmd FileType coffee setlocal expandtab
-autocmd FileType javascript setlocal expandtab
+autocmd FileType javascript,typescript setlocal expandtab
 autocmd FileType mustache setlocal expandtab
 
 "set compilers to check syntax
@@ -194,8 +194,8 @@ autocmd filetype TiddlyWiki set textwidth=0
 autocmd filetype TiddlyWiki set wrapmargin=0
 
 "fix spelling mistakes
-autocmd filetype javascript iabbrev retrun return
-autocmd filetype javascript iabbrev lenght length
+autocmd filetype javascript,typescript iabbrev retrun return
+autocmd filetype javascript,typescript iabbrev lenght length
 
 "set *.es6 = JavaScript
 autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
@@ -206,9 +206,9 @@ autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 "start of vim-lsp settings
 
 "open quickfix with all references to variable in
-autocmd filetype javascript nmap <silent> gd <plug>(lsp-references)
+autocmd filetype javascript,typescript nmap <silent> gd <plug>(lsp-references)
 "jump to definition in same file, or open a new buffer with the definition in
-autocmd filetype javascript nmap <silent> gD :keepalt LspDefinition<CR>
+autocmd filetype javascript,typescript nmap <silent> gD :keepalt LspDefinition<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
@@ -427,9 +427,9 @@ nmap <leader>v <Plug>SlimeConfig
 hi ColorColumn ctermbg=0
 
 "set up code folding
-autocmd FileType javascript setlocal foldmethod=marker
-autocmd FileType javascript setlocal foldmarker={,}
-autocmd FileType javascript setlocal foldtext=MarkerFoldText()
+autocmd FileType javascript,typescript setlocal foldmethod=marker
+autocmd FileType javascript,typescript setlocal foldmarker={,}
+autocmd FileType javascript,typescript setlocal foldtext=MarkerFoldText()
 
 autocmd FileType css setlocal foldmethod=marker
 autocmd FileType css setlocal foldmarker={,}
@@ -466,7 +466,7 @@ filetype plugin indent on
 
 "remove indenting for JS/Ruby
 autocmd FileType ruby set indentexpr=cindent
-autocmd FileType javascript set indentexpr=cindent
+autocmd FileType javascript,typescript set indentexpr=cindent
 
 "set fold highlight colours
 highlight Folded ctermfg=Grey ctermbg=0
