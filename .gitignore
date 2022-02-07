@@ -9,7 +9,6 @@ upload-db
 .lein/repl-history
 .lein/self-installs
 bin/irc-proxy
-debug.js
 .*.swo
 .idea
 .lein-repl-history
