@@ -32,6 +32,7 @@ Plugin 'shun/ddc-vim-lsp'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
 Plugin 'matsui54/ddc-buffer'
+Plugin 'bengillies/denite-vim-lsp'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
@@ -320,7 +321,7 @@ nnoremap <silent> <space>y :Denite neoyank<CR>
 nnoremap <silent> <space>b :Denite buffer<CR>
 nnoremap <silent> <Leader>b :Denite buffer<CR>
 "outline current file
-nnoremap <silent> <F7> :Denite outline<CR>
+nnoremap <silent> <F7> :Denite lsp_document_symbol<CR>
 "new file in current file directory
 nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 
