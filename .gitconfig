@@ -35,6 +35,7 @@
 	keepBackup = false
 [push]
 	default = matching
+	autoSetupRemote = true
 
 # use https instead of git when the git protocol is blocked by the firewall
 [url "https://github.com"]
