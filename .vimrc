@@ -210,9 +210,15 @@ autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 autocmd filetype javascript,typescript nmap <silent> gd <plug>(lsp-references)
 "jump to definition in same file, or open a new buffer with the definition in
 autocmd filetype javascript,typescript nmap <silent> gD :keepalt LspDefinition<CR>
+"display type information under cursor
+autocmd filetype javascript,typescript nmap <silent> <C-h> :keepalt LspHover<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
+
+"show error information
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_diagnostics_float_delay = 1000
 
 "end of vim-lsp end settings
 
