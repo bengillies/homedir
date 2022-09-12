@@ -6,6 +6,7 @@ upload-db
 .swp
 .swo
 .*.swn
+.swn
 .lein/repl-history
 .lein/self-installs
 bin/irc-proxy
