@@ -210,8 +210,11 @@ autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 autocmd filetype javascript,typescript nmap <silent> gd <plug>(lsp-references)
 "jump to definition in same file, or open a new buffer with the definition in
 autocmd filetype javascript,typescript nmap <silent> gD :keepalt LspDefinition<CR>
-"display type information under cursor
-autocmd filetype javascript,typescript nmap <silent> <C-h> :keepalt LspHover<CR>
+"display type information under cursor (NUL maps to C-Space)
+autocmd filetype javascript,typescript nmap <silent> <C-Space> :keepalt LspHover<CR>
+autocmd filetype javascript,typescript nmap <silent> <NUL> :keepalt LspHover<CR>
+"display actions to perform on file (e.g. update imports)
+autocmd filetype javascript,typescript nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
@@ -404,6 +407,9 @@ nnoremap <Leader>n :call RelNumToggle()<cr>
 
 "set spellcheck
 nmap <Leader>s :setlocal spell! spelllang=en_gb<CR>
+
+"autoformat JS files
+autocmd filetype javascript,typescript nmap == :!npx prettier -w %<CR><CR>:e<CR>
 
 "set absolute line numbering automatically on certain events
 :au FocusLost * :set number
