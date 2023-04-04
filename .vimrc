@@ -27,11 +27,13 @@ Plugin 'roxma/vim-hug-neovim-rpc'
 Plugin 'prabirshrestha/vim-lsp'
 Plugin 'mattn/vim-lsp-settings'
 Plugin 'vim-denops/denops.vim'
-Plugin 'Shougo/ddc.vim'
-Plugin 'shun/ddc-vim-lsp'
-Plugin 'Shougo/ddc-matcher_head'
-Plugin 'Shougo/ddc-sorter_rank'
-Plugin 'matsui54/ddc-buffer'
+"Plugin 'Shougo/ddc.vim'
+"Plugin 'Shougo/ddc-ui-native'
+"Plugin 'Shougo/ddc-ui-none'
+"Plugin 'shun/ddc-source-vim-lsp'
+"Plugin 'Shougo/ddc-matcher_head'
+"Plugin 'Shougo/ddc-sorter_rank'
+"Plugin 'matsui54/ddc-buffer'
 Plugin 'bengillies/denite-vim-lsp'
 
 "Bundles from https://github.com/vim-scripts
@@ -223,6 +225,10 @@ set signcolumn=no
 let g:lsp_diagnostics_float_cursor = 1
 let g:lsp_diagnostics_float_delay = 1000
 
+"turn off displaying diagnostic info all the time as a separate row
+let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_diagnostics_highlights_enabled = 1
+
 "end of vim-lsp end settings
 
 "jump to quickfix line with enter
@@ -337,36 +343,47 @@ nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 "end denite.nvim settings
 
 "start of ddc (autocomplete settings)
-call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
-call ddc#custom#patch_global('sourceOptions', {
-  \ 'vim-lsp': {
-  \   'matchers': ['matcher_head'],
-  \   'sorters': ['sorter_rank'],
-  \   'mark': 'lsp',
-  \ },
-  \ 'buffer': {
-  \   'matchers': ['matcher_head'],
-  \   'sorters': ['sorter_rank'],
-  \   'mark': 'B'
-  \ }
-  \ })
 
-call ddc#custom#patch_global('sourceParams', {
-  \ 'buffer': {
-  \   'requireSameFiletype': v:false,
-  \   'limitBytes': 5000000,
-  \   'fromAltBuf': v:true,
-  \   'forceCollect': v:true,
-  \ }
-  \ })
+"source ~/.vim/bundle/ddc-ui-native/autoload/ddc/ui/native.vim
 
-"turn off autocomplete on type
-call ddc#custom#patch_global('completionMode', 'manual')
-
-"set regular autocomplete (C-n) to use ddc
-:inoremap <expr><C-n> ddc#map#manual_complete()
-
-call ddc#enable()
+"call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
+"call ddc#custom#patch_global('sourceOptions', #{
+"      \ _: #{
+"      \   matchers: ['matcher_head'],
+"      \   sorters: ['sorter_rank']},
+"      \ })
+""call ddc#custom#patch_global('sourceOptions', #{
+""  \ _: #{
+""  \   'matchers': ['matcher_head'],
+""  \   'sorters': ['sorter_rank'],
+""  \  },
+""  \ })
+"
+"call ddc#custom#patch_global('sourceOptions', {
+"    \ 'vim-lsp': {
+"    \   'mark': 'lsp',
+"    \ },
+"    \ 'buffer': {
+"    \   'mark': 'B'
+"    \ }
+"    \ })
+"
+"call ddc#custom#patch_global('sourceParams', {
+"  \ 'buffer': {
+"  \   'requireSameFiletype': v:false,
+"  \   'limitBytes': 5000000,
+"  \   'fromAltBuf': v:true,
+"  \   'forceCollect': v:true,
+"  \ }
+"  \ })
+"
+""turn off autocomplete on type
+"call ddc#custom#patch_global('ui', 'none')
+"
+""set regular autocomplete (C-n) to use ddc native popups
+":inoremap <silent><expr><C-n> call ddc#map#complete('native')
+"
+"call ddc#enable()
 "end of ddc (autocomplete settings)
 
 "start airline settings
