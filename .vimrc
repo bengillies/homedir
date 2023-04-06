@@ -27,13 +27,13 @@ Plugin 'roxma/vim-hug-neovim-rpc'
 Plugin 'prabirshrestha/vim-lsp'
 Plugin 'mattn/vim-lsp-settings'
 Plugin 'vim-denops/denops.vim'
-"Plugin 'Shougo/ddc.vim'
-"Plugin 'Shougo/ddc-ui-native'
-"Plugin 'Shougo/ddc-ui-none'
-"Plugin 'shun/ddc-source-vim-lsp'
-"Plugin 'Shougo/ddc-matcher_head'
-"Plugin 'Shougo/ddc-sorter_rank'
-"Plugin 'matsui54/ddc-buffer'
+Plugin 'Shougo/ddc.vim'
+Plugin 'Shougo/ddc-ui-native'
+Plugin 'Shougo/ddc-ui-none'
+Plugin 'shun/ddc-source-vim-lsp'
+Plugin 'matsui54/ddc-buffer'
+Plugin 'Shougo/ddc-matcher_head'
+Plugin 'Shougo/ddc-sorter_rank'
 Plugin 'bengillies/denite-vim-lsp'
 
 "Bundles from https://github.com/vim-scripts
@@ -264,30 +264,30 @@ nmap <C-p> :tabprevious<CR>
 "denite buffer keymappings
 autocmd FileType denite call s:denite_list_settings()
 function! s:denite_list_settings() abort
-  nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-  nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-  nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-  nnoremap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
-  nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-  nnoremap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
-  nnoremap <silent><buffer><expr> <C-l> denite#do_map('redraw')
-  nnoremap <silent><buffer><expr> <Leader>. denite#do_map('move_up_path')
+	nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+	nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+	nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+	nnoremap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
+	nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+	nnoremap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
+	nnoremap <silent><buffer><expr> <C-l> denite#do_map('redraw')
+	nnoremap <silent><buffer><expr> <Leader>. denite#do_map('move_up_path')
 endfunction
 
 "denite insert mode keymappings
 autocmd FileType denite-filter call s:denite_insert_settings()
 function! s:denite_insert_settings() abort
-  nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-  imap <silent><buffer> <Esc> <Plug>(denite_filter_update)
-  imap <silent><buffer> <C-j> <C-c><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
-  imap <silent><buffer> <C-k> <C-c><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
-  imap <silent><buffer> <C-d> <C-c><C-w>p:call cursor(line('.')+15,0)<CR><C-w>pA
-  imap <silent><buffer> <C-u> <C-c><C-w>p:call cursor(line('.')-15,0)<CR><C-w>pA
+	nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+	imap <silent><buffer> <Esc> <Plug>(denite_filter_update)
+	imap <silent><buffer> <C-j> <C-c><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
+	imap <silent><buffer> <C-k> <C-c><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
+	imap <silent><buffer> <C-d> <C-c><C-w>p:call cursor(line('.')+15,0)<CR><C-w>pA
+	imap <silent><buffer> <C-u> <C-c><C-w>p:call cursor(line('.')-15,0)<CR><C-w>pA
 
-  imap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
-  imap <silent><buffer><expr> <CR> denite#do_map('do_action')
-  imap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
-  imap <silent><buffer><expr> <C-l> denite#do_map('redraw')
+	imap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
+	imap <silent><buffer><expr> <CR> denite#do_map('do_action')
+	imap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
+	imap <silent><buffer><expr> <C-l> denite#do_map('redraw')
 endfunction
 
 "ignore directories
@@ -344,46 +344,38 @@ nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
 
 "start of ddc (autocomplete settings)
 
-"source ~/.vim/bundle/ddc-ui-native/autoload/ddc/ui/native.vim
+call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
+call ddc#custom#patch_global('sourceOptions', {
+	\ 'vim-lsp': {
+	\   'matchers': ['matcher_head'],
+	\   'minAutoCompleteLength': 0,
+	\   'sorters': ['sorter_rank'],
+	\   'mark': 'lsp',
+	\ },
+	\ 'buffer': {
+	\   'matchers': ['matcher_head'],
+	\   'minAutoCompleteLength': 0,
+	\   'sorters': ['sorter_rank'],
+	\   'mark': 'B',
+	\ },
+	\ })
 
-"call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
-"call ddc#custom#patch_global('sourceOptions', #{
-"      \ _: #{
-"      \   matchers: ['matcher_head'],
-"      \   sorters: ['sorter_rank']},
-"      \ })
-""call ddc#custom#patch_global('sourceOptions', #{
-""  \ _: #{
-""  \   'matchers': ['matcher_head'],
-""  \   'sorters': ['sorter_rank'],
-""  \  },
-""  \ })
-"
-"call ddc#custom#patch_global('sourceOptions', {
-"    \ 'vim-lsp': {
-"    \   'mark': 'lsp',
-"    \ },
-"    \ 'buffer': {
-"    \   'mark': 'B'
-"    \ }
-"    \ })
-"
-"call ddc#custom#patch_global('sourceParams', {
-"  \ 'buffer': {
-"  \   'requireSameFiletype': v:false,
-"  \   'limitBytes': 5000000,
-"  \   'fromAltBuf': v:true,
-"  \   'forceCollect': v:true,
-"  \ }
-"  \ })
-"
-""turn off autocomplete on type
-"call ddc#custom#patch_global('ui', 'none')
-"
-""set regular autocomplete (C-n) to use ddc native popups
-":inoremap <silent><expr><C-n> call ddc#map#complete('native')
-"
-"call ddc#enable()
+call ddc#custom#patch_global('sourceParams', {
+	\ 'buffer': {
+	\   'requireSameFiletype': v:false,
+	\   'limitBytes': 5000000,
+	\   'fromAltBuf': v:true,
+	\   'forceCollect': v:true,
+	\ }
+	\ })
+
+"turn off autocomplete on type
+call ddc#custom#patch_global('ui', 'none')
+
+"set regular autocomplete (C-n) to use ddc native popups
+:inoremap <silent><expr><C-n> ddc#map#complete('native')
+
+call ddc#enable()
 "end of ddc (autocomplete settings)
 
 "start airline settings
@@ -402,8 +394,8 @@ let g:airline_powerline_fonts = 1
 "y=file encoding
 "z=percentage + line number
 let g:airline#extensions#default#layout = [
-  \ [ 'a', 'c' ],
-  \ [ 'x', 'error', 'warning' ]
+	\ [ 'a', 'c' ],
+	\ [ 'x', 'error', 'warning' ]
 \ ]
 
 "end airline settings
@@ -413,11 +405,11 @@ let g:airline#extensions#default#layout = [
 
 "set up relative line numbering
 function! RelNumToggle()
-  if(&relativenumber == 1)
-    set norelativenumber
-  else
-    set relativenumber
-  endif
+	if(&relativenumber == 1)
+		set norelativenumber
+	else
+		set relativenumber
+	endif
 endfunc
 
 nnoremap <Leader>n :call RelNumToggle()<cr>
@@ -480,15 +472,15 @@ noremap K <nop>
 "toggle tab mode between tabs and 2 spaces
 nmap <Leader>q :call ToggleTabs()<CR>
 function! ToggleTabs()
-  if &softtabstop == 2
-    set softtabstop=4
-    set shiftwidth=4
-    set noexpandtab
-  else
-    set softtabstop=2
-    set shiftwidth=2
-    set expandtab
-  endif
+	if &softtabstop == 2
+		set softtabstop=4
+		set shiftwidth=4
+		set noexpandtab
+	else
+		set softtabstop=2
+		set shiftwidth=2
+		set expandtab
+	endif
 endfunction
 
 "vimclojure indenting
@@ -503,35 +495,35 @@ highlight Folded ctermfg=Grey ctermbg=0
 
 "define a function for marker'd fold text
 function! MarkerFoldText()
-  let line = getline(v:foldstart)
-  if match( line, '^[ \t]*\(\/\*\|\/\/\)[*/\\]*[ \t]*$' ) == 0
-    let initial = substitute( line, '^\([ \t]\)*\(\/\*\|\/\/\)\(.*\)', '\1\2', '' )
-    let linenum = v:foldstart + 1
-    while linenum < v:foldend
-      let line = getline( linenum )
-      let comment_content = substitute( line, '^\([ \t\/\*]*\)\(.*\)$', '\2', 'g' )
-      if comment_content != ''
-        break
-      endif
-      let linenum = linenum + 1
-    endwhile
-    let sub = initial . ' ' . comment_content
-  else
-    let sub = line
-    let startbrace = substitute( line, '^.*{[ \t]*$', '{', 'g')
-    if startbrace == '{'
-      let line = getline(v:foldend)
-      let endbrace = substitute( line, '^[ \t]*}\(.*\)$', '}', 'g')
-      if endbrace == '}'
-        let sub = sub.substitute( line, '^[ \t]*}\(.*\)$', '...}\1', 'g')
-      endif
-    endif
-  endif
-  let n = v:foldend - v:foldstart + 1
-  let info = " " . n . " lines"
-  let sub = sub . "                                                                                                                  "
-  let num_w = getwinvar( 0, '&number' ) * getwinvar( 0, '&numberwidth' )
-  let fold_w = getwinvar( 0, '&foldcolumn' )
-  let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
-  return sub . info
+	let line = getline(v:foldstart)
+	if match( line, '^[ \t]*\(\/\*\|\/\/\)[*/\\]*[ \t]*$' ) == 0
+		let initial = substitute( line, '^\([ \t]\)*\(\/\*\|\/\/\)\(.*\)', '\1\2', '' )
+		let linenum = v:foldstart + 1
+		while linenum < v:foldend
+			let line = getline( linenum )
+			let comment_content = substitute( line, '^\([ \t\/\*]*\)\(.*\)$', '\2', 'g' )
+			if comment_content != ''
+				break
+			endif
+			let linenum = linenum + 1
+		endwhile
+		let sub = initial . ' ' . comment_content
+	else
+		let sub = line
+		let startbrace = substitute( line, '^.*{[ \t]*$', '{', 'g')
+		if startbrace == '{'
+			let line = getline(v:foldend)
+			let endbrace = substitute( line, '^[ \t]*}\(.*\)$', '}', 'g')
+			if endbrace == '}'
+				let sub = sub.substitute( line, '^[ \t]*}\(.*\)$', '...}\1', 'g')
+			endif
+		endif
+	endif
+	let n = v:foldend - v:foldstart + 1
+	let info = " " . n . " lines"
+	let sub = sub . "                                                                                                                  "
+	let num_w = getwinvar( 0, '&number' ) * getwinvar( 0, '&numberwidth' )
+	let fold_w = getwinvar( 0, '&foldcolumn' )
+	let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
+	return sub . info
 endfunction
