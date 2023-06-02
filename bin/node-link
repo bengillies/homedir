@@ -1,0 +1,77 @@
+#!/bin/bash
+
+MOD_PATH='node_modules'
+ROOT="${WAVE_ROOT:-`readlink -f "../"`}"
+
+while getopts "n:"  opt; do
+	case $opt in
+		n)
+			MOD_PATH="$MOD_PATH/$OPTARG"
+			;;
+		\?)
+			echo "Usage: node-link -n @namespace modules..."
+			exit 1
+			;;
+	esac
+done
+
+shift $((OPTIND - 1))
+
+MODULES=("$@")
+
+DEPS=$(find "$MOD_PATH" -type l -maxdepth 1)
+DEPS+=$(echo "$PWD")
+
+function gatherDeps() {
+	pushd "$ROOT/$1" > /dev/null
+
+	MODULES+=("$1")
+
+	SUB_DEPS=$(find "$MOD_PATH" -type l -maxdepth 1 | xargs basename)
+	for SUB_DEP in $SUB_DEPS; do
+		MODULES+=("$SUB_DEP")
+	done
+
+	popd > /dev/null
+}
+
+function loopDeps() {
+	local DIRS=("$1")
+	for DIR in "${DIRS[@]}"; do
+		if [[ -z $DIR ]]; then
+			continue
+		fi
+
+		DEP=$(basename "$DIR")
+
+		gatherDeps "$DEP"
+	done
+}
+
+loopDeps "$MODULES"
+loopDeps "$DEPS"
+
+MODULES=($(echo "${MODULES[@]}" | tr ' ' '\n' | sort -u))
+
+echo "found ${MODULES[@]}"
+
+for DIR in "${MODULES[@]}"; do
+	if [[ -z $DIR ]]; then
+		continue
+	fi
+
+	pushd "$ROOT/$DIR" > /dev/null
+	echo "checking $PWD"
+
+	for MODULE in "${MODULES[@]}"; do
+		MODULE_PATH="$MOD_PATH/$MODULE"
+
+		if [[ -d "$MODULE_PATH" ]]; then
+			rm -rf "$MODULE_PATH"
+			ln -s "$ROOT/$MODULE" "$MODULE_PATH"
+			echo "linking $MODULE from $ROOT"
+		fi
+	done
+
+	popd > /dev/null
+done
