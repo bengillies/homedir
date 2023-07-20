@@ -89,9 +89,9 @@ autocmd FileType ruby setlocal tabstop=2
 autocmd FileType coffee setlocal softtabstop=2
 autocmd FileType coffee setlocal shiftwidth=2
 autocmd FileType coffee setlocal tabstop=2
-autocmd FileType javascript,typescript setlocal softtabstop=2
-autocmd FileType javascript,typescript setlocal shiftwidth=2
-autocmd FileType javascript,typescript setlocal tabstop=2
+autocmd FileType javascript,typescript,typescriptreact setlocal softtabstop=2
+autocmd FileType javascript,typescript,typescriptreact setlocal shiftwidth=2
+autocmd FileType javascript,typescript,typescriptreact setlocal tabstop=2
 autocmd FileType mustache setlocal softtabstop=2
 autocmd FileType mustache setlocal shiftwidth=2
 autocmd FileType mustache setlocal tabstop=2
@@ -102,7 +102,7 @@ set noexpandtab
 autocmd FileType python setlocal expandtab
 autocmd FileType ruby setlocal expandtab
 autocmd FileType coffee setlocal expandtab
-autocmd FileType javascript,typescript setlocal expandtab
+autocmd FileType javascript,typescript,typescriptreact setlocal expandtab
 autocmd FileType mustache setlocal expandtab
 
 "set compilers to check syntax
@@ -197,8 +197,8 @@ autocmd filetype TiddlyWiki set textwidth=0
 autocmd filetype TiddlyWiki set wrapmargin=0
 
 "fix spelling mistakes
-autocmd filetype javascript,typescript iabbrev retrun return
-autocmd filetype javascript,typescript iabbrev lenght length
+autocmd filetype javascript,typescript,typescriptreact iabbrev retrun return
+autocmd filetype javascript,typescript,typescriptreact iabbrev lenght length
 
 "set *.es6 = JavaScript
 autocmd BufRead,BufNewFile *.es6 setlocal filetype=javascript
@@ -209,24 +209,31 @@ autocmd BufRead,BufNewFile *.md setlocal filetype=markdown
 "start of vim-lsp settings
 
 "open quickfix with all references to variable in
-autocmd filetype javascript,typescript nmap <silent> gd <plug>(lsp-references)
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gd <plug>(lsp-references)
+nmap <silent> gd <plug>(lsp-references)
 "jump to definition in same file, or open a new buffer with the definition in
-autocmd filetype javascript,typescript nmap <silent> gD :keepalt LspDefinition<CR>
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gD :keepalt LspDefinition<CR>
+nmap <silent> gD :keepalt LspDefinition<CR>
 "display type information under cursor (NUL maps to C-Space)
-autocmd filetype javascript,typescript nmap <silent> <C-Space> :keepalt LspHover<CR>
-autocmd filetype javascript,typescript nmap <silent> <NUL> :keepalt LspHover<CR>
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <C-Space> :keepalt LspHover<CR>
+nmap <silent> <C-Space> :keepalt LspHover<CR>
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <NUL> :keepalt LspHover<CR>
+nmap <silent> <NUL> :keepalt LspHover<CR>
 "display actions to perform on file (e.g. update imports)
-autocmd filetype javascript,typescript nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
+nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
+nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
 
 "show error information
-let g:lsp_diagnostics_float_cursor = 1
-let g:lsp_diagnostics_float_delay = 1000
+let g:lsp_diagnostics_float_cursor = 0
 
 "turn off displaying diagnostic info all the time as a separate row
-let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_diagnostics_virtual_text_enabled = 1
+let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
+let g:lsp_diagnostics_virtual_text_align = 'right'
 let g:lsp_diagnostics_highlights_enabled = 1
 
 "end of vim-lsp end settings
@@ -418,7 +425,7 @@ nnoremap <Leader>n :call RelNumToggle()<cr>
 nmap <Leader>s :setlocal spell! spelllang=en_gb<CR>
 
 "autoformat JS files
-autocmd filetype javascript,typescript nmap == :!npx prettier -w %<CR><CR>:e<CR>
+autocmd filetype javascript,typescript,typescriptreact nmap == :!npx prettier -w %<CR><CR>:e<CR>
 
 "set absolute line numbering automatically on certain events
 :au FocusLost * :set number
@@ -449,9 +456,9 @@ nmap <leader>v <Plug>SlimeConfig
 hi ColorColumn ctermbg=0
 
 "set up code folding
-autocmd FileType javascript,typescript setlocal foldmethod=marker
-autocmd FileType javascript,typescript setlocal foldmarker={,}
-autocmd FileType javascript,typescript setlocal foldtext=MarkerFoldText()
+autocmd FileType javascript,typescript,typescriptreact setlocal foldmethod=marker
+autocmd FileType javascript,typescript,typescriptreact setlocal foldmarker={,}
+autocmd FileType javascript,typescript,typescriptreact setlocal foldtext=MarkerFoldText()
 
 autocmd FileType css setlocal foldmethod=marker
 autocmd FileType css setlocal foldmarker={,}
@@ -488,7 +495,7 @@ filetype plugin indent on
 
 "remove indenting for JS/Ruby
 autocmd FileType ruby set indentexpr=cindent
-autocmd FileType javascript,typescript set indentexpr=cindent
+autocmd FileType javascript,typescript,typescriptreact set indentexpr=cindent
 
 "set fold highlight colours
 highlight Folded ctermfg=Grey ctermbg=0
