@@ -120,6 +120,9 @@ alias g='git'
 #set a variable for dropbox (for use with git remotes)
 export DROPBOX=$HOME/Dropbox
 
+#set a variable for Box
+export BOX=$HOME/Box\ Sync/Scratch
+
 #set a variable for the downloads folder
 export DOWNLOAD=$HOME/Downloads
 
@@ -136,6 +139,9 @@ export NODE_PATH=/usr/local/lib/jsctags:$NODE_PATH
 #{{{ Path variable
 #add some sensible extra paths
 PATH=/usr/local/bin:/usr/sbin:$PATH
+
+#add homebrew
+PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
 
 #add git
 PATH=/usr/local/git/bin:$PATH
@@ -166,10 +172,14 @@ eval "$(rbenv init - -zsh --no-rehash)"
 #set up nvm paths
 export NVM_DIR="$HOME/.nvm"
 export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
-alias nvm='unalias nvm; [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"; nvm $@'
+#alias nvm='unalias nvm; [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"; nvm $@'
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+
+#set up rustup paths
+export PATH="$HOME/.cargo/bin:$PATH"
 
 #load in autocomplete helpers
-source <(kubectl completion zsh)
+#source <(kubectl completion zsh)
 
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
