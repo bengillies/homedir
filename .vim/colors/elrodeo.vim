@@ -19,10 +19,10 @@ let g:colors_name="elrodeo"
 if version >= 700
 "  hi CursorLine ctermbg=59
   hi CursorColumn ctermbg=0
-  hi ColorColumn ctermbg=0
+  hi ColorColumn ctermbg=234
   hi MatchParen ctermfg=230 ctermbg=101 cterm=bold
   hi Pmenu		ctermfg=230 ctermbg=59
-  hi PmenuSel	ctermfg=16
+  hi PmenuSel	ctermfg=234 ctermbg=230
 endif
 
 " General colors
@@ -74,6 +74,12 @@ hi es6DeclarationNoSpaces     ctermfg=229
 "HTML Highlighting
 hi htmlTagName			ctermfg=79
 hi htmlSpecialTagName	ctermfg=79
+
+"Lsp virtual text colours
+hi LspErrorVirtualText ctermfg=red ctermbg=0
+hi LspWarningVirtualText ctermfg=221 ctermbg=0
+hi LspInformationVirtualText ctermfg=242 ctermbg=0
+hi LspHintVirtualText ctermfg=242 ctermbg=0
 
 "Extra
 hi DiffDelete	 ctermfg=15
