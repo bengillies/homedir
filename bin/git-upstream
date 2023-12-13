@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#pull upstream changes for the current branch and merge them in.
+#if the branch has no upstream, set it to track the upstream branch with the same name and then merge it in.
+
+currBranch=$(git rev-parse --abbrev-ref HEAD)
+
+# if get upstream branch name fails then set upstream branch to origin/currBranch
+if [ -z "$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)" ]; then
+	git branch --set-upstream-to=origin/$currBranch $currBranch
+fi
+
+git pull
