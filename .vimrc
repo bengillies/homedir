@@ -35,6 +35,7 @@ Plugin 'matsui54/ddc-buffer'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
 Plugin 'bengillies/denite-vim-lsp'
+Plugin 'github/copilot.vim'
 
 "Bundles from https://github.com/vim-scripts
 Bundle 'VimClojure'
