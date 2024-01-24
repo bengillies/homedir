@@ -115,6 +115,7 @@ autocmd FileType coffee set makeprg=coffeelint\ %
 "beautify json files (use jq which gives 2 space indentation)
 autocmd BufNewFile,BufRead *.json set filetype=json
 autocmd BufNewFile,BufRead *.json set syntax=javascript
+autocmd BufNewFile,BufRead *.json5 set filetype=javascript
 autocmd FileType json vmap = :!jq .<CR>
 
 " force javascriptreact files to be javascript (at least, until I fix up the
