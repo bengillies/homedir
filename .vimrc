@@ -225,6 +225,7 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 "autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
+nmap <silent> <Space>e :LspNextError<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
