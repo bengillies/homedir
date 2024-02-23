@@ -10,8 +10,10 @@ call vundle#begin()
 "Vundled GitHub packages
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'gmarik/vundle.vim'
-Plugin 'Shougo/vimproc.vim'
-Plugin 'Shougo/denite.nvim'
+"Plugin 'Shougo/vimproc.vim'
+Plugin 'vim-denops/denops.vim'
+Plugin 'vim-denops/denops-shared-server.vim'
+Plugin 'Shougo/ddu.vim'
 Plugin 'Shougo/neoyank.vim'
 Plugin 'tpope/vim-surround'
 Plugin 'bengillies/vim-slime'
@@ -22,11 +24,26 @@ Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
-Plugin 'roxma/nvim-yarp'
-Plugin 'roxma/vim-hug-neovim-rpc'
+"Plugin 'roxma/nvim-yarp'
+"Plugin 'roxma/vim-hug-neovim-rpc'
+
+"ddu plugins
+Plugin 'Shougo/ddu-ui-ff'
+Plugin 'Shougo/ddu-kind-file'
+Plugin 'Shougo/ddu-kind-word'
+Plugin 'Shougo/ddu-source-line'
+Plugin 'Shougo/ddu-source-action'
+Plugin 'Shougo/ddu-source-register'
+Plugin 'Shougo/ddu-filter-matcher_substring'
+Plugin 'Shougo/ddu-filter-converter_display_word'
+Plugin 'matsui54/ddu-filter-fzy'
+Plugin 'matsui54/ddu-source-file_external'
+Plugin 'shun/ddu-source-rg'
+Plugin 'shun/ddu-source-buffer'
+
+"autocomplete plugins
 Plugin 'prabirshrestha/vim-lsp'
 Plugin 'mattn/vim-lsp-settings'
-Plugin 'vim-denops/denops.vim'
 Plugin 'Shougo/ddc.vim'
 Plugin 'Shougo/ddc-ui-native'
 Plugin 'Shougo/ddc-ui-none'
@@ -34,7 +51,8 @@ Plugin 'shun/ddc-source-vim-lsp'
 Plugin 'matsui54/ddc-buffer'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
-Plugin 'bengillies/denite-vim-lsp'
+"Plugin 'bengillies/denite-vim-lsp'
+Plugin 'uga-rosa/ddu-source-lsp'
 Plugin 'github/copilot.vim'
 
 "Bundles from https://github.com/vim-scripts
@@ -269,88 +287,122 @@ nmap <C-t> :tabnew<CR>
 nmap <C-n> :tabnext<CR>
 nmap <C-p> :tabprevious<CR>
 
-"denite.nvim settings
 
-"denite buffer keymappings
-autocmd FileType denite call s:denite_list_settings()
-function! s:denite_list_settings() abort
-	nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
-	nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
-	nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
-	nnoremap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
-	nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-	nnoremap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
-	nnoremap <silent><buffer><expr> <C-l> denite#do_map('redraw')
-	nnoremap <silent><buffer><expr> <Leader>. denite#do_map('move_up_path')
+"start of ddu configuration
+call ddu#custom#patch_global(#{
+	\   ui: 'ff',
+	\   uiParams: #{
+	\     ff: #{
+	\       autoResize: v:true,
+	\       prompt: '> ',
+	\     },
+	\   },
+	\   kindOptions: #{
+	\     file: #{
+	\       defaultAction: 'open',
+	\     },
+	\     word: #{
+	\       defaultAction: 'yank',
+	\     },
+	\     action: #{
+	\       defaultAction: 'do',
+	\     },
+	\   },
+	\   sourceOptions: {
+	\     '_': {
+	\       'matchers': ['converter_display_word', 'matcher_fzy'],
+	\     },
+	\   }
+	\ })
+
+
+autocmd FileType ddu-ff call s:ddu_ff_my_settings()
+function s:ddu_ff_my_settings() abort
+
+	nnoremap <buffer><expr> <CR> get(ddu#ui#get_item(), 'isTree', v:false)
+	\	? "<Cmd>call ddu#ui#sync_action('itemAction', { 'name': 'narrow' })<CR>"
+	\	: "<Cmd>call ddu#ui#sync_action('itemAction')<CR>"
+
+	nnoremap <buffer> <Tab> <Cmd>call ddu#ui#do_action('chooseAction')<CR>
+	nnoremap <buffer> y <Cmd>call ddu#ui#multi_actions([['itemAction', { 'name': 'yank' }], ['quit']])<CR>
+	nnoremap <buffer> i <Cmd>call ddu#ui#do_action('openFilterWindow')<CR>
+	nnoremap <buffer> q <Cmd>call ddu#ui#do_action('quit')<CR>
+	nnoremap <buffer> <Esc> <Cmd>call ddu#ui#do_action('quit')<CR>
 endfunction
 
-"denite insert mode keymappings
-autocmd FileType denite-filter call s:denite_insert_settings()
-function! s:denite_insert_settings() abort
-	nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
-	imap <silent><buffer> <Esc> <Plug>(denite_filter_update)
-	imap <silent><buffer> <C-j> <C-c><C-w>p:call cursor(line('.')+1,0)<CR><C-w>pA
-	imap <silent><buffer> <C-k> <C-c><C-w>p:call cursor(line('.')-1,0)<CR><C-w>pA
-	imap <silent><buffer> <C-d> <C-c><C-w>p:call cursor(line('.')+15,0)<CR><C-w>pA
-	imap <silent><buffer> <C-u> <C-c><C-w>p:call cursor(line('.')-15,0)<CR><C-w>pA
+autocmd FileType ddu-ff-filter call s:ddu_ff_filter_my_settings()
+function s:ddu_ff_filter_my_settings() abort
+	inoremap <buffer> <CR> <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+	nnoremap <buffer> <CR> <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
 
-	imap <silent><buffer><expr> <Tab> denite#do_map('choose_action')
-	imap <silent><buffer><expr> <CR> denite#do_map('do_action')
-	imap <silent><buffer><expr> <C-t> denite#do_map('do_action', 'tabopen')
-	imap <silent><buffer><expr> <C-l> denite#do_map('redraw')
+	inoremap <buffer> <Esc> <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+	nnoremap <buffer> <Esc> <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+
+	nnoremap <buffer> q <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
 endfunction
 
-"ignore directories
-call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', ['*.swp', '*.swo', '.git/', 'node_modules/', 'build/', 'dist/', './tmp/', 'log/', 'coverage/', '.node-mailer', '.sass-cache/', 'bower_components/', '.happypack/'])
-"increase cache
-call denite#custom#var('<', 'min_cache_files', 200000)
-call denite#custom#option('_', 'max_dynamic_update_candidates', 200000)
+call ddu#custom#alias('source', 'file_rec', 'file_external')
+call ddu#custom#patch_global('sourceParams', {
+	\   'file_rec': {
+	\     'cmd': ['/opt/homebrew/bin/ag', '--follow', '--nocolor', '--nogroup', '-g', '.'],
+	\     'updateItems': 200000
+	\   },
+	\ })
 
-"use ag to search with
-call denite#custom#var('file/rec', 'command', ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', ''])
-call denite#custom#source('file/rec', 'matchers', ['matcher_fuzzy', 'matcher_ignore_globs'])
+call ddu#custom#alias('source', 'file_browser', 'file_external')
+call ddu#custom#patch_global('sourceParams', {
+	\   'file_browser': {
+	\     'cmd': ['/opt/homebrew/bin/gls', '--group-directories-first', '-aF', '-I', '.sw*', '-I', '.*.sw*']
+	\   },
+	\ })
 
-"ensure we can highlight matches properly
-call denite#custom#source('line', 'matchers', ['matcher/regexp'])
+call ddu#custom#alias('source', 'grep', 'rg')
+call ddu#custom#patch_global('sourceParams', {
+	\   'grep': {
+	\     'args': ['--column', '--no-heading', '--json']
+	\   },
+	\ })
 
-"use ag to grep
-call denite#custom#var('grep', 'command', ['ag'])
-call denite#custom#var('grep', 'default_opts', ['-i', '--vimgrep', '--ignore', '.git/', '--ignore', 'node_modules/', '--ignore', 'build/', '--ignore', 'dist/', '--ignore', './tmp/', '--ignore', 'log/', '--ignore', 'coverage/', '--ignore', '.node-mailer', '--ignore', '.sass-cache/', '--ignore', 'bower_components/', '--ignore', '.happypack/'])
-call denite#custom#var('grep', 'recursive_opts', [])
-call denite#custom#var('grep', 'pattern_opt', [])
-call denite#custom#var('grep', 'separator', ['--'])
-call denite#custom#var('grep', 'final_opts', [])
-
-"use jsctags to outline with javascript
-autocmd filetype javascript call denite#custom#var('outline', 'command', ['js-vim-tags'])
+call ddu#custom#patch_global('sourceOptions', {
+	\   'line': {
+	\     'matchers': ['matcher_substring'],
+	\   },
+	\ })
 
 
-"command shortcuts
+"fuzzy find files
+nnoremap <silent> <Leader>f :call ddu#start({'sources': [{'name': 'file_rec'}], 'uiParams': {'ff': {'startFilter': v:true}}})<CR>
 
-"file search from base dir
-nnoremap <silent> <space>f :Denite -start-filter file/rec<CR>
-nnoremap <silent> <Leader>f :Denite -start-filter file/rec<CR>
-"file search from current dir
-nnoremap <silent> <space>F :DeniteBufferDir -start-filter file/rec<CR>
-nnoremap <silent> <Leader>F :DeniteBufferDir -start-filter file/rec<CR>
+"file listing from current buffer dir
+nnoremap <silent> <Leader>F :call ddu#start({'sources': [{'name': 'file_browser', 'options': {'path': expand('%:h')}}], 'uiParams': {'ff': {'autoResize': v:false}}})<CR>
+
 "grep across files
-nnoremap <silent> <space>g :Denite -start-filter grep<CR>
-nnoremap <silent> <Leader>g :Denite -start-filter grep<CR>
-"grep for word or highlight inside file (word under cursor in normal mode, selection in visual mode)
-nnoremap <silent> <Leader><Leader> :Denite line -input=\\b<C-r>=expand("<cword>")<CR>\\b<CR>
-vnoremap <silent> <Leader><Leader> "uy:Denite line -input=<C-r>=escape(escape(getreg("u"), '^$.*?\[]() '), '\"' . "'")<CR><CR>
-"yank search (with neoyank)
-nnoremap <silent> <Leader>y :Denite neoyank<CR>
-nnoremap <silent> <space>y :Denite neoyank<CR>
-"buffer search
-nnoremap <silent> <space>b :Denite buffer<CR>
-nnoremap <silent> <Leader>b :Denite buffer<CR>
-"outline current file
-nnoremap <silent> <F7> :Denite lsp_document_symbol<CR>
-"new file in current file directory
-nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
+nnoremap <silent> <Space>g :call ddu#start(#{ sources: [{ name: 'grep', params: { input: input('Pattern:')}}]})<CR>
 
-"end denite.nvim settings
+"buffer search
+nnoremap <silent> <Leader>b :call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
+
+"list registers for yank history
+nnoremap <silent> <Leader>y :call ddu#start({'sources': [{'name': 'register'}]})<CR>
+
+"grep for word or highlight inside file (word under cursor in normal mode, selection in visual mode)
+nnoremap <silent> <Leader><Leader> :call ddu#start({'sources': [{'name': 'line'}], 'input': expand('<cword>')})<CR>
+vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'line'}], 'input': getreg("u")})<CR>
+
+""outline current file
+"nnoremap <silent> <F7> :Denite lsp_document_symbol<CR>
+""new file in current file directory
+"nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
+
+call ddu#load('ui', ['ff'])
+call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
+call ddu#load('kind', ['file','word', 'action'])
+call ddu#load('filter', ['converter_display_word', 'matcher_fzy'])
+"end of ddu configuration
+
+"start of denops settings
+let g:denops_server_addr = '127.0.0.1:32123'
+"end denops settings
 
 "start of ddc (autocomplete settings)
 

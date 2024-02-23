@@ -13,3 +13,4 @@ bin/irc-proxy
 .*.swo
 .idea
 .lein-repl-history
+node_modules
