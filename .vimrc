@@ -40,6 +40,7 @@ Plugin 'matsui54/ddu-filter-fzy'
 Plugin 'matsui54/ddu-source-file_external'
 Plugin 'shun/ddu-source-rg'
 Plugin 'shun/ddu-source-buffer'
+Plugin 'uga-rosa/ddu-source-lsp'
 
 "autocomplete plugins
 Plugin 'prabirshrestha/vim-lsp'
@@ -52,7 +53,6 @@ Plugin 'matsui54/ddc-buffer'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
 "Plugin 'bengillies/denite-vim-lsp'
-Plugin 'uga-rosa/ddu-source-lsp'
 Plugin 'github/copilot.vim'
 
 "Bundles from https://github.com/vim-scripts
@@ -242,7 +242,7 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 "display actions to perform on file (e.g. update imports)
 "autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
-nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
+nmap <silent> <C-s> :LspDocumentDiagnostics --ui=float<CR>
 nmap <silent> <Space>e :LspNextError<CR>
 
 "turn off 2 column hint next to line number column
@@ -307,6 +307,9 @@ call ddu#custom#patch_global(#{
 	\     action: #{
 	\       defaultAction: 'do',
 	\     },
+	\     lsp: #{
+	\       defaultAction: 'open',
+	\     },
 	\   },
 	\   sourceOptions: {
 	\     '_': {
@@ -319,13 +322,25 @@ call ddu#custom#patch_global(#{
 autocmd FileType ddu-ff call s:ddu_ff_my_settings()
 function s:ddu_ff_my_settings() abort
 
+	"enter either narrows into the directory, or else calls the default action
+	"(e.g. opens the file)
 	nnoremap <buffer><expr> <CR> get(ddu#ui#get_item(), 'isTree', v:false)
 	\	? "<Cmd>call ddu#ui#sync_action('itemAction', { 'name': 'narrow' })<CR>"
 	\	: "<Cmd>call ddu#ui#sync_action('itemAction')<CR>"
 
+	"tab opens the full list of available actions
 	nnoremap <buffer> <Tab> <Cmd>call ddu#ui#do_action('chooseAction')<CR>
+
+	"y yanks the file path, or text string, depending on the current item type
 	nnoremap <buffer> y <Cmd>call ddu#ui#multi_actions([['itemAction', { 'name': 'yank' }], ['quit']])<CR>
+
+	"o opens a new file
+	nnoremap <buffer> o <Cmd>call ddu#ui#sync_action('itemAction', { 'name': 'newFile' })<CR>
+
+	"i opens the filter bar
 	nnoremap <buffer> i <Cmd>call ddu#ui#do_action('openFilterWindow')<CR>
+
+	"q or esc quits
 	nnoremap <buffer> q <Cmd>call ddu#ui#do_action('quit')<CR>
 	nnoremap <buffer> <Esc> <Cmd>call ddu#ui#do_action('quit')<CR>
 endfunction
@@ -369,6 +384,16 @@ call ddu#custom#patch_global('sourceOptions', {
 	\   },
 	\ })
 
+call ddu#custom#patch_global('sourceParams', {
+	\   'lsp_documentSymbol': {
+	\      'clientName': 'vim-lsp',
+	\   },
+	\ })
+call ddu#custom#patch_global('sourceOptions', {
+	\   'lsp_documentSymbol': {
+	\      'converters': [ 'converter_lsp_symbol' ],
+	\     },
+	\ })
 
 "fuzzy find files
 nnoremap <silent> <Leader>f :call ddu#start({'sources': [{'name': 'file_rec'}], 'uiParams': {'ff': {'startFilter': v:true}}})<CR>
@@ -389,15 +414,13 @@ nnoremap <silent> <Leader>y :call ddu#start({'sources': [{'name': 'register'}]})
 nnoremap <silent> <Leader><Leader> :call ddu#start({'sources': [{'name': 'line'}], 'input': expand('<cword>')})<CR>
 vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'line'}], 'input': getreg("u")})<CR>
 
-""outline current file
-"nnoremap <silent> <F7> :Denite lsp_document_symbol<CR>
-""new file in current file directory
-"nnoremap <silent> <Leader>o :DeniteBufferDir -start-filter file:new<CR>
+"outline current file
+nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
-call ddu#load('kind', ['file','word', 'action'])
-call ddu#load('filter', ['converter_display_word', 'matcher_fzy'])
+call ddu#load('kind', ['file', 'word', 'action'])
+call ddu#load('filter', ['converter_display_word', 'matcher_fzy', 'matcher_substring'])
 "end of ddu configuration
 
 "start of denops settings
