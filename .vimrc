@@ -41,6 +41,7 @@ Plugin 'matsui54/ddu-source-file_external'
 Plugin 'shun/ddu-source-rg'
 Plugin 'shun/ddu-source-buffer'
 Plugin 'uga-rosa/ddu-source-lsp'
+Plugin 'liquidz/ddu-source-custom-list'
 
 "autocomplete plugins
 Plugin 'prabirshrestha/vim-lsp'
@@ -242,7 +243,7 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 "display actions to perform on file (e.g. update imports)
 "autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
-nmap <silent> <C-s> :LspDocumentDiagnostics --ui=float<CR>
+nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
 nmap <silent> <Space>e :LspNextError<CR>
 
 "turn off 2 column hint next to line number column
@@ -309,6 +310,9 @@ call ddu#custom#patch_global(#{
 	\     },
 	\     lsp: #{
 	\       defaultAction: 'open',
+	\     },
+	\     custom-list: #{
+	\       defaultAction: 'callback',
 	\     },
 	\   },
 	\   sourceOptions: {
@@ -391,9 +395,14 @@ call ddu#custom#patch_global('sourceParams', {
 	\ })
 call ddu#custom#patch_global('sourceOptions', {
 	\   'lsp_documentSymbol': {
-	\      'converters': [ 'converter_lsp_symbol' ],
+	\      'converters': ['converter_lsp_symbol'],
 	\     },
 	\ })
+
+let customListCallback = denops#callback#register(
+	\ {s -> execute(printf(':Lsp%s', s), '')},
+	\ {'once': v:true})
+
 
 "fuzzy find files
 nnoremap <silent> <Leader>f :call ddu#start({'sources': [{'name': 'file_rec'}], 'uiParams': {'ff': {'startFilter': v:true}}})<CR>
@@ -417,10 +426,15 @@ vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'lin
 "outline current file
 nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
+"custom lsp functions list
+nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'texts': ['CodeAction', 'Rename', 'References'], 'callbackId': customListCallback}}]})<CR>
+
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
 call ddu#load('kind', ['file', 'word', 'action'])
 call ddu#load('filter', ['converter_display_word', 'matcher_fzy', 'matcher_substring'])
+
+command RestartDeno !launchctl stop io.github.vim-denops.LaunchAtLogin && launchctl start io.github.vim-denops.LaunchAtLogin
 "end of ddu configuration
 
 "start of denops settings
