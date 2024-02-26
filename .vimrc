@@ -41,7 +41,7 @@ Plugin 'matsui54/ddu-source-file_external'
 Plugin 'shun/ddu-source-rg'
 Plugin 'shun/ddu-source-buffer'
 Plugin 'uga-rosa/ddu-source-lsp'
-Plugin 'liquidz/ddu-source-custom-list'
+Plugin 'bengillies/ddu-source-custom-list'
 
 "autocomplete plugins
 Plugin 'prabirshrestha/vim-lsp'
@@ -400,7 +400,7 @@ call ddu#custom#patch_global('sourceOptions', {
 	\ })
 
 let customListCallback = denops#callback#register(
-	\ {s -> execute(printf(':Lsp%s', s), '')},
+	\ {s -> execute(printf('%s', s), '')},
 	\ {'once': v:true})
 
 
@@ -411,7 +411,7 @@ nnoremap <silent> <Leader>f :call ddu#start({'sources': [{'name': 'file_rec'}], 
 nnoremap <silent> <Leader>F :call ddu#start({'sources': [{'name': 'file_browser', 'options': {'path': expand('%:h')}}], 'uiParams': {'ff': {'autoResize': v:false}}})<CR>
 
 "grep across files
-nnoremap <silent> <Space>g :call ddu#start(#{ sources: [{ name: 'grep', params: { input: input('Pattern:')}}]})<CR>
+nnoremap <silent> <Space>g :call ddu#start(#{ sources: [{ 'name': 'grep', 'params': { 'input': input('Pattern:')}}]})<CR>
 
 "buffer search
 nnoremap <silent> <Leader>b :call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
@@ -427,7 +427,7 @@ vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'lin
 nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
 "custom lsp functions list
-nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'texts': ['CodeAction', 'Rename', 'References'], 'callbackId': customListCallback}}]})<CR>
+nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'code actions', 'cmd':':LspCodeAction'}, {'name':'rename symbol','cmd':':LspRename'}, {'name':'show references', 'cmd':':LspReferences'}], 'callbackId': customListCallback}}]})<CR>
 
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
