@@ -427,7 +427,7 @@ vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'lin
 nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
 "custom lsp functions list
-nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'code actions', 'cmd':':LspCodeAction'}, {'name':'rename symbol','cmd':':LspRename'}, {'name':'show references', 'cmd':':LspReferences'}], 'callbackId': customListCallback}}]})<CR>
+nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'code actions', 'cmd':':LspCodeAction'}, {'name':'rename symbol','cmd':':LspRename'}, {'name':'show references', 'cmd':':LspReferences'}, {'name':'copilot', 'cmd': ':Copilot panel'}], 'callbackId': customListCallback}}]})<CR>
 
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
