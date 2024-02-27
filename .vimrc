@@ -10,7 +10,6 @@ call vundle#begin()
 "Vundled GitHub packages
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'gmarik/vundle.vim'
-"Plugin 'Shougo/vimproc.vim'
 Plugin 'vim-denops/denops.vim'
 Plugin 'vim-denops/denops-shared-server.vim'
 Plugin 'Shougo/ddu.vim'
@@ -24,8 +23,6 @@ Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
-"Plugin 'roxma/nvim-yarp'
-"Plugin 'roxma/vim-hug-neovim-rpc'
 
 "ddu plugins
 Plugin 'Shougo/ddu-ui-ff'
@@ -53,7 +50,6 @@ Plugin 'shun/ddc-source-vim-lsp'
 Plugin 'matsui54/ddc-buffer'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
-"Plugin 'bengillies/denite-vim-lsp'
 Plugin 'github/copilot.vim'
 
 "Bundles from https://github.com/vim-scripts
@@ -427,7 +423,7 @@ vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'lin
 nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
 "custom lsp functions list
-nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'code actions', 'cmd':':LspCodeAction'}, {'name':'rename symbol','cmd':':LspRename'}, {'name':'show references', 'cmd':':LspReferences'}, {'name':'copilot', 'cmd': ':Copilot panel'}], 'callbackId': customListCallback}}]})<CR>
+nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'Perform action', 'cmd':':LspCodeAction'}, {'name':'Rename symbol','cmd':':LspRename'}, {'name':'Show references', 'cmd':':LspReferences'}, {'name':'Make code suggestions', 'cmd': ':Copilot panel'}], 'callbackId': customListCallback}}]})<CR>
 
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
