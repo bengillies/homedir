@@ -196,8 +196,8 @@ set background=dark
 colorscheme elrodeo
 
 "<Enter> and <Shift><Enter> insert lines without going into insert mode
-nmap <silent><Enter> o<ESC>
-nmap <silent><S-Enter> O<ESC>
+nnoremap <silent><Enter> o<ESC>
+nnoremap <silent><S-Enter> O<ESC>
 
 "turn off the bell
 set vb t_vb= 
@@ -241,23 +241,63 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
 nmap <silent> <Space>e :LspNextError<CR>
+nmap <silent> <Space>E :call FilterLocationListToCurrentLine(line('.'))<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
 
-"show error information
+"show error information - 1 line in status bar, no virtualtext/float, full
+"error message for current line if you hit <Space>E
+let g:lsp_diagnostics_echo_cursor = 1
 let g:lsp_diagnostics_float_cursor = 0
+let g:lsp_diagnostics_float_insert_mode_enabled = 0
+let g:lsp_diagnostics_highlights_insert_mode_enabled = 1
+let g:lsp_diagnostics_highlights_delay = 1000
+let g:lsp_diagnostics_signs_enabled = 0
+let g:lsp_document_code_action_signs_enabled = 0
+
+function! FilterLocationListToCurrentLine(current_line)
+	execute 'LspDocumentDiagnostics'
+	let filtered_list = filter(getloclist(0), 'v:val.lnum == a:current_line')
+	if !empty(filtered_list)
+		call setloclist(0, filtered_list)
+	else
+		call setloclist(0, [{'lnum': a:current_line, 'text': 'No diagnostics found', 'type': 'I'}])
+	endif
+endfunction
+
+function! DelayedFilter(current_line)
+	call timer_start(500, {-> FilterLocationListToCurrentLine(a:current_line)})
+endfunction
+
 
 "turn off displaying diagnostic info all the time as a separate row
-let g:lsp_diagnostics_virtual_text_enabled = 1
+let g:lsp_diagnostics_virtual_text_enabled = 0
 let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
 let g:lsp_diagnostics_virtual_text_align = 'right'
+let g:lsp_diagnostics_virtual_text_delay = 1000
 let g:lsp_diagnostics_highlights_enabled = 1
 
 "end of vim-lsp end settings
 
+"quickfix/location-list settings
+
+"define function to handle quickfix and location list at the same time as they
+"have the same file type
+function! EitherQLBuffer(qfix, loc)
+	if !empty(getloclist(0))
+		execute a:loc
+	else
+		execute a:qfix
+	endif
+endfunction
+
 "jump to quickfix line with enter
-autocmd filetype qf nmap <silent><Enter> :.cc<CR>
+autocmd FileType qf nnoremap <silent><Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
+autocmd FileType qf nnoremap <silent><Esc> :call EitherQLBuffer(':cclose', ':lclose')<CR>
+autocmd FileType qf nnoremap <silent><C-n> :call EitherQLBuffer(':cnext', ':lnext')<CR>
+autocmd FileType qf nnoremap <silent><C-p> :call EitherQLBuffer(':cprevious', ':lprevious')<CR>
+"end quickfix/location-list settings
 
 "write files without opening vim up as sudo ...
 cmap w!! w !sudo tee % > /dev/null
@@ -439,6 +479,9 @@ let g:denops_server_addr = '127.0.0.1:32123'
 
 "start of ddc (autocomplete settings)
 
+set completeopt+=noselect
+set completeopt+=preview
+
 call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
 call ddc#custom#patch_global('sourceOptions', {
 	\ 'vim-lsp': {
@@ -464,11 +507,26 @@ call ddc#custom#patch_global('sourceParams', {
 	\ }
 	\ })
 
+call ddc#custom#patch_global('uiParams', {
+	\ 'native': {
+	\   'insert': v:false,
+	\ }
+	\ })
+
 "turn off autocomplete on type
 call ddc#custom#patch_global('ui', 'none')
 
 "set regular autocomplete (C-n) to use ddc native popups
 :inoremap <silent><expr><C-n> ddc#map#complete('native')
+" stop completion on select
+autocmd CompleteDone * silent! pclose!
+
+"select value on tab
+inoremap <silent><expr><Tab> pumvisible() ? ddc#map#manual_complete() : "\<Tab>"
+
+
+" copilot/ddc compatibility
+let g:copilot_hide_during_completion = 0
 
 call ddc#enable()
 "end of ddc (autocomplete settings)
@@ -544,13 +602,16 @@ nmap <leader>v <Plug>SlimeConfig
 hi ColorColumn ctermbg=0
 
 "set up code folding
-autocmd FileType javascript,typescript,typescriptreact setlocal foldmethod=marker
-autocmd FileType javascript,typescript,typescriptreact setlocal foldmarker={,}
-autocmd FileType javascript,typescript,typescriptreact setlocal foldtext=MarkerFoldText()
+autocmd FileType javascript,typescript,typescriptreact setlocal foldmethod=expr
+autocmd FileType javascript,typescript,typescriptreact setlocal foldexpr=lsp#ui#vim#folding#foldexpr()
+autocmd FileType javascript,typescript,typescriptreact setlocal foldtext=lsp#ui#vim#folding#foldtext()
 
 autocmd FileType css setlocal foldmethod=marker
 autocmd FileType css setlocal foldmarker={,}
 autocmd FileType css setlocal foldtext=MarkerFoldText()
+autocmd FileType scss setlocal foldmethod=marker
+autocmd FileType scss setlocal foldmarker={,}
+autocmd FileType scss setlocal foldtext=MarkerFoldText()
 
 autocmd FileType python setlocal foldmethod=indent
 
