@@ -240,8 +240,10 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 "autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
-nmap <silent> <Space>e :LspNextError<CR>
-nmap <silent> <Space>E :call FilterLocationListToCurrentLine(line('.'))<CR>
+"mappings for error code (NUL is C-Space)
+nmap <silent> <C-e><C-n> :LspNextError<CR>
+nmap <silent> <C-e><C-p> :LspPreviousError<CR>
+nmap <silent> <C-e><NUL> :call FilterLocationListToCurrentLine(line('.'))<CR>
 
 "turn off 2 column hint next to line number column
 set signcolumn=no
@@ -285,18 +287,26 @@ let g:lsp_diagnostics_highlights_enabled = 1
 "define function to handle quickfix and location list at the same time as they
 "have the same file type
 function! EitherQLBuffer(qfix, loc)
-	if !empty(getloclist(0))
+	if getwininfo(win_getid())[0]['loclist']
 		execute a:loc
-	else
+	elseif getwininfo(win_getid())[0]['quickfix']
 		execute a:qfix
 	endif
 endfunction
 
-"jump to quickfix line with enter
-autocmd FileType qf nnoremap <silent><Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
-autocmd FileType qf nnoremap <silent><Esc> :call EitherQLBuffer(':cclose', ':lclose')<CR>
-autocmd FileType qf nnoremap <silent><C-n> :call EitherQLBuffer(':cnext', ':lnext')<CR>
-autocmd FileType qf nnoremap <silent><C-p> :call EitherQLBuffer(':cprevious', ':lprevious')<CR>
+"inside quickfix/location-list buffer, <Enter> will jump to the error, <Esc> will close the list
+"j and k will move between errors
+augroup QuickFix
+	autocmd FileType qf nmap <buffer> <Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
+	autocmd FileType qf nmap <buffer> <Esc> :call EitherQLBuffer(':cc', ':lcl')<CR>
+	autocmd FileType qf nmap <buffer> j :call EitherQLBuffer('cnext', 'lnext')<CR><C-w>p
+	autocmd FileType qf nmap <buffer> k :call EitherQLBuffer('cprevious', 'lprevious')<CR><C-w>p
+augroup END
+
+"refocus on quickfix/location-list buffer (really just switch to the last used
+"buffer)
+nmap <Space>q <C-w>p
+
 "end quickfix/location-list settings
 
 "write files without opening vim up as sudo ...
