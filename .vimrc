@@ -547,8 +547,7 @@ call ddc#custom#patch_global('ui', 'none')
 autocmd CompleteDone * silent! pclose!
 
 "select value on tab
-inoremap <silent><expr><Tab> pumvisible() ? ddc#map#manual_complete() : "\<Tab>"
-
+"inoremap <silent><expr><Tab> pumvisible() ? ddc#map#manual_complete() : copilot#Accept()
 
 " copilot/ddc compatibility
 let g:copilot_hide_during_completion = 0
