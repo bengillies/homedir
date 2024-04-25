@@ -447,7 +447,7 @@ call ddu#custom#patch_global('sourceOptions', {
 
 let customListCallback = denops#callback#register(
 	\ {s -> execute(printf('%s', s), '')},
-	\ {'once': v:true})
+	\ {'once': v:false})
 
 
 "fuzzy find files
@@ -473,7 +473,22 @@ vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'lin
 nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
 
 "custom lsp functions list
-nnoremap <silent> <Space>a :call ddu#start({'sources': [{'name': 'custom-list', 'params': {'cmdList': [{'name':'Perform action', 'cmd':':LspCodeAction'}, {'name':'Rename symbol','cmd':':LspRename'}, {'name':'Show references', 'cmd':':LspReferences'}, {'name':'Make code suggestions', 'cmd': ':Copilot panel'}], 'callbackId': customListCallback}}]})<CR>
+nnoremap <silent> <Space>a :call ddu#start({
+	\ 'sources': [
+	\   {
+	\     'name': 'custom-list',
+	\     'params': {
+	\       'cmdList': [
+	\         {'name':'Show all errors', 'cmd':':LspDocumentDiagnostics'},
+	\         {'name':'Rename symbol','cmd':':LspRename'},
+	\         {'name':'Suggest code', 'cmd': ':Copilot panel'}
+	\         {'name':'Show references', 'cmd':':LspReferences'},
+	\         {'name':'Perform action', 'cmd':':LspCodeAction'},
+	\       ],
+	\       'callbackId': customListCallback
+	\     }
+	\   }
+	\ ]})<CR>
 
 call ddu#load('ui', ['ff'])
 call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
