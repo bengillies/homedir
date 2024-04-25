@@ -626,9 +626,9 @@ nmap <leader>v <Plug>SlimeConfig
 hi ColorColumn ctermbg=0
 
 "set up code folding
-autocmd FileType javascript,typescript,typescriptreact setlocal foldmethod=expr
-autocmd FileType javascript,typescript,typescriptreact setlocal foldexpr=lsp#ui#vim#folding#foldexpr()
-autocmd FileType javascript,typescript,typescriptreact setlocal foldtext=lsp#ui#vim#folding#foldtext()
+autocmd FileType javascript,typescript,typescriptreact setlocal foldmethod=marker
+autocmd FileType javascript,typescript,typescriptreact setlocal foldmarker={,}
+autocmd FileType javascript,typescript,typescriptreact setlocal foldtext=MarkerFoldText()
 
 autocmd FileType css setlocal foldmethod=marker
 autocmd FileType css setlocal foldmarker={,}
