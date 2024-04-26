@@ -481,9 +481,9 @@ nnoremap <silent> <Space>a :call ddu#start({
 	\       'cmdList': [
 	\         {'name':'Show all errors', 'cmd':':LspDocumentDiagnostics'},
 	\         {'name':'Rename symbol','cmd':':LspRename'},
-	\         {'name':'Suggest code', 'cmd': ':Copilot panel'}
+	\         {'name':'Suggest code', 'cmd': ':Copilot panel'},
 	\         {'name':'Show references', 'cmd':':LspReferences'},
-	\         {'name':'Perform action', 'cmd':':LspCodeAction'},
+	\         {'name':'Perform action', 'cmd':':LspCodeAction'}
 	\       ],
 	\       'callbackId': customListCallback
 	\     }
