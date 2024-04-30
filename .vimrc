@@ -298,7 +298,7 @@ endfunction
 "j and k will move between errors
 augroup QuickFix
 	autocmd FileType qf nmap <buffer> <Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
-	autocmd FileType qf nmap <buffer> <Esc> :call EitherQLBuffer(':cc', ':lcl')<CR>
+	autocmd FileType qf nmap <buffer> <Esc> :call EitherQLBuffer(':cc', ':lcl')<CR><C-w>p
 	autocmd FileType qf nmap <buffer> j :call EitherQLBuffer('cnext', 'lnext')<CR><C-w>p
 	autocmd FileType qf nmap <buffer> k :call EitherQLBuffer('cprevious', 'lprevious')<CR><C-w>p
 augroup END
