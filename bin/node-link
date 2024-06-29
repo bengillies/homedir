@@ -1,7 +1,9 @@
 #!/bin/bash
 
 MOD_PATH='node_modules'
+BIN_PATH="$MOD_PATH/.bin"
 ROOT="${WAVE_ROOT:-`readlink -f "../"`}"
+CONFIG_FILE='package.json'
 
 while getopts "n:"  opt; do
 	case $opt in
@@ -70,8 +72,23 @@ for DIR in "${MODULES[@]}"; do
 			rm -rf "$MODULE_PATH"
 			ln -s "$ROOT/$MODULE" "$MODULE_PATH"
 			echo "linking $MODULE from $ROOT"
+
+			SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' $ROOT/$MODULE/$CONFIG_FILE 2> /dev/null)
+			if [[ -n $SCRIPTS ]]; then
+				for SCRIPT in $SCRIPTS; do
+					CMD=$(echo $SCRIPT | cut -d ':' -f 1)
+					CMD_PATH=$(echo $SCRIPT | cut -d ':' -f 2)
+
+					echo "Attaching script $CMD to $CMD_PATH"
+
+					rm -f "$BIN_PATH/$CMD"
+					ln -s "$ROOT/$MODULE/$CMD_PATH" "$BIN_PATH/$CMD"
+					chmod +x "$BIN_PATH/$CMD"
+				done
+			fi
 		fi
 	done
+
 
 	popd > /dev/null
 done
