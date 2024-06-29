@@ -23,6 +23,7 @@ Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'conormcd/matchindent.vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-scripts/AnsiEsc.vim'
+Plugin 'girishji/easyjump.vim'
 
 "ddu plugins
 Plugin 'Shougo/ddu-ui-ff'
@@ -240,6 +241,7 @@ nmap <silent> <NUL> :keepalt LspHover<CR>
 "autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
 nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
+vmap <silent> <C-s> :LspCodeAction --ui=float<CR>
 "mappings for error code (NUL is C-Space)
 nmap <silent> <C-e><C-n> :LspNextError<CR>
 nmap <silent> <C-e><C-p> :LspPreviousError<CR>
@@ -257,6 +259,7 @@ let g:lsp_diagnostics_highlights_insert_mode_enabled = 1
 let g:lsp_diagnostics_highlights_delay = 1000
 let g:lsp_diagnostics_signs_enabled = 0
 let g:lsp_document_code_action_signs_enabled = 0
+let g:lsp_document_symbol_detail = v:true
 
 function! FilterLocationListToCurrentLine(current_line)
 	execute 'LspDocumentDiagnostics'
@@ -299,8 +302,8 @@ endfunction
 augroup QuickFix
 	autocmd FileType qf nmap <buffer> <Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
 	autocmd FileType qf nmap <buffer> <Esc> :call EitherQLBuffer(':ccl', ':lcl')<CR><C-w>p
-	autocmd FileType qf nmap <buffer> j :call EitherQLBuffer('cnext', 'lnext')<CR><C-w>p
-	autocmd FileType qf nmap <buffer> k :call EitherQLBuffer('cprevious', 'lprevious')<CR><C-w>p
+	autocmd FileType qf nmap <buffer> <S-j> :call EitherQLBuffer('cnext', 'lnext')<CR><C-w>p
+	autocmd FileType qf nmap <buffer> <S-k> :call EitherQLBuffer('cprevious', 'lprevious')<CR><C-w>p
 augroup END
 
 "refocus on quickfix/location-list buffer (really just switch to the last used
@@ -417,7 +420,7 @@ call ddu#custom#patch_global('sourceParams', {
 call ddu#custom#alias('source', 'file_browser', 'file_external')
 call ddu#custom#patch_global('sourceParams', {
 	\   'file_browser': {
-	\     'cmd': ['/opt/homebrew/bin/gls', '--group-directories-first', '-aF', '-I', '.sw*', '-I', '.*.sw*']
+	\     'cmd': ['/opt/homebrew/bin/gls', '--group-directories-first', '-a', '-I', '.sw*', '-I', '.*.sw*']
 	\   },
 	\ })
 
@@ -470,7 +473,7 @@ nnoremap <silent> <Leader><Leader> :call ddu#start({'sources': [{'name': 'line'}
 vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'line'}], 'input': getreg("u")})<CR>
 
 "outline current file
-nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}]})<CR>
+nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}], 'uiParams': {'ff': {'displayTree': v:true}}})<CR>
 
 "custom lsp functions list
 nnoremap <silent> <Space>a :call ddu#start({
@@ -481,8 +484,9 @@ nnoremap <silent> <Space>a :call ddu#start({
 	\       'cmdList': [
 	\         {'name':'Show all errors', 'cmd':':LspDocumentDiagnostics'},
 	\         {'name':'Rename symbol','cmd':':LspRename'},
-	\         {'name':'Suggest code', 'cmd': ':Copilot panel'},
+	\         {'name':'Show type', 'cmd':':LspPeekTypeDefinition'},
 	\         {'name':'Show references', 'cmd':':LspReferences'},
+	\         {'name':'Suggest code', 'cmd': ':Copilot panel'},
 	\         {'name':'Perform action', 'cmd':':LspCodeAction'}
 	\       ],
 	\       'callbackId': customListCallback
