@@ -10,4 +10,5 @@ if [ -z "$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)" ];
 	git branch --set-upstream-to=origin/$currBranch $currBranch
 fi
 
-git pull
+# merge upstream changes on top of current branch changes
+git pull --no-rebase
