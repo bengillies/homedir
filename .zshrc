@@ -112,6 +112,9 @@ alias lein='nocorrect lein'
 #g == git
 alias g='git'
 
+#update node modules
+alias ni='rm -rf node_modules && npm install'
+
 #manually specify unicorn startup
 #alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
 #}}}
@@ -178,6 +181,9 @@ export PATH="$NVM_DIR/versions/node/v$(<$NVM_DIR/alias/default)/bin:$PATH"
 #set up rustup paths
 export PATH="$HOME/.cargo/bin:$PATH"
 
+#setup pipx paths
+export PATH="$PATH:$HOME/.local/bin"
+
 #load in autocomplete helpers
 #source <(kubectl completion zsh)
 
@@ -187,8 +193,14 @@ PATH=$HOME/bin:$PATH
 export PATH
 #}}}
 
+#Load custom custom config
+if [ -f ~/.zshrc-init ]; then
+	source ~/.zshrc-init
+fi
+
 #start tmux (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
+
