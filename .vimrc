@@ -711,3 +711,6 @@ function! MarkerFoldText()
 	let sub = strpart( sub, 0, winwidth(0) - strlen( info ) - num_w - fold_w - 1 )
 	return sub . info
 endfunction
+
+"finally, load in the previous session if it exists and then delete it
+autocmd VimEnter * if filereadable('Session.vim') | source Session.vim | call delete('Session.vim') | endif
