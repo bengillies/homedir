@@ -486,6 +486,7 @@ nnoremap <silent> <Space>a :call ddu#start({
 	\         {'name':'Rename symbol','cmd':':LspRename'},
 	\         {'name':'Show type', 'cmd':':LspPeekTypeDefinition'},
 	\         {'name':'Show references', 'cmd':':LspReferences'},
+	\         {'name':'Chat code', 'cmd': ':!code -g ' . expand('%') . ':' . line('.') . ':' . col('.') },
 	\         {'name':'Suggest code', 'cmd': ':Copilot panel'},
 	\         {'name':'Perform action', 'cmd':':LspCodeAction'}
 	\       ],
