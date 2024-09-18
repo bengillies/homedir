@@ -61,7 +61,7 @@ export NODE_PATH=/usr/local/lib/node_modules
 #add jsctags to the NODE_PATH
 export NODE_PATH='/usr/local/lib/jsctags:${NODE_PATH}'
 #start screen (unless we're in it already). If its already on, connect to it
-if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" ] && tty -s; then
+if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach
 fi
