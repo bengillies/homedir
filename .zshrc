@@ -12,6 +12,8 @@ BLUE=$'\033\[38;5;117m'
 function happy_or_sad_or_ssh() {
 	if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
 		echo 👽
+	elif [ -n "$VIRTUAL_ENV_PROMPT" ]; then
+		echo 🐍
 	else
 		echo "%(?.😃.😡)"
 	fi
@@ -117,6 +119,20 @@ alias ni='rm -rf node_modules && npm install'
 
 #manually specify unicorn startup
 #alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
+
+#python virtualenv
+function venv_activate() {
+	FOLDER_NAME=$(pwd | sed 's|/|-|g')
+	VENV_DIR="$HOME/.venvs/$FOLDER_NAME"
+
+	# create if it doesn't exist, then activate
+	if [ ! -d "$VENV_DIR" ]; then
+		python3 -m venv "$VENV_DIR"
+	fi
+
+	source "$VENV_DIR/bin/activate"
+}
+alias venv=venv_activate
 #}}}
 
 #{{{ Folder locations
