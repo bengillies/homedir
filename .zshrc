@@ -210,6 +210,9 @@ PATH=$HOME/bin:$PATH
 export PATH
 #}}}
 
+#export directory specific env vars
+eval "$(direnv hook zsh)"
+
 #Load custom custom config
 if [ -f ~/.zshrc-init ]; then
 	source ~/.zshrc-init
