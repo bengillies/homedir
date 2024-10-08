@@ -14,3 +14,4 @@ bin/irc-proxy
 .idea
 .lein-repl-history
 node_modules
+.envrc
