@@ -1,0 +1,433 @@
+"set compatibility mode with vi
+set nocompatible
+
+"vundle config
+filetype off
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+"Vundled GitHub packages
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'gmarik/vundle.vim'
+Plugin 'vim-denops/denops.vim'
+Plugin 'vim-denops/denops-shared-server.vim'
+Plugin 'Shougo/ddu.vim'
+Plugin 'Shougo/neoyank.vim'
+Plugin 'tpope/vim-surround'
+Plugin 'bengillies/vim-slime'
+Plugin 'bling/vim-airline'
+Plugin 'ap/vim-css-color'
+Plugin 'nono/vim-handlebars'
+Plugin 'christoomey/vim-tmux-navigator'
+Plugin 'conormcd/matchindent.vim'
+Plugin 'skywind3000/asyncrun.vim'
+Plugin 'vim-scripts/AnsiEsc.vim'
+Plugin 'girishji/easyjump.vim'
+
+"ddu plugins
+Plugin 'Shougo/ddu-ui-ff'
+Plugin 'Shougo/ddu-kind-file'
+Plugin 'Shougo/ddu-kind-word'
+Plugin 'Shougo/ddu-source-line'
+Plugin 'Shougo/ddu-source-action'
+Plugin 'Shougo/ddu-source-register'
+Plugin 'Shougo/ddu-filter-matcher_substring'
+Plugin 'Shougo/ddu-filter-converter_display_word'
+Plugin 'matsui54/ddu-filter-fzy'
+Plugin 'matsui54/ddu-source-file_external'
+Plugin 'shun/ddu-source-rg'
+Plugin 'shun/ddu-source-buffer'
+Plugin 'uga-rosa/ddu-source-lsp'
+Plugin 'bengillies/ddu-source-custom-list'
+
+"autocomplete plugins
+Plugin 'prabirshrestha/vim-lsp'
+Plugin 'mattn/vim-lsp-settings'
+Plugin 'Shougo/ddc.vim'
+Plugin 'Shougo/ddc-ui-native'
+Plugin 'Shougo/ddc-ui-none'
+Plugin 'shun/ddc-source-vim-lsp'
+Plugin 'matsui54/ddc-buffer'
+Plugin 'Shougo/ddc-matcher_head'
+Plugin 'Shougo/ddc-sorter_rank'
+Plugin 'github/copilot.vim'
+
+"Bundles from https://github.com/vim-scripts
+Plugin 'VimClojure'
+Plugin 'pydoc.vim'
+
+call vundle#end()
+
+
+autocmd FileType json vmap = :!jq .<CR>
+
+
+"set up easy testing and linting
+nmap <Leader>t :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; elif [ -e package.json ]; then npm run test --silent; fi<CR>
+nmap <Leader>T :!if [ -e Makefile ]; then make test; elif [ -e Rakefile ]; then rake test; elif [ -e Gruntfile.js ]; then grunt test; elif [ -e Gulpfile.js ]; then gulp test; elif [ -e package.json ]; then npm run test --silent -- %; fi<CR>
+
+
+"start of vim-lsp settings
+
+"open quickfix with all references to variable in
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gd <plug>(lsp-references)
+nmap <silent> gd <plug>(lsp-references)
+"jump to definition in same file, or open a new buffer with the definition in
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gD :keepalt LspDefinition<CR>
+nmap <silent> gD :keepalt LspDefinition<CR>
+"display type information under cursor (NUL maps to C-Space)
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <C-Space> :keepalt LspHover<CR>
+nmap <silent> <C-Space> :keepalt LspHover<CR>
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <NUL> :keepalt LspHover<CR>
+nmap <silent> <NUL> :keepalt LspHover<CR>
+"display actions to perform on file (e.g. update imports)
+"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
+nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
+nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
+vmap <silent> <C-s> :LspCodeAction --ui=float<CR>
+"mappings for error code (NUL is C-Space)
+nmap <silent> <C-e><C-n> :LspNextError<CR>
+nmap <silent> <C-e><C-p> :LspPreviousError<CR>
+nmap <silent> <C-e><NUL> :call FilterLocationListToCurrentLine(line('.'))<CR>
+
+
+"show error information - 1 line in status bar, no virtualtext/float, full
+"error message for current line if you hit <Space>E
+let g:lsp_diagnostics_echo_cursor = 1
+let g:lsp_diagnostics_float_cursor = 0
+let g:lsp_diagnostics_float_insert_mode_enabled = 0
+let g:lsp_diagnostics_highlights_insert_mode_enabled = 1
+let g:lsp_diagnostics_highlights_delay = 1000
+let g:lsp_diagnostics_signs_enabled = 0
+let g:lsp_document_code_action_signs_enabled = 0
+let g:lsp_document_symbol_detail = v:true
+
+function! FilterLocationListToCurrentLine(current_line)
+	execute 'LspDocumentDiagnostics'
+	let filtered_list = filter(getloclist(0), 'v:val.lnum == a:current_line')
+	if !empty(filtered_list)
+		call setloclist(0, filtered_list)
+	else
+		call setloclist(0, [{'lnum': a:current_line, 'text': 'No diagnostics found', 'type': 'I'}])
+	endif
+endfunction
+
+function! DelayedFilter(current_line)
+	call timer_start(500, {-> FilterLocationListToCurrentLine(a:current_line)})
+endfunction
+
+
+"turn off displaying diagnostic info all the time as a separate row
+let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
+let g:lsp_diagnostics_virtual_text_align = 'right'
+let g:lsp_diagnostics_virtual_text_delay = 1000
+let g:lsp_diagnostics_highlights_enabled = 1
+
+"end of vim-lsp end settings
+
+"quickfix/location-list settings
+
+"define function to handle quickfix and location list at the same time as they
+"have the same file type
+function! EitherQLBuffer(qfix, loc)
+	if getwininfo(win_getid())[0]['loclist']
+		execute a:loc
+	elseif getwininfo(win_getid())[0]['quickfix']
+		execute a:qfix
+	endif
+endfunction
+
+"inside quickfix/location-list buffer, <Enter> will jump to the error, <Esc> will close the list
+"j and k will move between errors
+augroup QuickFix
+	autocmd FileType qf nmap <buffer> <Enter> :call EitherQLBuffer(':cc', ':ll')<CR>
+	autocmd FileType qf nmap <buffer> <Esc> :call EitherQLBuffer(':ccl', ':lcl')<CR><C-w>p
+	autocmd FileType qf nmap <buffer> <S-j> :call EitherQLBuffer('cnext', 'lnext')<CR><C-w>p
+	autocmd FileType qf nmap <buffer> <S-k> :call EitherQLBuffer('cprevious', 'lprevious')<CR><C-w>p
+augroup END
+
+"refocus on quickfix/location-list buffer (really just switch to the last used
+"buffer)
+nmap <Space>q <C-w>p
+
+"end quickfix/location-list settings
+
+"easier navigation around windows (handled by vim-tmux-navigator)
+" noremap <C-h> <C-w>h
+" noremap <C-j> <C-w>j
+" noremap <C-k> <C-w>k
+" noremap <C-l> <C-w>l
+
+"vimclojure settings
+let vimclojure#HighlightBuiltins = 1
+let vimclojure#ParenRainbow = 1
+let vimclojure#DynamicHighlighting = 1
+let vimclojure#FuzzyIndent = 1
+
+"start of ddu configuration
+call ddu#custom#patch_global(#{
+	\   ui: 'ff',
+	\   uiParams: #{
+	\     ff: #{
+	\       autoResize: v:true,
+	\       prompt: '> ',
+	\     },
+	\   },
+	\   kindOptions: #{
+	\     file: #{
+	\       defaultAction: 'open',
+	\     },
+	\     word: #{
+	\       defaultAction: 'yank',
+	\     },
+	\     action: #{
+	\       defaultAction: 'do',
+	\     },
+	\     lsp: #{
+	\       defaultAction: 'open',
+	\     },
+	\     custom-list: #{
+	\       defaultAction: 'callback',
+	\     },
+	\   },
+	\   sourceOptions: {
+	\     '_': {
+	\       'matchers': ['converter_display_word', 'matcher_fzy'],
+	\     },
+	\   }
+	\ })
+
+
+autocmd FileType ddu-ff call s:ddu_ff_my_settings()
+function s:ddu_ff_my_settings() abort
+
+	"enter either narrows into the directory, or else calls the default action
+	"(e.g. opens the file)
+	nnoremap <buffer><expr> <CR> get(ddu#ui#get_item(), 'isTree', v:false)
+	\	? "<Cmd>call ddu#ui#sync_action('itemAction', { 'name': 'narrow' })<CR>"
+	\	: "<Cmd>call ddu#ui#sync_action('itemAction')<CR>"
+
+	"tab opens the full list of available actions
+	nnoremap <buffer> <Tab> <Cmd>call ddu#ui#do_action('chooseAction')<CR>
+
+	"y yanks the file path, or text string, depending on the current item type
+	nnoremap <buffer> y <Cmd>call ddu#ui#multi_actions([['itemAction', { 'name': 'yank' }], ['quit']])<CR>
+
+	"o opens a new file
+	nnoremap <buffer> o <Cmd>call ddu#ui#sync_action('itemAction', { 'name': 'newFile' })<CR>
+
+	"i opens the filter bar
+	nnoremap <buffer> i <Cmd>call ddu#ui#do_action('openFilterWindow')<CR>
+
+	"q or esc quits
+	nnoremap <buffer> q <Cmd>call ddu#ui#do_action('quit')<CR>
+	nnoremap <buffer> <Esc> <Cmd>call ddu#ui#do_action('quit')<CR>
+endfunction
+
+autocmd FileType ddu-ff-filter call s:ddu_ff_filter_my_settings()
+function s:ddu_ff_filter_my_settings() abort
+	inoremap <buffer> <CR> <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+	nnoremap <buffer> <CR> <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+
+	inoremap <buffer> <Esc> <Esc><Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+	nnoremap <buffer> <Esc> <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+
+	nnoremap <buffer> q <Cmd>call ddu#ui#do_action('closeFilterWindow')<CR>
+endfunction
+
+call ddu#custom#alias('source', 'file_rec', 'file_external')
+call ddu#custom#patch_global('sourceParams', {
+	\   'file_rec': {
+	\     'cmd': ['/opt/homebrew/bin/ag', '--follow', '--nocolor', '--nogroup', '-g', '.'],
+	\     'updateItems': 200000
+	\   },
+	\ })
+
+call ddu#custom#alias('source', 'file_browser', 'file_external')
+call ddu#custom#patch_global('sourceParams', {
+	\   'file_browser': {
+	\     'cmd': ['/opt/homebrew/bin/gls', '--group-directories-first', '-a', '-I', '.sw*', '-I', '.*.sw*']
+	\   },
+	\ })
+
+call ddu#custom#alias('source', 'grep', 'rg')
+call ddu#custom#patch_global('sourceParams', {
+	\   'grep': {
+	\     'args': ['--column', '--no-heading', '--json']
+	\   },
+	\ })
+
+call ddu#custom#patch_global('sourceOptions', {
+	\   'line': {
+	\     'matchers': ['matcher_substring'],
+	\   },
+	\ })
+
+call ddu#custom#patch_global('sourceParams', {
+	\   'lsp_documentSymbol': {
+	\      'clientName': 'vim-lsp',
+	\   },
+	\ })
+call ddu#custom#patch_global('sourceOptions', {
+	\   'lsp_documentSymbol': {
+	\      'converters': ['converter_lsp_symbol'],
+	\     },
+	\ })
+
+let customListCallback = denops#callback#register(
+	\ {s -> execute(printf('%s', s), '')},
+	\ {'once': v:false})
+
+
+"fuzzy find files
+nnoremap <silent> <Leader>f :call ddu#start({'sources': [{'name': 'file_rec'}], 'uiParams': {'ff': {'startFilter': v:true}}})<CR>
+
+"file listing from current buffer dir
+nnoremap <silent> <Leader>F :call ddu#start({'sources': [{'name': 'file_browser', 'options': {'path': expand('%:h')}}], 'uiParams': {'ff': {'autoResize': v:false}}})<CR>
+
+"grep across files
+nnoremap <silent> <Space>g :call ddu#start(#{ sources: [{ 'name': 'grep', 'params': { 'input': input('Pattern:')}}]})<CR>
+
+"buffer search
+nnoremap <silent> <Leader>b :call ddu#start({'sources': [{'name': 'buffer'}]})<CR>
+
+"list registers for yank history
+nnoremap <silent> <Leader>y :call ddu#start({'sources': [{'name': 'register'}]})<CR>
+
+"grep for word or highlight inside file (word under cursor in normal mode, selection in visual mode)
+nnoremap <silent> <Leader><Leader> :call ddu#start({'sources': [{'name': 'line'}], 'input': expand('<cword>')})<CR>
+vnoremap <silent> <Leader><Leader> "uy:call ddu#start({'sources': [{'name': 'line'}], 'input': getreg("u")})<CR>
+
+"outline current file
+nnoremap <silent> <F7> :call ddu#start({'sources': [{'name': 'lsp_documentSymbol'}], 'uiParams': {'ff': {'displayTree': v:true}}})<CR>
+
+"custom lsp functions list
+nnoremap <silent> <Space>a :call ddu#start({
+	\ 'sources': [
+	\   {
+	\     'name': 'custom-list',
+	\     'params': {
+	\       'cmdList': [
+	\         {'name':'Show all errors', 'cmd':':LspDocumentDiagnostics'},
+	\         {'name':'Rename symbol','cmd':':LspRename'},
+	\         {'name':'Show type', 'cmd':':LspPeekTypeDefinition'},
+	\         {'name':'Show references', 'cmd':':LspReferences'},
+	\         {'name':'Chat code', 'cmd': ':!code -g ' . expand('%') . ':' . line('.') . ':' . col('.') },
+	\         {'name':'Suggest code', 'cmd': ':Copilot panel'},
+	\         {'name':'Perform action', 'cmd':':LspCodeAction'}
+	\       ],
+	\       'callbackId': customListCallback
+	\     }
+	\   }
+	\ ]})<CR>
+
+call ddu#load('ui', ['ff'])
+call ddu#load('source', ['file_external', 'file_browser', 'grep', 'file_rec', 'line', 'register', 'buffer'])
+call ddu#load('kind', ['file', 'word', 'action'])
+call ddu#load('filter', ['converter_display_word', 'matcher_fzy', 'matcher_substring'])
+
+command RestartDeno !launchctl stop io.github.vim-denops.LaunchAtLogin && launchctl start io.github.vim-denops.LaunchAtLogin
+"end of ddu configuration
+
+"start of denops settings
+let g:denops_server_addr = '127.0.0.1:32123'
+"end denops settings
+
+"start of ddc (autocomplete settings)
+
+call ddc#custom#patch_global('sources', ['vim-lsp', 'buffer'])
+call ddc#custom#patch_global('sourceOptions', {
+	\ 'vim-lsp': {
+	\   'matchers': ['matcher_head'],
+	\   'minAutoCompleteLength': 0,
+	\   'sorters': ['sorter_rank'],
+	\   'mark': 'lsp',
+	\ },
+	\ 'buffer': {
+	\   'matchers': ['matcher_head'],
+	\   'minAutoCompleteLength': 0,
+	\   'sorters': ['sorter_rank'],
+	\   'mark': 'B',
+	\ },
+	\ })
+
+call ddc#custom#patch_global('sourceParams', {
+	\ 'buffer': {
+	\   'requireSameFiletype': v:false,
+	\   'limitBytes': 5000000,
+	\   'fromAltBuf': v:true,
+	\   'forceCollect': v:true,
+	\ }
+	\ })
+
+call ddc#custom#patch_global('uiParams', {
+	\ 'native': {
+	\   'insert': v:false,
+	\ }
+	\ })
+
+"turn off autocomplete on type
+call ddc#custom#patch_global('ui', 'none')
+
+"set regular autocomplete (C-n) to use ddc native popups
+:inoremap <silent><expr><C-n> ddc#map#complete('native')
+" stop completion on select
+autocmd CompleteDone * silent! pclose!
+
+"select value on tab
+"inoremap <silent><expr><Tab> pumvisible() ? ddc#map#manual_complete() : copilot#Accept()
+
+" copilot/ddc compatibility
+let g:copilot_hide_during_completion = 0
+
+call ddc#enable()
+"end of ddc (autocomplete settings)
+
+"start airline settings
+
+"add a status line
+set laststatus=2
+
+"tell airline to use fancy font rendering
+let g:airline_powerline_fonts = 1
+
+"customise the statusline
+"a=mode
+"b=branch
+"c=filename
+"x=tag + filetype
+"y=file encoding
+"z=percentage + line number
+let g:airline#extensions#default#layout = [
+	\ [ 'a', 'c' ],
+	\ [ 'x', 'error', 'warning' ]
+\ ]
+
+"end airline settings
+
+"set 8 colors
+"set t_Co=8
+
+"autoformat JS files
+"TODO: does this work with nvim or do I need a prettier plugin?
+autocmd filetype javascript,javascriptreact,typescript,typescriptreact nmap == :!npx prettier -w %<CR><CR>:e<CR>
+
+"start of vim-slime settings
+"set slime to use tmux
+let g:slime_target = "tmux"
+
+"remove slime default key mappings
+let g:slime_no_mappings = 1
+
+"set up keybindings for slime (C-c is an awful default)
+"<C-e> in visual mode to send region
+"<C-e> + motion to send motion
+"<C-e><C-e> to send line
+"<leader>v to switch to a different target pane
+xmap <C-e> <Plug>SlimeRegionSend
+nmap <C-e> <Plug>SlimeMotionSend
+nmap <C-e><C-e> <Plug>SlimeLineSend
+nmap <leader>v <Plug>SlimeConfig
+"end of vim-slime settings
