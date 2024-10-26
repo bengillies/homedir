@@ -219,7 +219,7 @@ if [ -f ~/.zshrc-init ]; then
 fi
 
 #start tmux (unless we're in it already). If its already on, connect to it
-if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" ] && tty -s; then
+if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" -a -z "$NVIM" ] && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
