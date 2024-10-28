@@ -1,4 +1,18 @@
 {
+  "AnsiEsc.vim": { "branch": "master", "commit": "d2bb7878622e4c16203acf1c92a0f4bc7ac58003" },
+  "VimClojure": { "branch": "master", "commit": "2a17c249571395a7f45523d38cac6a9326ecf8f1" },
+  "copilot.vim": { "branch": "release", "commit": "87038123804796ca7af20d1b71c3428d858a9124" },
+  "denops-shared-server.vim": { "branch": "main", "commit": "829a7e7c9d1d534f71f471c3a4a312457ddecb63" },
+  "denops.vim": { "branch": "main", "commit": "3a38e081f922e0134671236edd3e6dcbb251d10c" },
   "lazy.nvim": { "branch": "main", "commit": "cf8ecc2c5e4332760431a33534240b0cbc6680ab" },
-  "vim-floaterm": { "branch": "master", "commit": "4e28c8dd0271e10a5f55142fb6fe9b1599ee6160" }
+  "leap.nvim": { "branch": "main", "commit": "c6bfb191f1161fbabace1f36f578a20ac6c7642c" },
+  "matchindent.vim": { "branch": "master", "commit": "2717a7fd15726612793e6988d074d7f0dbe162e5" },
+  "pydoc.vim": { "branch": "master", "commit": "3502c81c3258952cf5f9f791b81f8c2e6b834aa5" },
+  "vim-airline": { "branch": "master", "commit": "3ddcab16c26760d7b94ef0b1f8b62f9bc1ea8cba" },
+  "vim-css-color": { "branch": "master", "commit": "950e80352b325ff26d3b0faf95b29e301c200f7d" },
+  "vim-floaterm": { "branch": "master", "commit": "4e28c8dd0271e10a5f55142fb6fe9b1599ee6160" },
+  "vim-handlebars": { "branch": "master", "commit": "1eeeff8ade7b5008e7a213cc7eb9c7e1bed52bef" },
+  "vim-slime": { "branch": "master", "commit": "2915efe62ea609e6f95d9dd468e523e9321740d1" },
+  "vim-surround": { "branch": "master", "commit": "3d188ed2113431cf8dac77be61b842acb64433d9" },
+  "vim-tmux-navigator": { "branch": "master", "commit": "a9b52e7d36114d40350099f254b5f299a35df978" }
 }

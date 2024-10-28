@@ -51,3 +51,38 @@ end, opts("Toggle tab mode"))
 -- Disable unwanted mappings
 vim.keymap.set("n", "<F1>", "<nop>", opts("Disable F1"))
 vim.keymap.set("n", "K", "<nop>", opts("Disable K"))
+
+-- easier testing
+
+-- Helper function to run tests based on project type
+local function run_project_tests(current_file)
+    local test_cmd = ""
+    if vim.fn.filereadable("Makefile") == 1 then
+        test_cmd = "make test"
+    elseif vim.fn.filereadable("Rakefile") == 1 then
+        test_cmd = "rake test"
+    elseif vim.fn.filereadable("Gruntfile.js") == 1 then
+        test_cmd = "grunt test"
+    elseif vim.fn.filereadable("Gulpfile.js") == 1 then
+        test_cmd = "gulp test"
+    elseif vim.fn.filereadable("package.json") == 1 then
+        test_cmd = "npm run test --silent"
+        if current_file then
+            test_cmd = test_cmd .. " -- " .. current_file
+        end
+    end
+
+    if test_cmd ~= "" then
+        vim.cmd("T " .. test_cmd)
+    end
+end
+
+-- Run all tests
+vim.keymap.set("n", "<Leader>t", function()
+    run_project_tests()
+end, { noremap = true })
+
+-- Run tests for current file
+vim.keymap.set("n", "<Leader>T", function()
+    run_project_tests(vim.fn.expand("%"))
+end, { noremap = true })
