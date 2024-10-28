@@ -12,10 +12,10 @@ return {
       vim.g.floaterm_position = 'center'
 
       -- back to normal mode then close on multiple escape
-      vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { noremap = true, silent = true })
+      vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { silent = true })
       vim.api.nvim_create_autocmd('TermOpen', {
         callback = function()
-          vim.api.nvim_buf_set_keymap(0, 'n', '<Esc>', ':FloatermToggle<CR>', { noremap = true, silent = true })
+          vim.keymap.set('n', '<Esc>', ':FloatermToggle<CR>', { buffer = true, silent = true })
         end
       })
 
@@ -31,7 +31,7 @@ return {
       end, { nargs = '*' })
 
       -- command mode abbreviation to send command to terminal and open it
-      vim.api.nvim_set_keymap('ca', '!', "getcmdtype() == ':' && getcmdline() =~ '^!' ? 'T' : '!'", { expr = true, noremap = true })
+      vim.keymap.set('ca', '!', "getcmdtype() == ':' && getcmdline() =~ '^!' ? 'T' : '!'", { expr = true })
     end
   }
 }

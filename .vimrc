@@ -82,6 +82,10 @@ set wildmode=list:longest,full
 "enable filetype detection
 filetype on
 
+"don't hang on complicated highlighting (e.g. lsp)
+set rdt=100
+set re=0
+
 "wrap long lines
 set wrap
 

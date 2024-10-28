@@ -67,8 +67,8 @@ vim.api.nvim_create_autocmd("FileType", {
   group = augroup("spelling_fixes"),
   pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
   callback = function()
-    vim.api.nvim_set_keymap('ia', 'retrun', 'return', {})
-    vim.api.nvim_set_keymap('ia', 'lenght', 'length', {})
+    vim.keymap.set('ia', 'retrun', 'return', {})
+    vim.keymap.set('ia', 'lenght', 'length', {})
   end,
 })
 
@@ -143,6 +143,14 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
+-- Pipe JSON through jq to format
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "json",
+  callback = function()
+    vim.keymap.set("v", "=", ":!jq .<CR>", { buffer = true, noremap = true })
+  end,
+})
+
 -- Define the MarkerFoldText function
 -- This is a more complex function that we'll implement in Lua
 _G.MarkerFoldText = function()
@@ -196,3 +204,46 @@ end
 
 -- Set up the fold text
 vim.opt.foldtext = "v:lua.MarkerFoldText()"
+
+-- easier quickfix/loclist navigation
+
+-- Function to handle either quickfix or location list commands
+local function either_ql_buffer(qfix, loc)
+  local win_info = vim.fn.getwininfo(vim.fn.win_getid())[1]
+  if win_info.loclist == 1 then
+    vim.cmd(loc)
+  elseif win_info.quickfix == 1 then
+    vim.cmd(qfix)
+  end
+end
+
+-- Set up autocmd group for quickfix window mappings
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "qf",
+  callback = function()
+    -- Local mappings for quickfix/location list buffer
+    local opts = { buffer = true, noremap = true, silent = true }
+
+    vim.keymap.set("n", "<CR>", function()
+      either_ql_buffer(":cc", ":ll")
+    end, opts)
+
+    vim.keymap.set("n", "<Esc>", function()
+      either_ql_buffer(":ccl", ":lcl")
+      vim.cmd("wincmd p")
+    end, opts)
+
+    vim.keymap.set("n", "<S-j>", function()
+      either_ql_buffer("cnext", "lnext")
+      vim.cmd("wincmd p")
+    end, opts)
+
+    vim.keymap.set("n", "<S-k>", function()
+      either_ql_buffer("cprevious", "lprevious")
+      vim.cmd("wincmd p")
+    end, opts)
+  end,
+})
+
+-- Global mapping to refocus on quickfix/location list
+vim.keymap.set("n", "<Space>q", "<C-w>p", { noremap = true, silent = true })
