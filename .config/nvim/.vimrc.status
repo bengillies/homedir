@@ -315,8 +315,3 @@ let g:copilot_hide_during_completion = 0
 
 call ddc#enable()
 "end of ddc (autocomplete settings)
-
-
-"autoformat JS files
-"TODO: does this work with nvim or do I need a prettier plugin?
-autocmd filetype javascript,javascriptreact,typescript,typescriptreact nmap == :!npx prettier -w %<CR><CR>:e<CR>
