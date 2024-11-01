@@ -1,6 +1,9 @@
 return {
   {
     'neovim/nvim-lspconfig',
+    dependencies = {
+      'hrsh7th/nvim-cmp'
+    },
     config = function()
       local lspconfig = require('lspconfig')
 
@@ -191,6 +194,8 @@ return {
         ["textDocument/definition"] = goto_definition('split'),
       }
 
+      local capabililties = require('cmp_nvim_lsp').default_capabilities()
+
       -- load lsp servers
       --[[
 npm install -g pyright
@@ -214,6 +219,7 @@ brew install lua-language-server
         lspconfig[lsp].setup{
           on_attach = common_config,
           handlers = handlers,
+          capabilities = capabililties,
         }
       end
     end
