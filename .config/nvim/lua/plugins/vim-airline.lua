@@ -1,12 +1,15 @@
 return {
   {
-    'bling/vim-airline',
-    init = function()
+    'vim-airline/vim-airline',
+    dependencies = { 'vim-airline/vim-airline-themes' },
+    config = function()
       -- add a status line
       vim.opt.laststatus = 2
 
       -- tell airline to use fancy font rendering
       vim.g.airline_powerline_fonts = 1
+      vim.cmd(':AirlineTheme lucius')
+      vim.g.airline_theme = 'lucius'
 
       -- customise the statusline
       -- a=mode

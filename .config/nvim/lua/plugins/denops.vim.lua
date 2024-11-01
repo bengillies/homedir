@@ -2,7 +2,7 @@ return {
   {
     'vim-denops/denops.vim',
     dependencies = { 'vim-denops/denops-shared-server.vim' },
-    init = function()
+    config = function()
       -- Manual command to restart shared deno server when it becomes unresponsive
       vim.api.nvim_create_user_command("RestartDeno", function()
           vim.cmd("!launchctl stop io.github.vim-denops.LaunchAtLogin && launchctl start io.github.vim-denops.LaunchAtLogin")

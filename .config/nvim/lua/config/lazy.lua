@@ -37,7 +37,7 @@ require("lazy").setup({
 
   change_detection = { notify = false },
 
-  install = { colorscheme = { "elrodeo" } },
+  install = { colorscheme = { "nord" } },
 
   performance = {
     rtp = {
