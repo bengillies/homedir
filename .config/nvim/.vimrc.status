@@ -1,35 +1,3 @@
-"set compatibility mode with vi
-set nocompatible
-
-"vundle config
-filetype off
-
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-"Vundled GitHub packages
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'gmarik/vundle.vim'
-Plugin 'Shougo/ddu.vim'
-Plugin 'Shougo/neoyank.vim'
-Plugin 'skywind3000/asyncrun.vim'
-
-"ddu plugins
-Plugin 'Shougo/ddu-ui-ff'
-Plugin 'Shougo/ddu-kind-file'
-Plugin 'Shougo/ddu-kind-word'
-Plugin 'Shougo/ddu-source-line'
-Plugin 'Shougo/ddu-source-action'
-Plugin 'Shougo/ddu-source-register'
-Plugin 'Shougo/ddu-filter-matcher_substring'
-Plugin 'Shougo/ddu-filter-converter_display_word'
-Plugin 'matsui54/ddu-filter-fzy'
-Plugin 'matsui54/ddu-source-file_external'
-Plugin 'shun/ddu-source-rg'
-Plugin 'shun/ddu-source-buffer'
-Plugin 'uga-rosa/ddu-source-lsp'
-Plugin 'bengillies/ddu-source-custom-list'
-
 "autocomplete plugins
 Plugin 'prabirshrestha/vim-lsp'
 Plugin 'mattn/vim-lsp-settings'
@@ -41,68 +9,6 @@ Plugin 'matsui54/ddc-buffer'
 Plugin 'Shougo/ddc-matcher_head'
 Plugin 'Shougo/ddc-sorter_rank'
 
-
-call vundle#end()
-
-
-"start of vim-lsp settings
-
-"open quickfix with all references to variable in
-"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gd <plug>(lsp-references)
-nmap <silent> gd <plug>(lsp-references)
-"jump to definition in same file, or open a new buffer with the definition in
-"autocmd filetype javascript,typescript,typescriptreact nmap <silent> gD :keepalt LspDefinition<CR>
-nmap <silent> gD :keepalt LspDefinition<CR>
-"display type information under cursor (NUL maps to C-Space)
-"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <C-Space> :keepalt LspHover<CR>
-nmap <silent> <C-Space> :keepalt LspHover<CR>
-"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <NUL> :keepalt LspHover<CR>
-nmap <silent> <NUL> :keepalt LspHover<CR>
-"display actions to perform on file (e.g. update imports)
-"autocmd filetype javascript,typescript,typescriptreact nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
-nmap <silent> <Leader>a :LspCodeAction source.addMissingImports.ts<CR>
-nmap <silent> <C-s> :LspCodeAction --ui=float<CR>
-vmap <silent> <C-s> :LspCodeAction --ui=float<CR>
-"mappings for error code (NUL is C-Space)
-nmap <silent> <C-e><C-n> :LspNextError<CR>
-nmap <silent> <C-e><C-p> :LspPreviousError<CR>
-nmap <silent> <C-e><NUL> :call FilterLocationListToCurrentLine(line('.'))<CR>
-
-
-"show error information - 1 line in status bar, no virtualtext/float, full
-"error message for current line if you hit <Space>E
-let g:lsp_diagnostics_echo_cursor = 1
-let g:lsp_diagnostics_float_cursor = 0
-let g:lsp_diagnostics_float_insert_mode_enabled = 0
-let g:lsp_diagnostics_highlights_insert_mode_enabled = 1
-let g:lsp_diagnostics_highlights_delay = 1000
-let g:lsp_diagnostics_signs_enabled = 0
-let g:lsp_document_code_action_signs_enabled = 0
-let g:lsp_document_symbol_detail = v:true
-
-function! FilterLocationListToCurrentLine(current_line)
-	execute 'LspDocumentDiagnostics'
-	let filtered_list = filter(getloclist(0), 'v:val.lnum == a:current_line')
-	if !empty(filtered_list)
-		call setloclist(0, filtered_list)
-	else
-		call setloclist(0, [{'lnum': a:current_line, 'text': 'No diagnostics found', 'type': 'I'}])
-	endif
-endfunction
-
-function! DelayedFilter(current_line)
-	call timer_start(500, {-> FilterLocationListToCurrentLine(a:current_line)})
-endfunction
-
-
-"turn off displaying diagnostic info all the time as a separate row
-let g:lsp_diagnostics_virtual_text_enabled = 0
-let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
-let g:lsp_diagnostics_virtual_text_align = 'right'
-let g:lsp_diagnostics_virtual_text_delay = 1000
-let g:lsp_diagnostics_highlights_enabled = 1
-
-"end of vim-lsp end settings
 
 "start of ddu configuration
 call ddu#custom#patch_global(#{
