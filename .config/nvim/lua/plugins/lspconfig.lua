@@ -200,6 +200,7 @@ return {
       --[[
 npm install -g pyright
 npm install -g typescript typescript-language-server
+npm install -g typescript @vtsls/language-server
 npm install -g vscode-langservers-extracted
 npm install -g bash-language-server
 npm install -g vim-language-server
@@ -208,7 +209,7 @@ brew install lua-language-server
 
       local servers = {
         'pyright',
-        'ts_ls',
+        'vtsls',
         'lua_ls',
         'cssls',
         'bashls',

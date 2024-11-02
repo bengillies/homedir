@@ -120,6 +120,9 @@ alias ni='rm -rf node_modules && npm install'
 #manually specify unicorn startup
 #alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
 
+#use nvim instead of vim
+alias vim='nvim'
+
 #python virtualenv
 function venv_activate() {
 	FOLDER_NAME=$(pwd | sed 's|/|-|g')

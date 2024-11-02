@@ -7,6 +7,7 @@ return {
       'octarect/telescope-menu.nvim',
       'nvim-telescope/telescope-fzy-native.nvim',
       'nvim-telescope/telescope-file-browser.nvim',
+      'nvim-telescope/telescope-ui-select.nvim',
     },
     config = function()
       local telescope = require('telescope')
@@ -125,6 +126,14 @@ return {
             theme = "ivy",
           },
           lsp_document_symbols = {},
+          lsp_references = {
+            initial_mode = 'normal',
+            jump_type = "never",
+          },
+          lsp_type_definitions = {
+            initial_mode = 'normal',
+            jump_type = "never",
+          },
         },
         extensions = {
           fzy_native = {
@@ -151,6 +160,7 @@ return {
               items = {
                 { "Show all errors", "Telescope diagnostics" },
                 { "Rename symbol", "lua vim.lsp.buf.rename()" },
+                { "Show type definition", "Telescope lsp_references" },
                 { "Show references", "Telescope lsp_references" },
                 { "Chat code", "!code -g " .. vim.fn.expand("%") .. ":" .. vim.fn.line(".") .. ":" .. vim.fn.col(".") },
                 { "Suggest code", ":Copilot panel" },
@@ -174,6 +184,7 @@ return {
               },
             },
           },
+          ['ui-select'] = {},
         },
       })
 
@@ -181,6 +192,7 @@ return {
       telescope.load_extension('fzy_native')
       telescope.load_extension('menu')
       telescope.load_extension('file_browser')
+      telescope.load_extension('ui-select')
 
       vim.keymap.set("n", "<Leader>f", "<cmd>Telescope find_files<CR>", { noremap = true, silent = true })  -- Find files
       vim.keymap.set("n", "<Leader>F", "<cmd>Telescope file_browser path=%:p:h<CR>", { silent = true }) -- File browser
@@ -198,7 +210,7 @@ return {
       end, { silent = true }) -- Fuzzy find with visual selection
       vim.keymap.set("n", "<F7>", "<cmd>Telescope lsp_document_symbols<CR>", { noremap = true, silent = true }) -- Outline current file
 
-      vim.keymap.set("n", "<Space>a", "<cmd>Telescope menu<CR>", { silent = true })
+      vim.keymap.set({ "n", "v" }, "<Space>a", "<cmd>Telescope menu<CR>", { silent = true })
     end,
   },
 }
