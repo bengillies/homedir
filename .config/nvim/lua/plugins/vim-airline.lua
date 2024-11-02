@@ -8,8 +8,8 @@ return {
 
       -- tell airline to use fancy font rendering
       vim.g.airline_powerline_fonts = 1
-      vim.cmd(':AirlineTheme lucius')
-      vim.g.airline_theme = 'lucius'
+      vim.cmd(':AirlineTheme gruvbox')
+      vim.g.airline_theme = 'gruvbox'
 
       -- customise the statusline
       -- a=mode

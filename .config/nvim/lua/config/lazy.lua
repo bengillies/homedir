@@ -37,7 +37,7 @@ require("lazy").setup({
 
   change_detection = { notify = false },
 
-  install = { colorscheme = { "nord" } },
+  install = { colorscheme = { "gruvbox" } },
 
   performance = {
     rtp = {
