@@ -15,6 +15,59 @@ return {
       local action_state = require("telescope.actions.state")
       local fb_actions = require("telescope").extensions.file_browser.actions
 
+      -- use existing buffers if the file is already open
+      function custom_selection_handler(prompt_bufnr)
+                local actions = require("telescope.actions")
+                local state = require("telescope.actions.state")
+                local selection = state.get_selected_entry()
+
+                if selection == nil then
+                    actions.close(prompt_bufnr)
+                    return
+                end
+
+                -- If the selection has an action property, execute it
+                if selection.action then
+                  actions.close(prompt_bufnr)
+                  selection.action(selection)
+                  return
+                end
+
+                -- If the selection doesn't have a filename, perform default action
+                if not selection.filename then
+                  return actions.select_default(prompt_bufnr)
+                end
+
+                -- Get full paths for comparison
+                local selected_file = vim.fn.fnamemodify(selection.filename, ':p')
+
+                -- Check all windows in all tabs
+                for _, tabnr in ipairs(vim.api.nvim_list_tabpages()) do
+                    for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
+                        local bufnr = vim.api.nvim_win_get_buf(winid)
+                        local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':p')
+
+                        if buf_name == selected_file then
+                            actions.close(prompt_bufnr)
+                            -- Switch to the tab containing the window
+                            vim.api.nvim_set_current_tabpage(tabnr)
+                            -- Switch to the window
+                            vim.api.nvim_set_current_win(winid)
+                            return
+                        end
+                    end
+                end
+
+                -- If not found, open in current buffer
+                actions.close(prompt_bufnr)
+                if (selection.action) then
+                  selection.action(selection)
+                  return;
+                end
+
+                vim.cmd('edit ' .. selection.filename)
+              end
+
       telescope.setup({
         defaults = {
           prompt_prefix = '> ',
@@ -31,86 +84,11 @@ return {
               ['<C-j>'] = actions.move_selection_next,
               ['<C-k>'] = actions.move_selection_previous,
               ['<C-h>'] = actions.select_horizontal,
-              ["<CR>"] = function(prompt_bufnr)
-                local actions = require("telescope.actions")
-                local state = require("telescope.actions.state")
-                local selection = state.get_selected_entry()
-
-                if selection == nil then
-                    actions.close(prompt_bufnr)
-                    return
-                end
-
-                -- Get full paths for comparison
-                local selected_file = vim.fn.fnamemodify(selection.filename, ':p')
-
-                -- Check all windows in all tabs
-                for _, tabnr in ipairs(vim.api.nvim_list_tabpages()) do
-                    for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
-                        local bufnr = vim.api.nvim_win_get_buf(winid)
-                        local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':p')
-
-                        if buf_name == selected_file then
-                            actions.close(prompt_bufnr)
-                            -- Switch to the tab containing the window
-                            vim.api.nvim_set_current_tabpage(tabnr)
-                            -- Switch to the window
-                            vim.api.nvim_set_current_win(winid)
-                            return
-                        end
-                    end
-                end
-
-                -- If not found, open in current buffer
-                actions.close(prompt_bufnr)
-                if (selection.action) then
-                  selection.action(selection)
-                  return;
-                end
-
-                vim.cmd('edit ' .. selection.filename)
-              end,
+              ["<CR>"] = custom_selection_handler,
             },
             n = {
               h = actions.select_horizontal,
-              ["<CR>"] = function(prompt_bufnr)
-                local actions = require("telescope.actions")
-                local state = require("telescope.actions.state")
-                local selection = state.get_selected_entry()
-
-                if selection == nil then
-                    actions.close(prompt_bufnr)
-                    return
-                end
-
-                -- Get full paths for comparison
-                local selected_file = vim.fn.fnamemodify(selection.filename, ':p')
-
-                -- Check all windows in all tabs
-                for _, tabnr in ipairs(vim.api.nvim_list_tabpages()) do
-                    for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
-                        local bufnr = vim.api.nvim_win_get_buf(winid)
-                        local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':p')
-
-                        if buf_name == selected_file then
-                            actions.close(prompt_bufnr)
-                            -- Switch to the tab containing the window
-                            vim.api.nvim_set_current_tabpage(tabnr)
-                            -- Switch to the window
-                            vim.api.nvim_set_current_win(winid)
-                            return
-                        end
-                    end
-                end
-
-                -- If not found, open in current buffer
-                actions.close(prompt_bufnr)
-                if (selection.action) then
-                  selection.action(selection)
-                  return;
-                end
-                vim.cmd('edit ' .. selection.filename)
-              end,
+              ["<CR>"] = custom_selection_handler,
             },
           },
         },
@@ -134,6 +112,10 @@ return {
             initial_mode = 'normal',
             jump_type = "never",
           },
+          lsp_code_actions = {
+            initial_mode = 'normal',
+            jump_type = "never",
+          },
         },
         extensions = {
           fzy_native = {
@@ -146,11 +128,9 @@ return {
             mappings = {
               ['i'] = {
                 ['<C-o>'] = fb_actions.create,
-                ['<CR>'] = actions.select_default,
               },
               ['n'] = {
                 ['o'] = fb_actions.create,
-                ['<CR>'] = actions.select_default,
               },
             },
           },
@@ -170,14 +150,12 @@ return {
             mappings = {
               ['i'] = {
                 ['<CR>'] = function(prompt_bufnr)
-                  local selection = action_state.get_selected_entry()
                   actions.close(prompt_bufnr)
                   vim.cmd(entry.cmd)
                 end,
               },
               ['n'] = {
                 ['<CR>'] = function(prompt_bufnr)
-                  local selection = action_state.get_selected_entry()
                   actions.close(prompt_bufnr)
                   vim.cmd(entry.cmd)
                 end,
