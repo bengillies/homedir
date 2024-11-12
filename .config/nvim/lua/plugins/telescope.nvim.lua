@@ -8,6 +8,7 @@ return {
       'nvim-telescope/telescope-fzy-native.nvim',
       'nvim-telescope/telescope-file-browser.nvim',
       'nvim-telescope/telescope-ui-select.nvim',
+      'CopilotC-Nvim/CopilotChat.nvim',
     },
     config = function()
       local telescope = require('telescope')
@@ -142,9 +143,16 @@ return {
                 { "Rename symbol", "lua vim.lsp.buf.rename()" },
                 { "Show type definition", "Telescope lsp_references" },
                 { "Show references", "Telescope lsp_references" },
-                { "Chat code", "!code -g " .. vim.fn.expand("%") .. ":" .. vim.fn.line(".") .. ":" .. vim.fn.col(".") },
-                { "Suggest code", ":Copilot panel" },
                 { "Perform action", "lua vim.lsp.buf.code_action()" },
+                { "Suggest code", ":Copilot panel" },
+                { "Explain code", ":CopilotChatExplain" },
+                { "Chat code", ":CopilotChatOpen" },
+                { "Fix bugs", ":CopilotChatFix" },
+                { "Fix Diagnostics", ":CopilotChatFixDiagnostic" },
+                { "Document code", ":CopilotChatDocs" },
+                { "Optimise code", ":CopilotChatOptimize" },
+                { "Review code", ":CopilotChatReview" },
+                { "Write tests", ":CopilotChatTests" },
               },
             },
             mappings = {

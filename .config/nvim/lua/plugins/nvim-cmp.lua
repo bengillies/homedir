@@ -6,6 +6,7 @@ return {
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-cmdline',
+      'zbirenbaum/copilot-cmp',
     },
     config = function()
       local cmp = require'cmp'
@@ -16,8 +17,10 @@ return {
         mapping = cmp.mapping.preset.insert({
           ['<C-n>'] = cmp.mapping.select_next_item(),
           ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
         }),
         sources = cmp.config.sources({
+          { name = 'copilot' },
           { name = 'nvim_lsp' },
           { name = 'buffer' },
         })
@@ -44,6 +47,8 @@ return {
           { name = 'cmdline' }
         }),
       })
+
+      require('copilot_cmp').setup()
     end
   }
 }
