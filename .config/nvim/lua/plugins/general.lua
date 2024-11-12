@@ -7,6 +7,5 @@ return {
     { 'conormcd/matchindent.vim' },
     { 'vim-scripts/AnsiEsc.vim' },
     { 'vim-scripts/pydoc.vim' },
-    { 'github/copilot.vim' },
   }
 }
