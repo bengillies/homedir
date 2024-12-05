@@ -25,6 +25,15 @@ return {
     branch = 'canary',
     config = function()
       require('CopilotChat').setup({
+        mappings = {
+          close = {
+            normal = '<Esc>',
+          },
+          reset = {
+            normal = '<C-c>',
+            insert = '<C-c>',
+          },
+        },
       })
     end
   }
