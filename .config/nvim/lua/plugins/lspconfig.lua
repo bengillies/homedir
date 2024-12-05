@@ -2,7 +2,8 @@ return {
   {
     'neovim/nvim-lspconfig',
     dependencies = {
-      'hrsh7th/nvim-cmp'
+      'hrsh7th/nvim-cmp',
+      'yioneko/nvim-vtsls',
     },
     config = function()
       local lspconfig = require('lspconfig')
@@ -37,6 +38,7 @@ return {
                       or action.title:find('Add all missing imports') ~= nil
                       or action.title:find('Add missing imports') ~= nil
                       or action.title:find('Update import') ~= nil
+                      or action.title:find('Add import') ~= nil
                       or action.kind == 'source.addMissingImports'
                       or action.kind == 'source.addMissingImports.ts'
               end,
