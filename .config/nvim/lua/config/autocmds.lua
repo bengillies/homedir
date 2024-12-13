@@ -77,8 +77,10 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup('folding'),
   pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'css', 'scss' },
   callback = function()
-    vim.opt_local.foldmethod = 'marker'
+    --vim.opt_local.foldmethod = 'expr'
+    --vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'
     vim.opt_local.foldmarker = '{,}'
+    vim.opt_local.foldmethod = 'expr'
     -- Note: We'll define MarkerFoldText function separately
   end,
 })
@@ -139,6 +141,9 @@ vim.api.nvim_create_autocmd('VimEnter', {
     if vim.fn.filereadable(session_file) == 1 then
       vim.cmd('source ' .. session_file)
       vim.fn.delete(session_file)
+      vim.defer_fn(function()
+        vim.cmd('bufdo e')
+      end, 1000)
     end
   end,
 })
