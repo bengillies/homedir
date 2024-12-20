@@ -77,10 +77,15 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup('folding'),
   pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'css', 'scss' },
   callback = function()
+    vim.opt_local.foldmarker = '{,}'
+
+    -- lsp folding
     --vim.opt_local.foldmethod = 'expr'
     --vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'
-    vim.opt_local.foldmarker = '{,}'
+
+    -- Treesitter folding
     vim.opt_local.foldmethod = 'expr'
+    vim.opt_local.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
     -- Note: We'll define MarkerFoldText function separately
   end,
 })
