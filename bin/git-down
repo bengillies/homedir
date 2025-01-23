@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#push the current branch only to origin
+
+currBranch=$(git rev-parse --abbrev-ref HEAD)
+
+git push origin $currBranch
