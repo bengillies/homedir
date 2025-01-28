@@ -18,56 +18,62 @@ return {
 
       -- use existing buffers if the file is already open
       function custom_selection_handler(prompt_bufnr)
-                local actions = require("telescope.actions")
-                local state = require("telescope.actions.state")
-                local selection = state.get_selected_entry()
+          local actions = require("telescope.actions")
+          local state = require("telescope.actions.state")
+          local selection = state.get_selected_entry()
 
-                if selection == nil then
-                    actions.close(prompt_bufnr)
-                    return
-                end
+          if selection == nil then
+              actions.close(prompt_bufnr)
+              return
+          end
 
-                -- If the selection has an action property, execute it
-                if selection.action then
-                  actions.close(prompt_bufnr)
-                  selection.action(selection)
-                  return
-                end
+          -- If the selection has an action property, execute it
+          if selection.action then
+            actions.close(prompt_bufnr)
+            selection.action(selection)
+            return
+          end
 
-                -- If the selection doesn't have a filename, perform default action
-                if not selection.filename then
-                  return actions.select_default(prompt_bufnr)
-                end
+          -- If the selection doesn't have a filename, perform default action
+          if not selection.filename then
+            return actions.select_default(prompt_bufnr)
+          end
 
-                -- Get full paths for comparison
-                local selected_file = vim.fn.fnamemodify(selection.filename, ':p')
+          -- Get full paths for comparison
+          local selected_file = vim.fn.fnamemodify(selection.filename, ':p')
+          local current_buffer = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(vim.fn.bufnr('#')), ':p')
 
-                -- Check all windows in all tabs
-                for _, tabnr in ipairs(vim.api.nvim_list_tabpages()) do
-                    for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
-                        local bufnr = vim.api.nvim_win_get_buf(winid)
-                        local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':p')
+          -- Check if the selected file is the same as the current buffer
+          if selected_file == current_buffer then
+              return actions.select_default(prompt_bufnr)
+          end
 
-                        if buf_name == selected_file then
-                            actions.close(prompt_bufnr)
-                            -- Switch to the tab containing the window
-                            vim.api.nvim_set_current_tabpage(tabnr)
-                            -- Switch to the window
-                            vim.api.nvim_set_current_win(winid)
-                            return
-                        end
-                    end
-                end
+          -- Check all windows in all tabs
+          for _, tabnr in ipairs(vim.api.nvim_list_tabpages()) do
+              for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabnr)) do
+                  local bufnr = vim.api.nvim_win_get_buf(winid)
+                  local buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ':p')
 
-                -- If not found, open in current buffer
-                actions.close(prompt_bufnr)
-                if (selection.action) then
-                  selection.action(selection)
-                  return;
-                end
-
-                vim.cmd('edit ' .. selection.filename)
+                  if buf_name == selected_file then
+                      actions.close(prompt_bufnr)
+                      -- Switch to the tab containing the window
+                      vim.api.nvim_set_current_tabpage(tabnr)
+                      -- Switch to the window
+                      vim.api.nvim_set_current_win(winid)
+                      return
+                  end
               end
+          end
+
+          -- If not found, open in current buffer
+          actions.close(prompt_bufnr)
+          if (selection.action) then
+            selection.action(selection)
+            return;
+          end
+
+          vim.cmd('edit ' .. selection.filename)
+      end
 
       telescope.setup({
         defaults = {
