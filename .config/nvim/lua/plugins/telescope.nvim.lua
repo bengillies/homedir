@@ -5,7 +5,7 @@ return {
     dependencies = {
       'nvim-lua/plenary.nvim',
       'octarect/telescope-menu.nvim',
-      'nvim-telescope/telescope-fzy-native.nvim',
+      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
       'nvim-telescope/telescope-file-browser.nvim',
       'nvim-telescope/telescope-ui-select.nvim',
       'CopilotC-Nvim/CopilotChat.nvim',
@@ -119,9 +119,11 @@ return {
           },
         },
         extensions = {
-          fzy_native = {
+          fzf = {
+            fuzzy = true,
             override_generic_sorter = true,
             override_file_sorter = true,
+            case_mode = "smart_case",
           },
           file_browser = {
             initial_mode = 'normal',
@@ -175,7 +177,7 @@ return {
       })
 
       -- Load Telescope extensions
-      telescope.load_extension('fzy_native')
+      telescope.load_extension('fzf')
       telescope.load_extension('menu')
       telescope.load_extension('file_browser')
       telescope.load_extension('ui-select')
@@ -185,13 +187,13 @@ return {
       vim.keymap.set("n", "<Space>g", "<cmd>Telescope live_grep<CR>", { noremap = true, silent = true }) -- Grep across files
       vim.keymap.set("n", "<Leader>b", "<cmd>Telescope buffers<CR>", { noremap = true, silent = true }) -- Search open buffers
       vim.keymap.set("n", "<Leader>y", "<cmd>Telescope registers<CR>", { noremap = true, silent = true }) -- Registers for yank history
-      vim.keymap.set("n", "<Leader><Leader>", function() require("telescope.builtin").current_buffer_fuzzy_find({ default_text = vim.fn.expand("<cword>") }) end, { noremap = true, silent = true })  -- Fuzzy find in current buffer
+      vim.keymap.set("n", "<Leader><Leader>", function() require("telescope.builtin").current_buffer_fuzzy_find({ default_text = "'" .. vim.fn.expand("<cword>") }) end, { noremap = true, silent = true })  -- Fuzzy find in current buffer
       vim.keymap.set("v", "<Leader><Leader>", function()
         vim.cmd('normal! y')
         local selected_text = vim.fn.getreg('"')
 
         require("telescope.builtin").current_buffer_fuzzy_find({
-            default_text = selected_text
+            default_text = "'" .. selected_text
         })
       end, { silent = true }) -- Fuzzy find with visual selection
       vim.keymap.set("n", "<F7>", "<cmd>Telescope lsp_document_symbols<CR>", { noremap = true, silent = true }) -- Outline current file
