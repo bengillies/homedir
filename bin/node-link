@@ -21,6 +21,13 @@ shift $((OPTIND - 1))
 
 MODULES=("$@")
 
+# if no modules then print all symlinks found in $MOD_PATH
+
+if [ -z "$MODULES" ]; then
+	find "$MOD_PATH" -type l -depth 1 -print | xargs basename
+	exit
+fi
+
 DEPS=$(find "$MOD_PATH" -type l -maxdepth 1)
 DEPS+=$(echo "$PWD")
 
