@@ -22,12 +22,12 @@ return {
       'zbirenbaum/copilot.lua',
       'nvim-lua/plenary.nvim',
     },
-    branch = 'canary',
+    branch = 'main',
     config = function()
       require('CopilotChat').setup({
         mappings = {
           close = {
-            normal = '<Esc>',
+            normal = '<Esc><Esc>',
           },
           reset = {
             normal = '<C-c>',
