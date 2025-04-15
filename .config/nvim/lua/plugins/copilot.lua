@@ -9,7 +9,8 @@ return {
       require('copilot').setup({
         suggestion = {
           enabled = false,
-        }
+        },
+        copilot_model = 'gpt-4o-copilot',
       })
 
       require('CopilotChat').setup({
@@ -25,6 +26,7 @@ return {
     branch = 'main',
     config = function()
       require('CopilotChat').setup({
+        model = "claude-3.7-sonnet", -- claude-3.7-sonnet-thought
         mappings = {
           close = {
             normal = '<Esc><Esc>',
