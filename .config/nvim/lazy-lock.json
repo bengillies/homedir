@@ -35,5 +35,6 @@
   "vim-handlebars": { "branch": "master", "commit": "1eeeff8ade7b5008e7a213cc7eb9c7e1bed52bef" },
   "vim-slime": { "branch": "master", "commit": "2915efe62ea609e6f95d9dd468e523e9321740d1" },
   "vim-surround": { "branch": "master", "commit": "3d188ed2113431cf8dac77be61b842acb64433d9" },
-  "vim-tmux-navigator": { "branch": "master", "commit": "791dacfcfc8ccb7f6eb1c853050883b03e5a22fe" }
+  "vim-tmux-navigator": { "branch": "master", "commit": "791dacfcfc8ccb7f6eb1c853050883b03e5a22fe" },
+  "yanky.nvim": { "branch": "main", "commit": "98b9c21d3c06d79f68fd9d471dcc28fc6d2d72ef" }
 }
