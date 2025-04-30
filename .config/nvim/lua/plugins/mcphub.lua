@@ -1,22 +1,20 @@
 return {
   "ravitemer/mcphub.nvim",
   dependencies = {
-    "nvim-lua/plenary.nvim",  -- Required for Job and HTTP requests
+    "nvim-lua/plenary.nvim",
   },
-  -- cmd = "MCPHub", -- lazily start the hub when `MCPHub` is called
-  build = "npm install -g mcp-hub@latest", -- Installs required mcp-hub npm module
+  build = "npm install -g mcp-hub@latest",
   config = function()
     require("mcphub").setup({
-      -- Required options
-      port = 8324,  -- Port for MCP Hub server
-      config = vim.fn.expand("~/.config/nvim/mcpservers.json"),  -- Absolute path to config file
+      port = 8324,
+      config = vim.fn.expand("~/.mcpservers.json"),  -- homedir to keep out of repo
 
-      -- Optional options
       on_ready = function(hub)
-          -- Called when hub is ready
       end,
       on_error = function(err)
-          -- Called on errors
+        if err then
+          vim.notify(err, vim.log.levels.ERROR)
+        end
       end,
       log = {
         level = vim.log.levels.WARN,
