@@ -4,6 +4,7 @@ return {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
     "ravitemer/mcphub.nvim",
+    "Davidyz/VectorCode",
   },
   config = function()
       require('codecompanion').setup({
@@ -11,6 +12,22 @@ return {
         chat = {
           intro_mesage = '',
           start_in_insert_mode = true,
+          auto_scroll = false,
+        },
+      },
+      extensions = {
+        vectorcode = {
+          add_tool = true,
+          add_slash_command = true,
+          tool_opts = {},
+        },
+        mcphub = {
+          callback = "mcphub.extensions.codecompanion",
+          opts = {
+            make_vars = true,
+            make_slash_commands = true,
+            auto_approve = false,
+          }
         },
       },
       adapters = {
@@ -27,14 +44,13 @@ return {
       strategies = {
         chat = {
           adapter = "copilot",
-          tools = {
-            ["mcp"] = {
-              callback = function() return require("mcphub.extensions.codecompanion") end,
-              description = "Call tools and resources from the MCP Servers",
-              opts = {
-                requires_approval = true,
-              }
-            }
+          keymaps = {
+            close = {
+              modes = {
+                n = '<Esc><Esc>',
+                i = '<C-c><C-c>',
+              },
+            },
           },
         },
         inline = {
