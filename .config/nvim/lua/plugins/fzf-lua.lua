@@ -37,7 +37,7 @@ return {
       fzf.setup({
         files = {
           prompt = 'Files❯ ',
-          git_icons = true,
+          git_icons = false,
           file_icons = true,
           cwd_only = false,
           hidden = true,
