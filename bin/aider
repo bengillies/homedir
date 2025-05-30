@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export OPENAI_API_BASE=https://api.githubcopilot.com
+export OPENAI_API_KEY=$(jq -r '.[].oauth_token' ~/.config/github-copilot/aider.json)
+
+~/.local/bin/aider --model openai/claude-3.7-sonnet-thought --no-show-model-warnings "$@"
