@@ -7,7 +7,7 @@ return {
     "Davidyz/VectorCode",
   },
   config = function()
-      require('codecompanion').setup({
+    require('codecompanion').setup({
       display = {
         chat = {
           intro_mesage = '',
@@ -46,9 +46,9 @@ return {
           adapter = "copilot",
           keymaps = {
             close = {
-              modes = {
-                n = '<Esc><Esc>',
-                i = '<C-c><C-c>',
+              modes = { -- prefer close via toggle in order to preserve the chat buffer
+                n = '<F12>',
+                i = '<F12>',
               },
             },
           },
@@ -132,6 +132,16 @@ return {
           }
         },
       }
+    })
+
+    -- run CodeCompanionChat Toggle if filetype is set to 'codecompanion' and we hit <Esc><Esc>
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'codecompanion',
+      callback = function()
+        vim.keymap.set('n', '<Esc><Esc>', function()
+          vim.cmd('CodeCompanionChat Toggle')
+        end, { buffer = true })
+      end,
     })
 
     vim.api.nvim_create_user_command(
