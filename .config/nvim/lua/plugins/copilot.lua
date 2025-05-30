@@ -8,7 +8,12 @@ return {
     config = function()
       require('copilot').setup({
         suggestion = {
-          enabled = false,
+          hide_during_completion = false,
+          enabled = true,
+          auto_trigger = true,
+          keymap = {
+            accept = '<Tab>',
+          },
         },
         copilot_model = 'gpt-4o-copilot',
       })
