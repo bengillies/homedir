@@ -10,9 +10,10 @@ return {
     require('codecompanion').setup({
       display = {
         chat = {
-          intro_mesage = '',
-          start_in_insert_mode = true,
-          auto_scroll = false,
+          intro_message = 'Press ? for commands',
+          start_in_insert_mode = false,
+          show_header_separator = true,
+          auto_scroll = true,
         },
       },
       extensions = {
@@ -44,6 +45,9 @@ return {
       strategies = {
         chat = {
           adapter = "copilot",
+          prompt_decorator = function(message, adapter, context)
+            return string.format([[<prompt>%s</prompt>]], message)
+          end,
           keymaps = {
             close = {
               modes = { -- prefer close via toggle in order to preserve the chat buffer
@@ -144,24 +148,7 @@ return {
       end,
     })
 
-    vim.api.nvim_create_user_command(
-      'Ask',
-      function(opts)
-        vim.cmd('CodeCompanion ' .. opts.args)
-      end,
-      { nargs = '+' }
-    )
-
-    vim.cmd('cnoreabbrev ask Ask')
-
-    vim.api.nvim_create_user_command(
-      'Chat',
-      function(opts)
-        vim.cmd('CodeCompanionChat ' .. opts.args)
-      end,
-      { nargs = '+' }
-    )
-
-    vim.cmd('cnoreabbrev chat Chat')
+    vim.cmd('cnoreabbrev ask CodeCompanion')
+    vim.cmd('cnoreabbrev chat CodeCompanionChat')
   end,
 }
