@@ -83,6 +83,14 @@ return {
             ['ctrl-u'] = 'half-page-up',
           }
         },
+        winopts = {
+          on_create = function()
+            vim.keymap.set("t", "<C-r>", function()
+              local reg = vim.fn.nr2char(vim.fn.getchar())
+              return string.format('<C-\\><C-N>"%spi', reg)
+            end, { expr = true, buffer = true })
+          end
+        },
       })
 
       fzf.register_ui_select()
