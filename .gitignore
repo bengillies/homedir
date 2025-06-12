@@ -16,3 +16,4 @@ bin/irc-proxy
 node_modules
 .envrc
 .vectorcode
+.aider.*
