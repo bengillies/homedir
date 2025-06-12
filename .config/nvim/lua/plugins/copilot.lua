@@ -12,7 +12,7 @@ return {
           enabled = true,
           auto_trigger = true,
           keymap = {
-            accept = '<Tab>',
+            accept = '<M-Tab>',
           },
         },
         copilot_model = 'gpt-4o-copilot',
