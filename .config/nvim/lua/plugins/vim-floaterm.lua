@@ -16,6 +16,13 @@ return {
       vim.api.nvim_create_autocmd('TermOpen', {
         callback = function()
           vim.keymap.set('n', '<Esc>', ':FloatermToggle<CR>', { buffer = true, silent = true })
+
+          vim.keymap.set("n", "<C-v>", function()
+            local buf = vim.api.nvim_get_current_buf()
+            vim.api.nvim_win_close(0, false)
+            vim.cmd("vsplit")
+            vim.cmd("buffer " .. buf)
+          end, { silent = true, buffer = true })
         end
       })
 
@@ -29,6 +36,7 @@ return {
 
         vim.cmd('FloatermSend ' .. opts.args)
       end, { nargs = '*' })
+
 
       -- command mode abbreviation to send command to terminal and open it
       vim.keymap.set('ca', '!', "getcmdtype() == ':' && getcmdline() =~ '^!' ? 'T' : '!'", { expr = true })
