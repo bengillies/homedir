@@ -9,6 +9,7 @@
   "cmp-path": { "branch": "main", "commit": "c642487086dbd9a93160e1679a1327be111cbc25" },
   "codecompanion.nvim": { "branch": "main", "commit": "5c8ec88568115c4091cca331c4cbc42888cb5dc7" },
   "copilot-cmp": { "branch": "master", "commit": "15fc12af3d0109fa76b60b5cffa1373697e261d1" },
+  "copilot-lsp": { "branch": "main", "commit": "5030766af6dce2181d48b928537ebe1919ec8d22" },
   "copilot.lua": { "branch": "master", "commit": "e7dabfd5470cf5828d0d7dbc20687ef1c5652614" },
   "fzf-lua": { "branch": "main", "commit": "2388dcd61731ae158bf7dad2ae0419291837e557" },
   "gruvbox": { "branch": "master", "commit": "697c00291db857ca0af00ec154e5bd514a79191f" },

@@ -2,11 +2,21 @@ return {
   {
     'zbirenbaum/copilot.lua',
     dependencies = {
+      "copilotlsp-nvim/copilot-lsp"
     },
     cmd = 'Copilot',
     event = 'InsertEnter',
     config = function()
+      vim.g.copilot_nes_debounce = 500
+
       require('copilot').setup({
+        nes = {
+          enabled = true,
+          keymap = {
+            accept = '<M-Tab>',
+            next = '<M-S-Tab>',
+          },
+        },
         suggestion = {
           hide_during_completion = false,
           enabled = true,
