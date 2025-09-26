@@ -11,10 +11,11 @@ return {
 
       require('copilot').setup({
         nes = {
-          enabled = true,
+          enabled = false,
           keymap = {
-            accept = '<M-Tab>',
-            next = '<M-S-Tab>',
+            accept = '<F5>',
+            next = '<F6>',
+            dismiss = '<Esc>',
           },
         },
         suggestion = {
@@ -23,6 +24,7 @@ return {
           auto_trigger = true,
           keymap = {
             accept = '<M-Tab>',
+            accept_word = '<Tab>',
           },
         },
         copilot_model = 'gpt-4o-copilot',
