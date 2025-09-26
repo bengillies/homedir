@@ -38,11 +38,6 @@ vim.fn.matchadd('ErrorMsg', [[\s\+$\| \+\ze\t]])
 vim.opt.colorcolumn = '80'
 vim.api.nvim_set_hl(0, 'ColorColumn', { ctermbg = 0 })
 
--- pastetoggle (sane indentation on pastes) just press F5 when you are
--- going to paste several lines of text so they won't be indented.
--- When in paste mode, everything is inserted literally.
-vim.api.nvim_set_option('pastetoggle', '<F5>')
-
 -- set the encoding
 vim.opt.encoding = 'utf-8'
 
