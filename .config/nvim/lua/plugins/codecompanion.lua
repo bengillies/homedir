@@ -32,19 +32,24 @@ return {
         },
       },
       adapters = {
-        openai = function()
-          return require("codecompanion.adapters").extend("openai", {
-            schema = {
-              model = {
-                default = "claude-3.7-sonnet", -- claude-3.7-sonnet-thought
+        http = {
+          copilot = function()
+            return require("codecompanion.adapters").extend("copilot", {
+              schema = {
+                model = {
+                  default = "gpt-5",
+                },
               },
-            },
-          })
-        end,
+            })
+          end,
+        }
       },
       strategies = {
         chat = {
-          adapter = "copilot",
+          adapter = {
+            name = "copilot",
+            model = "gpt-5",
+          },
           prompt_decorator = function(message, adapter, context)
             return string.format([[<prompt>%s</prompt>]], message)
           end,
@@ -58,7 +63,10 @@ return {
           },
         },
         inline = {
-          adapter = "copilot",
+          adapter = {
+            name = "copilot",
+            model = "gpt-5",
+          },
         },
       },
       prompt_library = {

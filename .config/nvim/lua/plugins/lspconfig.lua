@@ -6,7 +6,6 @@ return {
       'yioneko/nvim-vtsls',
     },
     config = function()
-      local lspconfig = require('lspconfig')
 
       -- attach keybindings, etc on LSP attach
       local common_config = function(client, bufnr)
@@ -16,14 +15,16 @@ return {
         }
 
         -- display type information under cursor (NUL maps to C-Space)
-        vim.keymap.set('n', '<C-Space>', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-        vim.keymap.set('n', '<NUL>', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+        vim.keymap.set('n', '<C-Space>', '<cmd>lua vim.lsp.buf.hover({ border = "rounded" })<CR>', opts)
+        vim.keymap.set('n', '<NUL>', '<cmd>lua vim.lsp.buf.hover({ border = "rounded" })<CR>', opts)
 
         -- open quickfix with all references to variable in
         vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
 
         -- jump to definition
-        vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+        vim.keymap.set('n', 'gD', function()
+          vim.lsp.buf.definition({ reuse_win=true })
+        end, opts)
 
         -- code actions
         vim.keymap.set('n', '<C-s>', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
@@ -190,13 +191,17 @@ return {
           return handler
       end
 
+      vim.api.nvim_set_hl(0, 'FloatBorder', {
+        bg = 'none',
+      })
+
       local handlers =  {
         ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded", }),
         ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
         ["textDocument/definition"] = goto_definition('split'),
       }
 
-      local capabililties = require('cmp_nvim_lsp').default_capabilities()
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
       -- load lsp servers
       --[[
@@ -209,22 +214,20 @@ npm install -g vim-language-server
 brew install lua-language-server
       --]]
 
-      local servers = {
+      vim.lsp.config('*', {
+        on_attach = common_config,
+        handlers = handlers,
+        capabilities = capabilities,
+      })
+
+      vim.lsp.enable({
         'pyright',
         'vtsls',
         'lua_ls',
         'cssls',
         'bashls',
         'vimls'
-      }
-
-      for _, lsp in ipairs(servers) do
-        lspconfig[lsp].setup{
-          on_attach = common_config,
-          handlers = handlers,
-          capabilities = capabililties,
-        }
-      end
+      })
     end
   }
 }
