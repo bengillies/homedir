@@ -22,7 +22,7 @@ function happy_or_sad_or_ssh() {
 # current vi mode status (i.e. insert mode or command mode) or jobs or root (i.e. # or %)
 function command_mode_or_jobs() {
 	if [ "$VIMODE" '==' "M:command" ]; then
-		echo "✏️ "
+		echo "%{$YELLOW%}\uea73%{$reset_color%}"
 	else
 		echo " %(1j.%j.%#)"
 	fi
@@ -55,7 +55,7 @@ setopt EXTENDED_GLOB
 
 #{{{ Vi mode stuff
 setopt VI
-export EDITOR=vim
+export EDITOR=nvim
 set -o vi
 
 # set VIMODE variable to M:command when in command mode
@@ -185,6 +185,9 @@ PATH=$HOME/.cabal/bin:$PATH
 
 #npm binaries
 PATH=/usr/local/share/npm/bin:$PATH
+
+#go binaries
+PATH=$HOME/go/bin:$PATH
 
 #set up rbenv paths
 PATH=$HOME/.rbenv/bin:$PATH
