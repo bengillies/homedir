@@ -24,10 +24,10 @@ return {
           auto_trigger = true,
           keymap = {
             accept = '<M-Tab>',
-            accept_word = '<Tab>',
+            accept_word = '<M-BS>',
           },
         },
-        copilot_model = 'gpt-4o-copilot',
+        copilot_model = 'gpt-41-copilot',
       })
 
       require('CopilotChat').setup({
