@@ -2,6 +2,7 @@
   "AnsiEsc.vim": { "branch": "master", "commit": "d2bb7878622e4c16203acf1c92a0f4bc7ac58003" },
   "VectorCode": { "branch": "main", "commit": "56f21eb1371c10e720e31b5621f8c9448da78748" },
   "VimClojure": { "branch": "master", "commit": "2a17c249571395a7f45523d38cac6a9326ecf8f1" },
+  "claude-code-acp": { "branch": "main", "commit": "09106474ea733ba5cc3b8f6ca3a521b6a131eed9" },
   "cmp-buffer": { "branch": "main", "commit": "b74fab3656eea9de20a9b8116afa3cfc4ec09657" },
   "cmp-cmdline": { "branch": "main", "commit": "d126061b624e0af6c3a556428712dd4d4194ec6d" },
   "cmp-nvim-lsp": { "branch": "main", "commit": "cbc7b02bb99fae35cb42f514762b89b5126651ef" },
