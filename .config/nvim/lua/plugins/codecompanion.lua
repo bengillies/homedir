@@ -4,7 +4,6 @@ return {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
     "ravitemer/mcphub.nvim",
-    "Davidyz/VectorCode",
   },
   config = function()
     require('codecompanion').setup({
@@ -17,11 +16,6 @@ return {
         },
       },
       extensions = {
-        vectorcode = {
-          add_tool = true,
-          add_slash_command = true,
-          tool_opts = {},
-        },
         mcphub = {
           callback = "mcphub.extensions.codecompanion",
           opts = {
