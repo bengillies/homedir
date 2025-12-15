@@ -213,6 +213,9 @@ source <(fzf --zsh)
 #The bin in the home directory should take priority
 PATH=$HOME/bin:$PATH
 
+#Confidential scripts that don't belong in github.com
+PATH=$HOME/confidential-bin:$PATH
+
 #postgres 16
 PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
