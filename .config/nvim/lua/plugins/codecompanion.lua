@@ -4,6 +4,7 @@ return {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
     "ravitemer/mcphub.nvim",
+    "zed-industries/claude-code-acp",
   },
   config = function()
     require('codecompanion').setup({
@@ -31,8 +32,18 @@ return {
             return require("codecompanion.adapters").extend("copilot", {
               schema = {
                 model = {
-                  default = "gpt-5",
+                  default = "gpt-5.2",
                 },
+              },
+            })
+          end,
+        },
+        acp = {
+          claude_code = function()
+            return require("codecompanion.adapters").extend("claude_code", {
+              env = {
+                ANTHROPIC_API_KEY = "cmd:llm-key-info --api-key",
+                ANTHROPIC_BASE_URL = "cmd:llm-key-info --base-url",
               },
             })
           end,
@@ -40,10 +51,7 @@ return {
       },
       strategies = {
         chat = {
-          adapter = {
-            name = "copilot",
-            model = "gpt-5",
-          },
+          adapter = "claude_code",
           prompt_decorator = function(message, adapter, context)
             return string.format([[<prompt>%s</prompt>]], message)
           end,
@@ -59,7 +67,7 @@ return {
         inline = {
           adapter = {
             name = "copilot",
-            model = "gpt-5",
+            model = "gpt-5.2",
           },
         },
       },
