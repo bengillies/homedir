@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# Terminal bell script for Claude Code notifications
+# Only sends notification if not in current tmux tab and terminal doesn't have focus
+
+# Check if we're in tmux and if this is the active pane
+in_active_tmux_pane() {
+    if [ -n "$TMUX" ]; then
+        # Get current active pane ID
+        ACTIVE_PANE=$(tmux display-message -p '#I')
+
+        if [ "$ACTIVE_PANE" = "$CURRENT_TMUX_TAB_FOR_CLAUDE" ]; then
+            return 0  # We are in the active pane
+        fi
+    fi
+    return 1  # Not in active tmux pane
+}
+
+# Check if terminal has focus (macOS specific)
+terminal_has_focus() {
+    # Get the frontmost application
+    FRONTMOST_APP=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null)
+
+    # Common terminal applications
+    case "$FRONTMOST_APP" in
+        "Terminal"|"iTerm2"|"iTerm"|"Alacritty"|"kitty"|"WezTerm"|"Hyper")
+            return 0  # Terminal has focus
+            ;;
+        *)
+            return 1  # Terminal doesn't have focus
+            ;;
+    esac
+}
+
+# Exit without notification if in Vim/Neovim via ACP
+if [ -n "$VIMRUNTIME" ] || [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    exit 0
+fi
+
+# Main logic
+
+if ! in_active_tmux_pane || ! terminal_has_focus; then
+    terminal-notifier -title "Claude Code" -message "Tab $CURRENT_TMUX_TAB_FOR_CLAUDE input needed" -sound default
+fi
+
