@@ -230,9 +230,14 @@ if [ -f ~/.zshrc-init ]; then
 	source ~/.zshrc-init
 fi
 
-#Alias claude code so we can send a notification when it needs input if it's not currently visible (see claude-code-notifier)
+#Alias claude code so we can send a notification when it needs input if it's not currently visible (see ai-dx-notifier)
 if command -v claude &> /dev/null; then
-	alias claude='CURRENT_TMUX_TAB_FOR_CLAUDE=$(echo $(tmux display-message -p "#I")) && claude'
+	alias claude='CURRENT_TMUX_TAB_FOR_AI_DX=$(echo $(tmux display-message -p "#I")) && claude'
+fi
+
+#Alias codex so we can send a notification when it needs input if it's not currently visible (see ai-dx-notifier)
+if command -v codex &> /dev/null; then
+	alias codex='CURRENT_TMUX_TAB_FOR_AI_DX=$(echo $(tmux display-message -p "#I")) && codex'
 fi
 
 #start tmux (unless we're in it already). If its already on, connect to it
