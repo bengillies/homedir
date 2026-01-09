@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Terminal bell script for Claude Code notifications
+# Terminal bell script for AI CLI app notifications
 # Only sends notification if not in current tmux tab and terminal doesn't have focus
 
 # Check if we're in tmux and if this is the active pane
@@ -9,7 +9,7 @@ in_active_tmux_pane() {
         # Get current active pane ID
         ACTIVE_PANE=$(tmux display-message -p '#I')
 
-        if [ "$ACTIVE_PANE" = "$CURRENT_TMUX_TAB_FOR_CLAUDE" ]; then
+        if [ "$ACTIVE_PANE" = "$CURRENT_TMUX_TAB_FOR_AI_DX" ]; then
             return 0  # We are in the active pane
         fi
     fi
@@ -40,6 +40,5 @@ fi
 # Main logic
 
 if ! in_active_tmux_pane || ! terminal_has_focus; then
-    terminal-notifier -title "Claude Code" -message "Tab $CURRENT_TMUX_TAB_FOR_CLAUDE input needed" -sound default
+    terminal-notifier -title "$1" -message "Tab $CURRENT_TMUX_TAB_FOR_AI_DX input needed" -sound default
 fi
-
