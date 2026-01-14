@@ -19,7 +19,36 @@ done
 
 shift $((OPTIND - 1))
 
-MODULES=("$@")
+# Parse modules and extract worktree information
+# Using parallel arrays for compatibility with older bash versions
+MODULE_WORKTREE_KEYS=()
+MODULE_WORKTREE_VALUES=()
+PARSED_MODULES=()
+
+for MODULE_SPEC in "$@"; do
+	if [[ "$MODULE_SPEC" == *"/"* ]]; then
+		MODULE_NAME="${MODULE_SPEC%%/*}"
+		WORKTREE="${MODULE_SPEC#*/}"
+		MODULE_WORKTREE_KEYS+=("$MODULE_NAME")
+		MODULE_WORKTREE_VALUES+=("$WORKTREE")
+		PARSED_MODULES+=("$MODULE_NAME")
+	else
+		PARSED_MODULES+=("$MODULE_SPEC")
+	fi
+done
+
+MODULES=("${PARSED_MODULES[@]}")
+
+# Helper function to get worktree for a module
+get_worktree() {
+	local MODULE="$1"
+	for i in "${!MODULE_WORKTREE_KEYS[@]}"; do
+		if [[ "${MODULE_WORKTREE_KEYS[$i]}" == "$MODULE" ]]; then
+			echo "${MODULE_WORKTREE_VALUES[$i]}"
+			return
+		fi
+	done
+}
 
 # if no modules then print all symlinks found in $MOD_PATH
 
@@ -32,14 +61,32 @@ DEPS=$(find "$MOD_PATH" -type l -maxdepth 1)
 DEPS+=$(echo "$PWD")
 
 function gatherDeps() {
-	pushd "$ROOT/$1" > /dev/null
+	local MODULE_DIR="$1"
+	local WORKTREE=$(get_worktree "$MODULE_DIR")
 
-	MODULES+=("$1")
+	if [[ -n "$WORKTREE" ]]; then
+		local WORK_PATH="$ROOT/$MODULE_DIR/.worktrees/$WORKTREE"
+		if [[ -d "$WORK_PATH" ]]; then
+			pushd "$WORK_PATH" > /dev/null
+		else
+			pushd "$ROOT/$MODULE_DIR" > /dev/null
+		fi
+	else
+		if [[ -d "$ROOT/$MODULE_DIR" ]]; then
+			pushd "$ROOT/$MODULE_DIR" > /dev/null
+		else
+			return
+		fi
+	fi
 
-	SUB_DEPS=$(find "$MOD_PATH" -type l -maxdepth 1 | xargs basename)
-	for SUB_DEP in $SUB_DEPS; do
-		MODULES+=("$SUB_DEP")
-	done
+	MODULES+=("$MODULE_DIR")
+
+	if [[ -d "$MOD_PATH" ]]; then
+		SUB_DEPS=$(find "$MOD_PATH" -type l -maxdepth 1 2>/dev/null | xargs basename 2>/dev/null)
+		for SUB_DEP in $SUB_DEPS; do
+			MODULES+=("$SUB_DEP")
+		done
+	fi
 
 	popd > /dev/null
 }
@@ -77,10 +124,28 @@ for DIR in "${MODULES[@]}"; do
 
 		if [[ -d "$MODULE_PATH" ]]; then
 			rm -rf "$MODULE_PATH"
-			ln -s "$ROOT/$MODULE" "$MODULE_PATH"
-			echo "linking $MODULE from $ROOT"
 
-			SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' $ROOT/$MODULE/$CONFIG_FILE 2> /dev/null)
+			# Check if this module has a worktree specified
+			WORKTREE=$(get_worktree "$MODULE")
+			if [[ -n "$WORKTREE" ]]; then
+				WORKTREE_PATH="$ROOT/$MODULE/.worktrees/$WORKTREE"
+				if [[ -d "$WORKTREE_PATH" ]]; then
+					ln -s "$WORKTREE_PATH" "$MODULE_PATH"
+					echo "linking $MODULE from $WORKTREE_PATH (worktree: $WORKTREE)"
+					MODULE_SOURCE="$WORKTREE_PATH"
+				else
+					echo "Warning: worktree path $WORKTREE_PATH does not exist, falling back to main"
+					ln -s "$ROOT/$MODULE" "$MODULE_PATH"
+					echo "linking $MODULE from $ROOT"
+					MODULE_SOURCE="$ROOT/$MODULE"
+				fi
+			else
+				ln -s "$ROOT/$MODULE" "$MODULE_PATH"
+				echo "linking $MODULE from $ROOT"
+				MODULE_SOURCE="$ROOT/$MODULE"
+			fi
+
+			SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' $MODULE_SOURCE/$CONFIG_FILE 2> /dev/null)
 			if [[ -n $SCRIPTS ]]; then
 				for SCRIPT in $SCRIPTS; do
 					CMD=$(echo $SCRIPT | cut -d ':' -f 1)
@@ -89,7 +154,7 @@ for DIR in "${MODULES[@]}"; do
 					echo "Attaching script $CMD to $CMD_PATH"
 
 					rm -f "$BIN_PATH/$CMD"
-					ln -s "$ROOT/$MODULE/$CMD_PATH" "$BIN_PATH/$CMD"
+					ln -s "$MODULE_SOURCE/$CMD_PATH" "$BIN_PATH/$CMD"
 					chmod +x "$BIN_PATH/$CMD"
 				done
 			fi
@@ -99,3 +164,9 @@ for DIR in "${MODULES[@]}"; do
 
 	popd > /dev/null
 done
+
+
+
+
+
+
