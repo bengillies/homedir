@@ -62,6 +62,32 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
   end,
 })
 
+-- Markdown checkbox toggle
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup('markdown_checkbox'),
+  pattern = 'markdown',
+  callback = function()
+    vim.keymap.set('n', '<Leader>x', function()
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      local line = vim.api.nvim_get_current_line()
+
+      local new_line
+      if line:match('%- %[ %]') then
+        new_line = line:gsub('%- %[ %]', '- [x]', 1)
+      elseif line:match('%- %[x%]') then
+        new_line = line:gsub('%- %[x%]', '- [-]', 1)
+      elseif line:match('%- %[%-%]') then
+        new_line = line:gsub('%- %[%-%]', '- [ ]', 1)
+      end
+
+      if new_line then
+        vim.api.nvim_set_current_line(new_line)
+      end
+      vim.api.nvim_win_set_cursor(0, cursor)
+    end, { buffer = true, noremap = true, silent = true, desc = 'Toggle markdown checkbox' })
+  end,
+})
+
 -- Spelling mistakes
 vim.api.nvim_create_autocmd('FileType', {
   group = augroup('spelling_fixes'),
