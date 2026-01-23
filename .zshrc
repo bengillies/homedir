@@ -219,6 +219,9 @@ PATH=$HOME/confidential-bin:$PATH
 #postgres 16
 PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
+# opencode
+PATH=/Users/ben_gillies/.opencode/bin:$PATH
+
 export PATH
 #}}}
 
@@ -235,4 +238,3 @@ if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" 
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
-
