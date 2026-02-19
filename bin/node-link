@@ -5,19 +5,31 @@ BIN_PATH="$MOD_PATH/.bin"
 ROOT="${WAVE_ROOT:-`readlink -f "../"`}"
 CONFIG_FILE='package.json'
 
-while getopts "n:"  opt; do
-	case $opt in
-		n)
-			MOD_PATH="$MOD_PATH/$OPTARG"
+UNLINK=false
+
+while [[ $# -gt 0 ]]; do
+	case $1 in
+		--unlink)
+			UNLINK=true
+			shift
 			;;
-		\?)
-			echo "Usage: node-link -n @namespace modules..."
+		-n)
+			MOD_PATH="$MOD_PATH/$2"
+			shift 2
+			;;
+		--)
+			shift
+			break
+			;;
+		-*)
+			echo "Usage: node-link [-n @namespace] [--unlink] modules..."
 			exit 1
+			;;
+		*)
+			break
 			;;
 	esac
 done
-
-shift $((OPTIND - 1))
 
 # Parse modules and extract worktree information
 # Using parallel arrays for compatibility with older bash versions
@@ -111,6 +123,8 @@ MODULES=($(echo "${MODULES[@]}" | tr ' ' '\n' | sort -u))
 
 echo "found ${MODULES[@]}"
 
+MISSING_BACKUPS=()
+
 for DIR in "${MODULES[@]}"; do
 	if [[ -z $DIR ]]; then
 		continue
@@ -121,49 +135,79 @@ for DIR in "${MODULES[@]}"; do
 
 	for MODULE in "${MODULES[@]}"; do
 		MODULE_PATH="$MOD_PATH/$MODULE"
+		BACKUP_PATH="$MOD_PATH/_$MODULE"
 
-		if [[ -d "$MODULE_PATH" ]]; then
-			rm -rf "$MODULE_PATH"
-
-			# Check if this module has a worktree specified
-			WORKTREE=$(get_worktree "$MODULE")
-			if [[ -n "$WORKTREE" ]]; then
-				WORKTREE_PATH="$ROOT/$MODULE/.worktrees/$WORKTREE"
-				if [[ -d "$WORKTREE_PATH" ]]; then
-					ln -s "$WORKTREE_PATH" "$MODULE_PATH"
-					echo "linking $MODULE from $WORKTREE_PATH (worktree: $WORKTREE)"
-					MODULE_SOURCE="$WORKTREE_PATH"
+		if $UNLINK; then
+			# Unlink mode: remove symlink and restore backed-up module
+			if [[ -L "$MODULE_PATH" ]]; then
+				rm "$MODULE_PATH"
+				if [[ -d "$BACKUP_PATH" ]]; then
+					mv "$BACKUP_PATH" "$MODULE_PATH"
+					echo "unlinked $MODULE, restored from backup"
 				else
-					echo "Warning: worktree path $WORKTREE_PATH does not exist, falling back to main"
+					MISSING_BACKUPS+=("$MODULE in $DIR")
+					echo "unlinked $MODULE (no backup to restore)"
+				fi
+			fi
+		else
+			# Link mode: back up existing module and create symlink
+			if [[ -d "$MODULE_PATH" ]]; then
+				if [[ -L "$MODULE_PATH" ]]; then
+					rm "$MODULE_PATH"
+				else
+					if [[ -d "$BACKUP_PATH" ]]; then
+						rm -rf "$BACKUP_PATH"
+					fi
+					mv "$MODULE_PATH" "$BACKUP_PATH"
+				fi
+
+				# Check if this module has a worktree specified
+				WORKTREE=$(get_worktree "$MODULE")
+				if [[ -n "$WORKTREE" ]]; then
+					WORKTREE_PATH="$ROOT/$MODULE/.worktrees/$WORKTREE"
+					if [[ -d "$WORKTREE_PATH" ]]; then
+						ln -s "$WORKTREE_PATH" "$MODULE_PATH"
+						echo "linking $MODULE from $WORKTREE_PATH (worktree: $WORKTREE)"
+						MODULE_SOURCE="$WORKTREE_PATH"
+					else
+						echo "Warning: worktree path $WORKTREE_PATH does not exist, falling back to main"
+						ln -s "$ROOT/$MODULE" "$MODULE_PATH"
+						echo "linking $MODULE from $ROOT"
+						MODULE_SOURCE="$ROOT/$MODULE"
+					fi
+				else
 					ln -s "$ROOT/$MODULE" "$MODULE_PATH"
 					echo "linking $MODULE from $ROOT"
 					MODULE_SOURCE="$ROOT/$MODULE"
 				fi
-			else
-				ln -s "$ROOT/$MODULE" "$MODULE_PATH"
-				echo "linking $MODULE from $ROOT"
-				MODULE_SOURCE="$ROOT/$MODULE"
-			fi
 
-			SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' $MODULE_SOURCE/$CONFIG_FILE 2> /dev/null)
-			if [[ -n $SCRIPTS ]]; then
-				for SCRIPT in $SCRIPTS; do
-					CMD=$(echo $SCRIPT | cut -d ':' -f 1)
-					CMD_PATH=$(echo $SCRIPT | cut -d ':' -f 2)
+				SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' $MODULE_SOURCE/$CONFIG_FILE 2> /dev/null)
+				if [[ -n $SCRIPTS ]]; then
+					for SCRIPT in $SCRIPTS; do
+						CMD=$(echo $SCRIPT | cut -d ':' -f 1)
+						CMD_PATH=$(echo $SCRIPT | cut -d ':' -f 2)
 
-					echo "Attaching script $CMD to $CMD_PATH"
+						echo "Attaching script $CMD to $CMD_PATH"
 
-					rm -f "$BIN_PATH/$CMD"
-					ln -s "$MODULE_SOURCE/$CMD_PATH" "$BIN_PATH/$CMD"
-					chmod +x "$BIN_PATH/$CMD"
-				done
+						rm -f "$BIN_PATH/$CMD"
+						ln -s "$MODULE_SOURCE/$CMD_PATH" "$BIN_PATH/$CMD"
+						chmod +x "$BIN_PATH/$CMD"
+					done
+				fi
 			fi
 		fi
 	done
 
-
 	popd > /dev/null
 done
+
+if [[ ${#MISSING_BACKUPS[@]} -gt 0 ]]; then
+	echo ""
+	echo "Warning: The following modules could not be reinstated (no backup found):"
+	for ENTRY in "${MISSING_BACKUPS[@]}"; do
+		echo "  - $ENTRY"
+	done
+fi
 
 
 
