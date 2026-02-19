@@ -52,6 +52,7 @@ return {
           prompt = 'Grep❯ ',
           rg_opts = '--vimgrep --no-heading --smart-case --ignore-file .gitignore --glob "!*test*"',
           grep_open_files = false,
+          silent = true,
         },
         buffers = {
           prompt = 'Buffers❯ ',
