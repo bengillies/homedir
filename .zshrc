@@ -233,8 +233,20 @@ if [ -f ~/.zshrc-init ]; then
 	source ~/.zshrc-init
 fi
 
+# Codex app has no good way of detecting if the terminal is inside it
+# so check the parent process instead.
+# Sub-terminals should be caught by other checks
+function is_codex_app() {
+	local parent_process="$(ps -p "$PPID" -o comm= 2>/dev/null)"
+	if [[ "$parent_process" =~ ("Codex") ]]; then
+		return 0
+	fi
+
+	return 1
+}
+
 #start tmux (unless we're in it already). If its already on, connect to it
-if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" -a -z "$NVIM" ] && tty -s; then
+if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" -a -z "$NVIM" ] && ! is_codex_app && tty -s; then
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
