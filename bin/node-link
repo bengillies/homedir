@@ -51,7 +51,7 @@ done
 
 MODULES=("${PARSED_MODULES[@]}")
 
-# Helper function to get worktree for a module
+# Helper function to get worktree name for a module
 get_worktree() {
 	local MODULE="$1"
 	for i in "${!MODULE_WORKTREE_KEYS[@]}"; do
@@ -60,6 +60,35 @@ get_worktree() {
 			return
 		fi
 	done
+}
+
+# Resolve the actual path of a worktree by looking it up via git
+resolve_worktree_path() {
+	local MODULE="$1"
+	local WORKTREE="$2"
+	local MODULE_DIR="$ROOT/$MODULE"
+
+	if [[ ! -d "$MODULE_DIR" ]]; then
+		return 1
+	fi
+
+	local WORKTREE_PATH
+	WORKTREE_PATH=$(git -C "$MODULE_DIR" worktree list --porcelain 2>/dev/null | awk -v name="$WORKTREE" '
+		/^worktree / { path = substr($0, 10) }
+		/^branch / {
+			branch = substr($0, 8)
+			# strip refs/heads/ prefix
+			sub(/^refs\/heads\//, "", branch)
+			if (branch == name) { print path; exit }
+		}
+	')
+
+	if [[ -n "$WORKTREE_PATH" ]]; then
+		echo "$WORKTREE_PATH"
+		return 0
+	fi
+
+	return 1
 }
 
 # if no modules then print all symlinks found in $MOD_PATH
@@ -77,8 +106,9 @@ function gatherDeps() {
 	local WORKTREE=$(get_worktree "$MODULE_DIR")
 
 	if [[ -n "$WORKTREE" ]]; then
-		local WORK_PATH="$ROOT/$MODULE_DIR/.worktrees/$WORKTREE"
-		if [[ -d "$WORK_PATH" ]]; then
+		local WORK_PATH
+		WORK_PATH=$(resolve_worktree_path "$MODULE_DIR" "$WORKTREE")
+		if [[ $? -eq 0 && -d "$WORK_PATH" ]]; then
 			pushd "$WORK_PATH" > /dev/null
 		else
 			pushd "$ROOT/$MODULE_DIR" > /dev/null
@@ -164,13 +194,13 @@ for DIR in "${MODULES[@]}"; do
 				# Check if this module has a worktree specified
 				WORKTREE=$(get_worktree "$MODULE")
 				if [[ -n "$WORKTREE" ]]; then
-					WORKTREE_PATH="$ROOT/$MODULE/.worktrees/$WORKTREE"
-					if [[ -d "$WORKTREE_PATH" ]]; then
+					WORKTREE_PATH=$(resolve_worktree_path "$MODULE" "$WORKTREE")
+					if [[ $? -eq 0 && -d "$WORKTREE_PATH" ]]; then
 						ln -s "$WORKTREE_PATH" "$MODULE_PATH"
 						echo "linking $MODULE from $WORKTREE_PATH (worktree: $WORKTREE)"
 						MODULE_SOURCE="$WORKTREE_PATH"
 					else
-						echo "Warning: worktree path $WORKTREE_PATH does not exist, falling back to main"
+						echo "Warning: worktree '$WORKTREE' not found for $MODULE, falling back to main"
 						ln -s "$ROOT/$MODULE" "$MODULE_PATH"
 						echo "linking $MODULE from $ROOT"
 						MODULE_SOURCE="$ROOT/$MODULE"
