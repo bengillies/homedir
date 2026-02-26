@@ -50,6 +50,7 @@ for MODULE_SPEC in "$@"; do
 done
 
 MODULES=("${PARSED_MODULES[@]}")
+TARGET_MODULES=("${PARSED_MODULES[@]}")
 
 # Helper function to get worktree name for a module
 get_worktree() {
@@ -98,8 +99,11 @@ if [ -z "$MODULES" ]; then
 	exit
 fi
 
-DEPS=$(find "$MOD_PATH" -type l -maxdepth 1)
-DEPS+=$(echo "$PWD")
+DEPS=()
+while IFS= read -r line; do
+	DEPS+=("$line")
+done < <(find "$MOD_PATH" -type l -maxdepth 1)
+DEPS+=("$PWD")
 
 function gatherDeps() {
 	local MODULE_DIR="$1"
@@ -134,7 +138,7 @@ function gatherDeps() {
 }
 
 function loopDeps() {
-	local DIRS=("$1")
+	local DIRS=("$@")
 	for DIR in "${DIRS[@]}"; do
 		if [[ -z $DIR ]]; then
 			continue
@@ -146,8 +150,8 @@ function loopDeps() {
 	done
 }
 
-loopDeps "$MODULES"
-loopDeps "$DEPS"
+loopDeps "${MODULES[@]}"
+loopDeps "${DEPS[@]}"
 
 MODULES=($(echo "${MODULES[@]}" | tr ' ' '\n' | sort -u))
 
@@ -163,7 +167,7 @@ for DIR in "${MODULES[@]}"; do
 	pushd "$ROOT/$DIR" > /dev/null
 	echo "checking $PWD"
 
-	for MODULE in "${MODULES[@]}"; do
+	for MODULE in "${TARGET_MODULES[@]}"; do
 		MODULE_PATH="$MOD_PATH/$MODULE"
 		BACKUP_PATH="$MOD_PATH/_$MODULE"
 
