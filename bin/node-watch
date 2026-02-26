@@ -1,0 +1,547 @@
+#!/usr/bin/env python3
+"""
+node-watch: Auto-rebuild watcher for symlinked dependencies.
+
+Works with node-link. Watches linked repos for source changes, rebuilds them
+(npm run dist), and restarts your command.
+
+Usage:
+    node-watch -n @foo start-dev
+    node-watch -n @namespace -- serve --port 3000
+"""
+
+import argparse
+import atexit
+import fcntl
+import json
+import os
+import select
+import signal
+import subprocess
+import sys
+import threading
+import time
+
+
+COORD_BASE = "/tmp/node-watch"
+
+
+def discover_repos(namespace):
+    """Scan node_modules/<namespace>/ for symlinks, resolve to real repo paths.
+
+    Returns list of (name, real_path) tuples.
+    """
+    mod_dir = os.path.join("node_modules", namespace)
+    if not os.path.isdir(mod_dir):
+        print(f"node-watch: {mod_dir} not found", file=sys.stderr)
+        return []
+
+    repos = []
+    for entry in os.listdir(mod_dir):
+        full = os.path.join(mod_dir, entry)
+        if os.path.islink(full):
+            real = os.path.realpath(full)
+            if os.path.isdir(real):
+                repos.append((entry, real))
+    return repos
+
+
+class RepoCoordinator(threading.Thread):
+    """Coordinates building a single linked repo across node-watch instances.
+
+    Uses flock-based leader election so only one instance runs fswatch + dist.
+    Other instances subscribe via named pipes (FIFOs) for build results.
+    """
+
+    def __init__(self, name, repo_path, on_build):
+        super().__init__(daemon=True)
+        self.name = name
+        self.repo_path = repo_path
+        self.on_build = on_build  # callback(name, status, output)
+        self._stop_event = threading.Event()
+
+        basename = os.path.basename(repo_path)
+        self.coord_dir = os.path.join(COORD_BASE, basename)
+        self.lock_path = os.path.join(self.coord_dir, "builder.lock")
+        self.pid_path = os.path.join(self.coord_dir, "builder.pid")
+        self.notify_dir = os.path.join(self.coord_dir, "notify")
+
+        os.makedirs(self.notify_dir, exist_ok=True)
+
+    def stop(self):
+        self._stop_event.set()
+
+    def run(self):
+        while not self._stop_event.is_set():
+            lock_fd = self._try_acquire_lock()
+            if lock_fd is not None:
+                try:
+                    self._run_as_builder(lock_fd)
+                finally:
+                    self._release_lock(lock_fd)
+            else:
+                self._run_as_subscriber()
+
+    def _try_acquire_lock(self):
+        fd = None
+        try:
+            fd = os.open(self.lock_path, os.O_CREAT | os.O_RDWR, 0o644)
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return fd
+        except (OSError, IOError):
+            if fd is not None:
+                os.close(fd)
+            return None
+
+    def _release_lock(self, fd):
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
+        except Exception:
+            pass
+
+    def _clean_stale_fifos(self):
+        try:
+            for entry in os.listdir(self.notify_dir):
+                fifo_path = os.path.join(self.notify_dir, entry)
+                try:
+                    pid = int(entry)
+                    os.kill(pid, 0)
+                except ValueError:
+                    try:
+                        os.unlink(fifo_path)
+                    except OSError:
+                        pass
+                except ProcessLookupError:
+                    try:
+                        os.unlink(fifo_path)
+                    except OSError:
+                        pass
+                except PermissionError:
+                    # Process exists but belongs to another user; leave FIFO
+                    pass
+        except FileNotFoundError:
+            pass
+
+    def _notify_subscribers(self, result):
+        """Write result to all subscriber FIFOs, keeping fds open persistently.
+
+        Opens new FIFOs as they appear, closes dead ones on write failure.
+        """
+        msg = json.dumps(result) + "\n"
+        msg_bytes = msg.encode()
+
+        # Open any new FIFOs that have appeared since last check
+        try:
+            for entry in os.listdir(self.notify_dir):
+                fifo_path = os.path.join(self.notify_dir, entry)
+                if fifo_path not in self._subscriber_fds:
+                    try:
+                        fd = os.open(fifo_path, os.O_WRONLY | os.O_NONBLOCK)
+                        self._subscriber_fds[fifo_path] = fd
+                    except OSError:
+                        pass
+        except FileNotFoundError:
+            pass
+
+        # Write to all open fds, closing any that fail
+        dead = []
+        for fifo_path, fd in self._subscriber_fds.items():
+            try:
+                os.write(fd, msg_bytes)
+            except OSError:
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
+                dead.append(fifo_path)
+        for path in dead:
+            del self._subscriber_fds[path]
+
+    def _run_as_builder(self, lock_fd):
+        # Write our PID
+        with open(self.pid_path, "w") as f:
+            f.write(str(os.getpid()))
+
+        self._subscriber_fds = {}  # fifo_path -> open write fd
+        self._clean_stale_fifos()
+
+        src_dir = os.path.join(self.repo_path, "src")
+        if not os.path.isdir(src_dir):
+            print(f"  [{self.name}] no src/ directory, skipping watch",
+                  file=sys.stderr)
+            # Stay as builder but just wait
+            try:
+                while not self._stop_event.is_set():
+                    self._stop_event.wait(2)
+            finally:
+                self._close_subscriber_fds()
+            return
+
+        print(f"  [{self.name}] watching {src_dir} (builder)", file=sys.stderr)
+
+        fswatch_cmd = [
+            "fswatch", "-r", "-l", "0.5", "--exclude", r"/\.", src_dir
+        ]
+        try:
+            proc = subprocess.Popen(
+                fswatch_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+            )
+        except FileNotFoundError:
+            print("node-watch: fswatch not found. Install with: brew install fswatch",
+                  file=sys.stderr)
+            self._close_subscriber_fds()
+            self._stop_event.set()
+            return
+
+        try:
+            while not self._stop_event.is_set():
+                # Use select to check for data with timeout so we can check stop
+                ready, _, _ = select.select([proc.stdout], [], [], 1.0)
+                if not ready:
+                    if proc.poll() is not None:
+                        break
+                    continue
+
+                line = proc.stdout.readline()
+                if not line:
+                    break
+
+                # Drain any additional lines (batched changes)
+                while True:
+                    r, _, _ = select.select([proc.stdout], [], [], 0.1)
+                    if not r:
+                        break
+                    extra = proc.stdout.readline()
+                    if not extra:
+                        break
+
+                # Run dist
+                result = self._run_dist()
+                self.on_build(self.name, result["status"],
+                              result.get("output", ""))
+                self._notify_subscribers(result)
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait()
+            self._close_subscriber_fds()
+
+    def _close_subscriber_fds(self):
+        for fd in self._subscriber_fds.values():
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        self._subscriber_fds.clear()
+
+    def _run_dist(self):
+        print(f"  [{self.name}] building...", file=sys.stderr)
+        try:
+            result = subprocess.run(
+                ["npm", "run", "dist"],
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode == 0:
+                print(f"  [{self.name}] build succeeded", file=sys.stderr)
+                return {"status": "success"}
+            else:
+                output = (result.stdout + result.stderr).strip()
+                print(f"  [{self.name}] build FAILED", file=sys.stderr)
+                return {"status": "error", "output": output}
+        except subprocess.TimeoutExpired:
+            return {"status": "error", "output": "build timed out (120s)"}
+        except Exception as e:
+            return {"status": "error", "output": str(e)}
+
+    def _run_as_subscriber(self):
+        fifo_path = os.path.join(self.notify_dir, str(os.getpid()))
+
+        try:
+            if not os.path.exists(fifo_path):
+                os.mkfifo(fifo_path, 0o644)
+        except OSError:
+            self._stop_event.wait(1)
+            return
+
+        try:
+            # Open FIFO non-blocking for reading
+            fd = os.open(fifo_path, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError:
+            self._stop_event.wait(1)
+            return
+
+        print(f"  [{self.name}] watching (subscriber)", file=sys.stderr)
+        buf = b""
+        try:
+            while not self._stop_event.is_set():
+                ready, _, _ = select.select([fd], [], [], 1.0)
+                if not ready:
+                    # Check if builder is still alive
+                    if not self._builder_alive():
+                        break
+                    continue
+
+                try:
+                    data = os.read(fd, 4096)
+                except OSError:
+                    break
+
+                if not data:
+                    # EOF - builder closed the pipe
+                    break
+
+                buf += data
+                while b"\n" in buf:
+                    line, buf = buf.split(b"\n", 1)
+                    try:
+                        result = json.loads(line)
+                        self.on_build(self.name, result["status"],
+                                      result.get("output", ""))
+                    except (json.JSONDecodeError, KeyError):
+                        pass
+        finally:
+            os.close(fd)
+            try:
+                os.unlink(fifo_path)
+            except OSError:
+                pass
+
+    def _builder_alive(self):
+        try:
+            with open(self.pid_path, "r") as f:
+                pid = int(f.read().strip())
+            os.kill(pid, 0)
+            return True
+        except (FileNotFoundError, ValueError, ProcessLookupError):
+            return False
+        except PermissionError:
+            return True
+
+    def cleanup(self):
+        """Remove our FIFO if it exists."""
+        fifo_path = os.path.join(self.notify_dir, str(os.getpid()))
+        try:
+            os.unlink(fifo_path)
+        except OSError:
+            pass
+
+
+class CommandRunner:
+    """Manages the main npm command subprocess.
+
+    Uses process groups so npm's child processes get killed on restart/stop.
+    """
+
+    def __init__(self, command):
+        self.command = command
+        self._proc = None
+        self._lock = threading.Lock()
+
+    def start(self):
+        with self._lock:
+            if self._proc and self._proc.poll() is None:
+                return
+            self._spawn()
+
+    def restart(self):
+        with self._lock:
+            self._kill()
+            self._spawn()
+
+    def stop(self):
+        with self._lock:
+            self._kill()
+
+    def _spawn(self):
+        print(f"\n>>> Starting: npm run {' '.join(self.command)}", file=sys.stderr)
+        try:
+            self._proc = subprocess.Popen(
+                ["npm", "run"] + self.command,
+                preexec_fn=os.setsid,
+            )
+        except Exception as e:
+            print(f"node-watch: failed to start command: {e}", file=sys.stderr)
+
+    def _kill(self):
+        if self._proc is None:
+            return
+        if self._proc.poll() is not None:
+            self._proc = None
+            return
+
+        try:
+            pgid = os.getpgid(self._proc.pid)
+        except ProcessLookupError:
+            self._proc = None
+            return
+
+        print(f"\n>>> Stopping command (pgid {pgid})...", file=sys.stderr)
+        try:
+            os.killpg(pgid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+
+        try:
+            self._proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(pgid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            self._proc.wait(timeout=5)
+
+        self._proc = None
+
+
+class NodeWatch:
+    """Main orchestrator. Starts coordinators, manages command lifecycle."""
+
+    def __init__(self, namespace, command):
+        self.namespace = namespace
+        self.command = command
+        self.coordinators = []
+        self.runner = None
+        self._debounce_timer = None
+        self._debounce_lock = threading.Lock()
+        self._shutting_down = False
+        self._cleaned_up = False
+
+    def run(self):
+        repos = discover_repos(self.namespace)
+        if not repos:
+            print(f"node-watch: no symlinked repos found in node_modules/{self.namespace}/",
+                  file=sys.stderr)
+            # Still run the command even with no linked deps
+            self.runner = CommandRunner(self.command)
+            self.runner.start()
+            self._setup_signals()
+            atexit.register(self._cleanup)
+            try:
+                while not self._shutting_down:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                pass
+            self._cleanup()
+            return 0
+
+        print(f"node-watch: watching {len(repos)} linked repo(s):",
+              file=sys.stderr)
+        for name, path in repos:
+            print(f"  {name} -> {path}", file=sys.stderr)
+
+        # Start coordinators
+        for name, path in repos:
+            coord = RepoCoordinator(name, path, self._on_build)
+            self.coordinators.append(coord)
+            coord.start()
+
+        # Start command
+        self.runner = CommandRunner(self.command)
+        self.runner.start()
+
+        self._setup_signals()
+        atexit.register(self._cleanup)
+
+        # Wait for command to exit
+        try:
+            while True:
+                if self._shutting_down:
+                    break
+                time.sleep(0.5)
+        except KeyboardInterrupt:
+            pass
+
+        self._cleanup()
+        return 0
+
+    def _on_build(self, repo_name, status, output):
+        if self._shutting_down:
+            return
+
+        if status == "error":
+            print(f"\n{'='*60}", file=sys.stderr)
+            print(f"BUILD ERROR in {repo_name}:", file=sys.stderr)
+            print(output, file=sys.stderr)
+            print(f"{'='*60}", file=sys.stderr)
+            print("(command NOT restarted)", file=sys.stderr)
+            return
+
+        # Success - debounce restart (500ms after last success)
+        with self._debounce_lock:
+            if self._debounce_timer is not None:
+                self._debounce_timer.cancel()
+            self._debounce_timer = threading.Timer(
+                0.5, self._do_restart, args=[repo_name]
+            )
+            self._debounce_timer.start()
+
+    def _do_restart(self, last_repo):
+        if self._shutting_down:
+            return
+        print(f"\n>>> Rebuild detected (last: {last_repo}), restarting...",
+              file=sys.stderr)
+        if self.runner:
+            self.runner.restart()
+
+    def _setup_signals(self):
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+
+    def _signal_handler(self, signum, frame):
+        self._shutting_down = True
+
+    def _cleanup(self):
+        if self._cleaned_up:
+            return
+        self._cleaned_up = True
+
+        with self._debounce_lock:
+            if self._debounce_timer is not None:
+                self._debounce_timer.cancel()
+
+        print("\nnode-watch: shutting down...", file=sys.stderr)
+
+        for coord in self.coordinators:
+            coord.stop()
+            coord.cleanup()
+
+        if self.runner:
+            self.runner.stop()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Auto-rebuild watcher for symlinked dependencies",
+        usage="node-watch -n @namespace <npm-script> [args...]",
+    )
+    parser.add_argument(
+        "-n", "--namespace",
+        required=True,
+        help="Namespace to scan for symlinks (e.g. @foo)",
+    )
+
+    # Parse known args, everything else is the command
+    args, remaining = parser.parse_known_args()
+
+    # Strip leading -- if present
+    if remaining and remaining[0] == "--":
+        remaining = remaining[1:]
+
+    if not remaining:
+        parser.error("no command specified")
+
+    app = NodeWatch(args.namespace, remaining)
+    sys.exit(app.run())
+
+
+if __name__ == "__main__":
+    main()
