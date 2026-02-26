@@ -27,23 +27,172 @@ COORD_BASE = "/tmp/node-watch"
 
 
 def discover_repos(namespace):
-    """Scan node_modules/<namespace>/ for symlinks, resolve to real repo paths.
+    """Scan node_modules/<namespace>/ for symlinks, then recursively
+    check each discovered repo's own node_modules/<namespace>/ for
+    more linked repos.
 
     Returns list of (name, real_path) tuples.
     """
-    mod_dir = os.path.join("node_modules", namespace)
-    if not os.path.isdir(mod_dir):
-        print(f"node-watch: {mod_dir} not found", file=sys.stderr)
+    found = {}  # name -> real_path (dedupes by name)
+
+    def scan_dir(mod_dir):
+        if not os.path.isdir(mod_dir):
+            return
+        for entry in os.listdir(mod_dir):
+            full = os.path.join(mod_dir, entry)
+            if os.path.islink(full):
+                real = os.path.realpath(full)
+                if os.path.isdir(real) \
+                        and entry not in found:
+                    found[entry] = real
+                    # Recurse into this repo's node_modules
+                    sub = os.path.join(
+                        real, "node_modules", namespace
+                    )
+                    scan_dir(sub)
+
+    top = os.path.join("node_modules", namespace)
+    if not os.path.isdir(top):
+        print(f"node-watch: {top} not found", file=sys.stderr)
         return []
 
-    repos = []
-    for entry in os.listdir(mod_dir):
-        full = os.path.join(mod_dir, entry)
-        if os.path.islink(full):
-            real = os.path.realpath(full)
-            if os.path.isdir(real):
-                repos.append((entry, real))
-    return repos
+    scan_dir(top)
+    return list(found.items())
+
+
+def discover_dependency_graph(repos, namespace):
+    """Read package.json from each linked repo, find inter-dependencies.
+
+    Returns {name: (deps, dev_deps)} where deps are from "dependencies"
+    and dev_deps are from "devDependencies"/"peerDependencies".
+    Only includes other linked repos in the same namespace.
+    """
+    linked_names = {name for name, _ in repos}
+    graph = {}
+    prefix = namespace + "/"
+    for name, path in repos:
+        pkg_path = os.path.join(path, "package.json")
+        try:
+            with open(pkg_path) as f:
+                pkg = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            graph[name] = ([], [])
+            continue
+
+        deps = [
+            d[len(prefix):]
+            for d in pkg.get("dependencies", {})
+            if d.startswith(prefix)
+            and d[len(prefix):] in linked_names
+        ]
+
+        dep_set = set(deps)
+        dev_deps = []
+        for key in ("devDependencies", "peerDependencies"):
+            for d in pkg.get(key, {}):
+                if d.startswith(prefix):
+                    short = d[len(prefix):]
+                    if short in linked_names \
+                            and short not in dep_set:
+                        dev_deps.append(short)
+                        dep_set.add(short)
+
+        graph[name] = (deps, dev_deps)
+    return graph
+
+
+def compute_dependents(dep_graph):
+    """For each repo, compute the ordered list of repos that need
+    rebuilding after it changes.
+
+    Build order: dependencies-reachable dependents first, then
+    devDependencies-only dependents. Cycles are detected, warned
+    about, and the cycle members are still included.
+
+    Returns {name: [dependent names in build order]}.
+    """
+    # Build reverse graphs
+    dep_reverse = {n: [] for n in dep_graph}
+    all_reverse = {n: [] for n in dep_graph}
+    all_edges = {}
+    for name, (deps, dev_deps) in dep_graph.items():
+        all_edges[name] = deps + dev_deps
+        for d in deps:
+            if d in dep_reverse:
+                dep_reverse[d].append(name)
+                all_reverse[d].append(name)
+        for d in dev_deps:
+            if d in all_reverse:
+                all_reverse[d].append(name)
+
+    result = {}
+    for name in dep_graph:
+        # BFS: all transitive dependents (all edge types)
+        # Exclude the triggering repo itself — it was already built
+        visited = set()
+        queue = list(all_reverse.get(name, []))
+        while queue:
+            node = queue.pop(0)
+            if node in visited or node == name:
+                continue
+            visited.add(node)
+            queue.extend(all_reverse.get(node, []))
+
+        if not visited:
+            result[name] = []
+            continue
+
+        # BFS: high-priority dependents (dependencies only)
+        high_pri = set()
+        queue = list(dep_reverse.get(name, []))
+        while queue:
+            node = queue.pop(0)
+            if node in high_pri or node not in visited \
+                    or node == name:
+                continue
+            high_pri.add(node)
+            queue.extend(dep_reverse.get(node, []))
+
+        # Topo sort (Kahn's) with priority tie-breaking
+        sub_in = {n: 0 for n in visited}
+        for n in visited:
+            for dep in all_edges.get(n, []):
+                if dep in visited:
+                    sub_in[n] += 1
+
+        def sort_key(n):
+            return (0 if n in high_pri else 1, n)
+
+        ready = sorted(
+            (n for n in visited if sub_in[n] == 0),
+            key=sort_key,
+        )
+        ordered = []
+        while ready:
+            node = ready.pop(0)
+            ordered.append(node)
+            for dep in all_reverse.get(node, []):
+                if dep in visited:
+                    sub_in[dep] -= 1
+                    if sub_in[dep] == 0:
+                        key = sort_key(dep)
+                        idx = len(ready)
+                        for i, r in enumerate(ready):
+                            if sort_key(r) > key:
+                                idx = i
+                                break
+                        ready.insert(idx, dep)
+
+        # Cycle: nodes left with non-zero in-degree
+        remaining = visited - set(ordered)
+        if remaining:
+            print(f"  warning: circular dependency "
+                  f"involving: {', '.join(sorted(remaining))}",
+                  file=sys.stderr)
+            ordered.extend(sorted(remaining))
+
+        result[name] = ordered
+    return result
 
 
 class RepoCoordinator(threading.Thread):
@@ -53,11 +202,13 @@ class RepoCoordinator(threading.Thread):
     Other instances subscribe via named pipes (FIFOs) for build results.
     """
 
-    def __init__(self, name, repo_path, on_build):
+    def __init__(self, name, repo_path, on_build,
+                 extra_watch=None):
         super().__init__(daemon=True)
         self.name = name
         self.repo_path = repo_path
         self.on_build = on_build  # callback(name, status, output)
+        self.extra_watch = extra_watch or []
         self._stop_event = threading.Event()
 
         basename = os.path.basename(repo_path)
@@ -166,9 +317,17 @@ class RepoCoordinator(threading.Thread):
         self._subscriber_fds = {}  # fifo_path -> open write fd
         self._clean_stale_fifos()
 
+        watch_paths = []
         src_dir = os.path.join(self.repo_path, "src")
-        if not os.path.isdir(src_dir):
-            print(f"  [{self.name}] no src/ directory, skipping watch",
+        if os.path.isdir(src_dir):
+            watch_paths.append(src_dir)
+        for extra in self.extra_watch:
+            ep = os.path.join(self.repo_path, extra)
+            if os.path.exists(ep) and ep not in watch_paths:
+                watch_paths.append(ep)
+
+        if not watch_paths:
+            print(f"  [{self.name}] nothing to watch, skipping",
                   file=sys.stderr)
             # Stay as builder but just wait
             try:
@@ -178,11 +337,13 @@ class RepoCoordinator(threading.Thread):
                 self._close_subscriber_fds()
             return
 
-        print(f"  [{self.name}] watching {src_dir} (builder)", file=sys.stderr)
+        print(f"  [{self.name}] watching "
+              f"{', '.join(watch_paths)} (builder)",
+              file=sys.stderr)
 
         fswatch_cmd = [
-            "fswatch", "-r", "-l", "0.5", "--exclude", r"/\.", src_dir
-        ]
+            "fswatch", "-r", "-l", "0.5", "--exclude", r"/\."
+        ] + watch_paths
         try:
             proc = subprocess.Popen(
                 fswatch_cmd,
@@ -491,12 +652,17 @@ class CommandRunner:
 class NodeWatch:
     """Main orchestrator. Starts coordinators, manages command lifecycle."""
 
-    def __init__(self, namespace, command):
+    def __init__(self, namespace, command, no_restart=False,
+                 extra_watch=None):
         self.namespace = namespace
         self.command = command
+        self.no_restart = no_restart
+        self.extra_watch = extra_watch or []
         self.coordinators = []
         self.local_watcher = None
         self.runner = None
+        self._repo_paths = {}
+        self._dependents = {}
         self._debounce_timer = None
         self._debounce_lock = threading.Lock()
         self._shutting_down = False
@@ -526,9 +692,29 @@ class NodeWatch:
         for name, path in repos:
             print(f"  {name} -> {path}", file=sys.stderr)
 
+        # Compute dependency graph
+        self._repo_paths = {name: path for name, path in repos}
+        dep_graph = discover_dependency_graph(repos, self.namespace)
+        self._dependents = compute_dependents(dep_graph)
+        for name, (deps, dev_deps) in dep_graph.items():
+            if deps:
+                print(f"  {name} depends on: {', '.join(deps)}",
+                      file=sys.stderr)
+            if dev_deps:
+                print(f"  {name} devDepends on: "
+                      f"{', '.join(dev_deps)}",
+                      file=sys.stderr)
+        for name, dependents in self._dependents.items():
+            if dependents:
+                print(f"  {name} change triggers rebuild of: "
+                      f"{', '.join(dependents)}",
+                      file=sys.stderr)
+
         # Start coordinators
         for name, path in repos:
-            coord = RepoCoordinator(name, path, self._on_build)
+            coord = RepoCoordinator(
+                name, path, self._on_build, self.extra_watch
+            )
             self.coordinators.append(coord)
             coord.start()
 
@@ -555,7 +741,12 @@ class NodeWatch:
         return 0
 
     def _start_local_watcher(self):
+        if self.no_restart:
+            return
         watch_dirs = discover_local_watch_dirs(self.command)
+        for path in self.extra_watch:
+            if path not in watch_dirs:
+                watch_dirs.append(path)
         if watch_dirs:
             print(f"node-watch: watching local dirs: "
                   f"{', '.join(watch_dirs)}",
@@ -582,14 +773,24 @@ class NodeWatch:
             return
 
         if status == "error":
-            print(f"\n{'='*60}", file=sys.stderr)
-            print(f"BUILD ERROR in {repo_name}:", file=sys.stderr)
-            print(output, file=sys.stderr)
-            print(f"{'='*60}", file=sys.stderr)
-            print("(command NOT restarted)", file=sys.stderr)
+            self._report_build_error(repo_name, output)
             return
 
-        # Success - debounce restart (500ms after last success)
+        # Build dependents in order
+        for dep_name in self._dependents.get(repo_name, []):
+            if self._shutting_down:
+                return
+            dep_path = self._repo_paths.get(dep_name)
+            if not dep_path:
+                continue
+            result = self._build_repo(dep_name, dep_path)
+            if result["status"] == "error":
+                self._report_build_error(
+                    dep_name, result.get("output", "")
+                )
+                return
+
+        # All builds succeeded - debounce restart
         with self._debounce_lock:
             if self._debounce_timer is not None:
                 self._debounce_timer.cancel()
@@ -598,8 +799,46 @@ class NodeWatch:
             )
             self._debounce_timer.start()
 
+    def _build_repo(self, name, path):
+        print(f"  [{name}] building (dependent)...",
+              file=sys.stderr)
+        try:
+            result = subprocess.run(
+                ["npm", "run", "dist"],
+                cwd=path,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode == 0:
+                print(f"  [{name}] build succeeded",
+                      file=sys.stderr)
+                return {"status": "success"}
+            else:
+                output = (result.stdout + result.stderr).strip()
+                print(f"  [{name}] build FAILED",
+                      file=sys.stderr)
+                return {"status": "error", "output": output}
+        except subprocess.TimeoutExpired:
+            return {"status": "error",
+                    "output": "build timed out (120s)"}
+        except Exception as e:
+            return {"status": "error", "output": str(e)}
+
+    def _report_build_error(self, repo_name, output):
+        print(f"\n{'='*60}", file=sys.stderr)
+        print(f"BUILD ERROR in {repo_name}:", file=sys.stderr)
+        print(output, file=sys.stderr)
+        print(f"{'='*60}", file=sys.stderr)
+        print("(command NOT restarted)", file=sys.stderr)
+
     def _do_restart(self, last_repo):
         if self._shutting_down:
+            return
+        if self.no_restart:
+            print(f"\n>>> Rebuild detected (last: {last_repo}), "
+                  "skipping restart (--no-restart)",
+                  file=sys.stderr)
             return
         print(f"\n>>> Rebuild detected (last: {last_repo}), restarting...",
               file=sys.stderr)
@@ -645,6 +884,19 @@ def main():
         required=True,
         help="Namespace to scan for symlinks (e.g. @foo)",
     )
+    parser.add_argument(
+        "--no-restart",
+        action="store_true",
+        help="Skip restarting the command on rebuild "
+             "(useful with vite/HMR)",
+    )
+    parser.add_argument(
+        "-w", "--watch",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="Extra file/directory to watch (repeatable)",
+    )
 
     # Parse known args, everything else is the command
     args, remaining = parser.parse_known_args()
@@ -656,7 +908,9 @@ def main():
     if not remaining:
         parser.error("no command specified")
 
-    app = NodeWatch(args.namespace, remaining)
+    app = NodeWatch(
+        args.namespace, remaining, args.no_restart, args.watch
+    )
     sys.exit(app.run())
 
 
