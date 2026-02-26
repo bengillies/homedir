@@ -174,6 +174,23 @@ for DIR in "${MODULES[@]}"; do
 		if $UNLINK; then
 			# Unlink mode: remove symlink and restore backed-up module
 			if [[ -L "$MODULE_PATH" ]]; then
+				# Read bin entries before removing the symlink (it points to the source module)
+				SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' "$MODULE_PATH/$CONFIG_FILE" 2> /dev/null)
+				if [[ -n $SCRIPTS ]]; then
+					for SCRIPT in $SCRIPTS; do
+						CMD=$(echo $SCRIPT | cut -d ':' -f 1)
+						BIN_BACKUP="$BIN_PATH/_$CMD"
+
+						rm -f "$BIN_PATH/$CMD"
+						if [[ -e "$BIN_BACKUP" || -L "$BIN_BACKUP" ]]; then
+							mv "$BIN_BACKUP" "$BIN_PATH/$CMD"
+							echo "restored bin script $CMD"
+						else
+							echo "removed bin script $CMD (no backup to restore)"
+						fi
+					done
+				fi
+
 				rm "$MODULE_PATH"
 				if [[ -d "$BACKUP_PATH" ]]; then
 					mv "$BACKUP_PATH" "$MODULE_PATH"
@@ -223,7 +240,13 @@ for DIR in "${MODULES[@]}"; do
 
 						echo "Attaching script $CMD to $CMD_PATH"
 
-						rm -f "$BIN_PATH/$CMD"
+						if [[ -e "$BIN_PATH/$CMD" || -L "$BIN_PATH/$CMD" ]]; then
+							if [[ ! -e "$BIN_PATH/_$CMD" ]]; then
+								mv "$BIN_PATH/$CMD" "$BIN_PATH/_$CMD"
+							else
+								rm -f "$BIN_PATH/$CMD"
+							fi
+						fi
 						ln -s "$MODULE_SOURCE/$CMD_PATH" "$BIN_PATH/$CMD"
 						chmod +x "$BIN_PATH/$CMD"
 					done
