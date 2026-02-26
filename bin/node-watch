@@ -696,20 +696,6 @@ class NodeWatch:
         self._repo_paths = {name: path for name, path in repos}
         dep_graph = discover_dependency_graph(repos, self.namespace)
         self._dependents = compute_dependents(dep_graph)
-        for name, (deps, dev_deps) in dep_graph.items():
-            if deps:
-                print(f"  {name} depends on: {', '.join(deps)}",
-                      file=sys.stderr)
-            if dev_deps:
-                print(f"  {name} devDepends on: "
-                      f"{', '.join(dev_deps)}",
-                      file=sys.stderr)
-        for name, dependents in self._dependents.items():
-            if dependents:
-                print(f"  {name} change triggers rebuild of: "
-                      f"{', '.join(dependents)}",
-                      file=sys.stderr)
-
         # Start coordinators
         for name, path in repos:
             coord = RepoCoordinator(
