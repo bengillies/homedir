@@ -20,3 +20,4 @@ node_modules
 PLAN.md
 CONTEXT
 .worktrees
+__pycache__
