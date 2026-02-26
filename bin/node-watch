@@ -335,6 +335,92 @@ class RepoCoordinator(threading.Thread):
             pass
 
 
+def discover_local_watch_dirs(command):
+    """Find local directories to watch for restart-only changes.
+
+    Always watches src/ if it exists. Also watches test*/ directories
+    if the command contains the word 'test'.
+    """
+    dirs = []
+    if os.path.isdir("src"):
+        dirs.append("src")
+
+    if "test" in " ".join(command).lower():
+        for entry in os.listdir("."):
+            if entry.lower().startswith("test") and os.path.isdir(entry):
+                dirs.append(entry)
+
+    return dirs
+
+
+class LocalWatcher(threading.Thread):
+    """Watches local directories for changes and triggers restart.
+
+    Unlike RepoCoordinator, this does not run any build step — it just
+    calls the on_change callback when files change.
+    """
+
+    def __init__(self, watch_dirs, on_change):
+        super().__init__(daemon=True)
+        self.watch_dirs = watch_dirs
+        self.on_change = on_change  # callback()
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def run(self):
+        fswatch_cmd = [
+            "fswatch", "-r", "-l", "0.5", "--exclude", r"/\."
+        ] + self.watch_dirs
+
+        try:
+            proc = subprocess.Popen(
+                fswatch_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+            )
+        except FileNotFoundError:
+            print("node-watch: fswatch not found. "
+                  "Install with: brew install fswatch",
+                  file=sys.stderr)
+            return
+
+        try:
+            while not self._stop_event.is_set():
+                ready, _, _ = select.select(
+                    [proc.stdout], [], [], 1.0
+                )
+                if not ready:
+                    if proc.poll() is not None:
+                        break
+                    continue
+
+                line = proc.stdout.readline()
+                if not line:
+                    break
+
+                # Drain batched changes
+                while True:
+                    r, _, _ = select.select(
+                        [proc.stdout], [], [], 0.1
+                    )
+                    if not r:
+                        break
+                    extra = proc.stdout.readline()
+                    if not extra:
+                        break
+
+                self.on_change()
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait()
+
+
 class CommandRunner:
     """Manages the main npm command subprocess.
 
@@ -409,6 +495,7 @@ class NodeWatch:
         self.namespace = namespace
         self.command = command
         self.coordinators = []
+        self.local_watcher = None
         self.runner = None
         self._debounce_timer = None
         self._debounce_lock = threading.Lock()
@@ -421,6 +508,7 @@ class NodeWatch:
             print(f"node-watch: no symlinked repos found in node_modules/{self.namespace}/",
                   file=sys.stderr)
             # Still run the command even with no linked deps
+            self._start_local_watcher()
             self.runner = CommandRunner(self.command)
             self.runner.start()
             self._setup_signals()
@@ -444,6 +532,9 @@ class NodeWatch:
             self.coordinators.append(coord)
             coord.start()
 
+        # Start local watcher
+        self._start_local_watcher()
+
         # Start command
         self.runner = CommandRunner(self.command)
         self.runner.start()
@@ -462,6 +553,29 @@ class NodeWatch:
 
         self._cleanup()
         return 0
+
+    def _start_local_watcher(self):
+        watch_dirs = discover_local_watch_dirs(self.command)
+        if watch_dirs:
+            print(f"node-watch: watching local dirs: "
+                  f"{', '.join(watch_dirs)}",
+                  file=sys.stderr)
+            self.local_watcher = LocalWatcher(
+                watch_dirs, self._on_local_change
+            )
+            self.local_watcher.start()
+
+    def _on_local_change(self):
+        if self._shutting_down:
+            return
+        # Debounce alongside dep rebuilds
+        with self._debounce_lock:
+            if self._debounce_timer is not None:
+                self._debounce_timer.cancel()
+            self._debounce_timer = threading.Timer(
+                0.5, self._do_restart, args=["local"]
+            )
+            self._debounce_timer.start()
 
     def _on_build(self, repo_name, status, output):
         if self._shutting_down:
@@ -509,6 +623,9 @@ class NodeWatch:
                 self._debounce_timer.cancel()
 
         print("\nnode-watch: shutting down...", file=sys.stderr)
+
+        if self.local_watcher:
+            self.local_watcher.stop()
 
         for coord in self.coordinators:
             coord.stop()
