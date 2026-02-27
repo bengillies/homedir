@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-node-watch: Auto-rebuild watcher for symlinked dependencies.
+node-run: Auto-rebuild runner for symlinked dependencies.
 
-Works with node-link. Watches linked repos for source changes, rebuilds them
-(npm run dist), and restarts your command.
+Works with node-link. Builds linked repos (npm run dist) in dependency order,
+runs your command, then watches for source changes and rebuilds/restarts.
 
 Usage:
-    node-watch -n @foo start-dev
-    node-watch -n @namespace -- serve --port 3000
+    node-run -n @foo start-dev
+    node-run -n @namespace -- serve --port 3000
+    node-run -n @foo --no-restart test
 """
 
 import argparse
@@ -23,7 +24,7 @@ import threading
 import time
 
 
-COORD_BASE = "/tmp/node-watch"
+COORD_BASE = "/tmp/node-run"
 
 
 def discover_repos(namespace):
@@ -53,7 +54,7 @@ def discover_repos(namespace):
 
     top = os.path.join("node_modules", namespace)
     if not os.path.isdir(top):
-        print(f"node-watch: {top} not found", file=sys.stderr)
+        print(f"node-run: {top} not found", file=sys.stderr)
         return []
 
     scan_dir(top)
@@ -195,8 +196,50 @@ def compute_dependents(dep_graph):
     return result
 
 
+def compute_build_order(dep_graph):
+    """Topologically sort all repos so dependencies are built first.
+
+    Returns list of repo names in build order.
+    """
+    # Build reverse map and in-degrees
+    reverse = {n: [] for n in dep_graph}
+    in_degree = {n: 0 for n in dep_graph}
+    for name, (deps, dev_deps) in dep_graph.items():
+        for d in deps + dev_deps:
+            if d in reverse:
+                reverse[d].append(name)
+                in_degree[name] += 1
+
+    # Kahn's algorithm
+    ready = sorted(n for n in in_degree if in_degree[n] == 0)
+    ordered = []
+    while ready:
+        node = ready.pop(0)
+        ordered.append(node)
+        for dependent in reverse[node]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                # Insert sorted to keep deterministic order
+                idx = len(ready)
+                for i, r in enumerate(ready):
+                    if r > dependent:
+                        idx = i
+                        break
+                ready.insert(idx, dependent)
+
+    # Cycle: nodes left with non-zero in-degree
+    remaining = set(dep_graph) - set(ordered)
+    if remaining:
+        print(f"  warning: circular dependency "
+              f"involving: {', '.join(sorted(remaining))}",
+              file=sys.stderr)
+        ordered.extend(sorted(remaining))
+
+    return ordered
+
+
 class RepoCoordinator(threading.Thread):
-    """Coordinates building a single linked repo across node-watch instances.
+    """Coordinates building a single linked repo across node-run instances.
 
     Uses flock-based leader election so only one instance runs fswatch + dist.
     Other instances subscribe via named pipes (FIFOs) for build results.
@@ -351,7 +394,7 @@ class RepoCoordinator(threading.Thread):
                 stderr=subprocess.DEVNULL,
             )
         except FileNotFoundError:
-            print("node-watch: fswatch not found. Install with: brew install fswatch",
+            print("node-run: fswatch not found. Install with: brew install fswatch",
                   file=sys.stderr)
             self._close_subscriber_fds()
             self._stop_event.set()
@@ -542,7 +585,7 @@ class LocalWatcher(threading.Thread):
                 stderr=subprocess.DEVNULL,
             )
         except FileNotFoundError:
-            print("node-watch: fswatch not found. "
+            print("node-run: fswatch not found. "
                   "Install with: brew install fswatch",
                   file=sys.stderr)
             return
@@ -616,7 +659,13 @@ class CommandRunner:
                 preexec_fn=os.setsid,
             )
         except Exception as e:
-            print(f"node-watch: failed to start command: {e}", file=sys.stderr)
+            print(f"node-run: failed to start command: {e}", file=sys.stderr)
+
+    def poll(self):
+        with self._lock:
+            if self._proc is None:
+                return None
+            return self._proc.poll()
 
     def _kill(self):
         if self._proc is None:
@@ -662,7 +711,10 @@ class NodeWatch:
         self.local_watcher = None
         self.runner = None
         self._repo_paths = {}
+        self._dep_graph = {}
         self._dependents = {}
+        self._command_started = False
+        self._start_lock = threading.Lock()
         self._debounce_timer = None
         self._debounce_lock = threading.Lock()
         self._shutting_down = False
@@ -671,7 +723,7 @@ class NodeWatch:
     def run(self):
         repos = discover_repos(self.namespace)
         if not repos:
-            print(f"node-watch: no symlinked repos found in node_modules/{self.namespace}/",
+            print(f"node-run: no symlinked repos found in node_modules/{self.namespace}/",
                   file=sys.stderr)
             # Still run the command even with no linked deps
             self._start_local_watcher()
@@ -681,21 +733,47 @@ class NodeWatch:
             atexit.register(self._cleanup)
             try:
                 while not self._shutting_down:
+                    if self.no_restart \
+                            and self.runner.poll() is not None:
+                        break
                     time.sleep(0.5)
             except KeyboardInterrupt:
                 pass
             self._cleanup()
             return 0
 
-        print(f"node-watch: watching {len(repos)} linked repo(s):",
+        print(f"node-run: watching {len(repos)} linked repo(s):",
               file=sys.stderr)
         for name, path in repos:
             print(f"  {name} -> {path}", file=sys.stderr)
 
         # Compute dependency graph
         self._repo_paths = {name: path for name, path in repos}
-        dep_graph = discover_dependency_graph(repos, self.namespace)
-        self._dependents = compute_dependents(dep_graph)
+        self._dep_graph = discover_dependency_graph(
+            repos, self.namespace
+        )
+        self._dependents = compute_dependents(self._dep_graph)
+
+        # Initial build of all deps in order
+        initial_build_ok = True
+        build_order = compute_build_order(self._dep_graph)
+        if build_order:
+            print(f"node-run: building {len(build_order)} "
+                  f"dep(s) in order: "
+                  f"{', '.join(build_order)}",
+                  file=sys.stderr)
+            for name in build_order:
+                path = self._repo_paths.get(name)
+                if not path:
+                    continue
+                result = self._build_repo(name, path)
+                if result["status"] == "error":
+                    self._report_build_error(
+                        name, result.get("output", "")
+                    )
+                    initial_build_ok = False
+                    break
+
         # Start coordinators
         for name, path in repos:
             coord = RepoCoordinator(
@@ -707,17 +785,26 @@ class NodeWatch:
         # Start local watcher
         self._start_local_watcher()
 
-        # Start command
+        # Start command (only if initial build succeeded)
         self.runner = CommandRunner(self.command)
-        self.runner.start()
+        if initial_build_ok:
+            self._command_started = True
+            self.runner.start()
+        else:
+            print("node-run: waiting for successful builds "
+                  "before starting command...",
+                  file=sys.stderr)
 
         self._setup_signals()
         atexit.register(self._cleanup)
 
-        # Wait for command to exit
+        # Wait for shutdown or command exit
         try:
             while True:
                 if self._shutting_down:
+                    break
+                if self._command_started and self.no_restart \
+                        and self.runner.poll() is not None:
                     break
                 time.sleep(0.5)
         except KeyboardInterrupt:
@@ -734,7 +821,7 @@ class NodeWatch:
             if path not in watch_dirs:
                 watch_dirs.append(path)
         if watch_dirs:
-            print(f"node-watch: watching local dirs: "
+            print(f"node-run: watching local dirs: "
                   f"{', '.join(watch_dirs)}",
                   file=sys.stderr)
             self.local_watcher = LocalWatcher(
@@ -743,7 +830,7 @@ class NodeWatch:
             self.local_watcher.start()
 
     def _on_local_change(self):
-        if self._shutting_down:
+        if self._shutting_down or not self._command_started:
             return
         # Debounce alongside dep rebuilds
         with self._debounce_lock:
@@ -760,6 +847,11 @@ class NodeWatch:
 
         if status == "error":
             self._report_build_error(repo_name, output)
+            return
+
+        # If command hasn't started yet, try a full rebuild
+        if not self._command_started:
+            self._attempt_start()
             return
 
         # Build dependents in order
@@ -785,8 +877,31 @@ class NodeWatch:
             )
             self._debounce_timer.start()
 
+    def _attempt_start(self):
+        """Try building all deps in order. Start command if all succeed."""
+        with self._start_lock:
+            if self._command_started:
+                return
+            build_order = compute_build_order(self._dep_graph)
+            for name in build_order:
+                if self._shutting_down:
+                    return
+                path = self._repo_paths.get(name)
+                if not path:
+                    continue
+                result = self._build_repo(name, path)
+                if result["status"] == "error":
+                    self._report_build_error(
+                        name, result.get("output", "")
+                    )
+                    return
+            # All builds succeeded
+            self._command_started = True
+            if self.runner:
+                self.runner.start()
+
     def _build_repo(self, name, path):
-        print(f"  [{name}] building (dependent)...",
+        print(f"  [{name}] building...",
               file=sys.stderr)
         try:
             result = subprocess.run(
@@ -821,6 +936,9 @@ class NodeWatch:
     def _do_restart(self, last_repo):
         if self._shutting_down:
             return
+        if not self._command_started:
+            self._attempt_start()
+            return
         if self.no_restart:
             print(f"\n>>> Rebuild detected (last: {last_repo}), "
                   "skipping restart (--no-restart)",
@@ -847,7 +965,7 @@ class NodeWatch:
             if self._debounce_timer is not None:
                 self._debounce_timer.cancel()
 
-        print("\nnode-watch: shutting down...", file=sys.stderr)
+        print("\nnode-run: shutting down...", file=sys.stderr)
 
         if self.local_watcher:
             self.local_watcher.stop()
@@ -862,8 +980,8 @@ class NodeWatch:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Auto-rebuild watcher for symlinked dependencies",
-        usage="node-watch -n @namespace <npm-script> [args...]",
+        description="Build symlinked deps and run command with auto-rebuild",
+        usage="node-run -n @namespace <npm-script> [args...]",
     )
     parser.add_argument(
         "-n", "--namespace",
@@ -874,7 +992,8 @@ def main():
         "--no-restart",
         action="store_true",
         help="Skip restarting the command on rebuild "
-             "(useful with vite/HMR)",
+             "(useful with vite/HMR). Also exits when the "
+             "command terminates.",
     )
     parser.add_argument(
         "-w", "--watch",
