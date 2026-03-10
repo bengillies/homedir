@@ -733,9 +733,12 @@ class NodeWatch:
             atexit.register(self._cleanup)
             try:
                 while not self._shutting_down:
-                    if self.no_restart \
-                            and self.runner.poll() is not None:
-                        break
+                    if self.runner.poll() is not None:
+                        if self.no_restart:
+                            break
+                        print("\n>>> Command exited, restarting...",
+                              file=sys.stderr)
+                        self.runner.restart()
                     time.sleep(0.5)
             except KeyboardInterrupt:
                 pass
@@ -803,9 +806,13 @@ class NodeWatch:
             while True:
                 if self._shutting_down:
                     break
-                if self._command_started and self.no_restart \
+                if self._command_started \
                         and self.runner.poll() is not None:
-                    break
+                    if self.no_restart:
+                        break
+                    print("\n>>> Command exited, restarting...",
+                          file=sys.stderr)
+                    self.runner.restart()
                 time.sleep(0.5)
         except KeyboardInterrupt:
             pass
