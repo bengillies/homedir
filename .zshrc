@@ -115,7 +115,12 @@ alias lein='nocorrect lein'
 alias g='git'
 
 #update node modules
-alias ni='rm -rf node_modules && npm install'
+function ni() {
+	local DIR=`mktemp -d /tmp/node_modules_XXXX`
+	mv node_modules $DIR
+	(rm -rf $DIR &) &> /dev/null
+	npm install
+}
 
 #manually specify unicorn startup
 #alias runicorn='bundle exec unicorn_rails -p 3000 -c ~/.unicorn.conf'
