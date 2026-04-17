@@ -105,9 +105,6 @@ setopt HIST_FIND_NO_DUPS
 #add colour to ls
 alias ls='ls -G'
 
-#add color and line numbers to grep and ignore binary file matches
-alias grep='grep --color -n -I -R'
-
 #don't try and correct lein to link
 alias lein='nocorrect lein'
 
@@ -252,6 +249,9 @@ function is_codex_app() {
 
 #start tmux (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" -a -z "$NVIM" ] && ! is_codex_app && tty -s; then
+	#recursive grep by default; only aliased for interactive use since scripts don't expect -R
+	alias grep='grep --color -n -I -R'
+
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
