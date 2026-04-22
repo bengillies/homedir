@@ -247,11 +247,15 @@ function is_codex_app() {
 	return 1
 }
 
+#recursive grep by default; only aliased for interactive use since scripts don't expect -R.
+#`zsh -c` invocations (e.g. Claude Code's Bash tool) are non-interactive so skip the alias there;
+#Codex spawns an interactive zsh so guard against it explicitly.
+if [[ -o interactive ]] && ! is_codex_app; then
+	alias grep='grep --color -n -I -R'
+fi
+
 #start tmux (unless we're in it already). If its already on, connect to it
 if [ "$TERM" != "screen-bce" -a "$TERM" != "screen-256color" -a "$TERM_PROGRAM" != "vscode" -a -z "$NVIM" ] && ! is_codex_app && tty -s; then
-	#recursive grep by default; only aliased for interactive use since scripts don't expect -R
-	alias grep='grep --color -n -I -R'
-
 	echo "connecting to tmux..."
 	tmux attach-session
 fi
