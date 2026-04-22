@@ -2,7 +2,16 @@
 
 MOD_PATH='node_modules'
 BIN_PATH="$MOD_PATH/.bin"
-ROOT="${WAVE_ROOT:-`readlink -f "../"`}"
+if [[ -n "$WAVE_ROOT" ]]; then
+	ROOT="$WAVE_ROOT"
+else
+	GIT_COMMON_DIR=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+	if [[ -n "$GIT_COMMON_DIR" ]]; then
+		ROOT=$(dirname "$(dirname "$GIT_COMMON_DIR")")
+	else
+		ROOT=$(readlink -f "../")
+	fi
+fi
 CONFIG_FILE='package.json'
 
 UNLINK=false
@@ -107,21 +116,29 @@ DEPS+=("$PWD")
 
 function gatherDeps() {
 	local MODULE_DIR="$1"
-	local WORKTREE=$(get_worktree "$MODULE_DIR")
 
-	if [[ -n "$WORKTREE" ]]; then
-		local WORK_PATH
-		WORK_PATH=$(resolve_worktree_path "$MODULE_DIR" "$WORKTREE")
-		if [[ $? -eq 0 && -d "$WORK_PATH" ]]; then
-			pushd "$WORK_PATH" > /dev/null
-		else
-			pushd "$ROOT/$MODULE_DIR" > /dev/null
-		fi
-	else
-		if [[ -d "$ROOT/$MODULE_DIR" ]]; then
-			pushd "$ROOT/$MODULE_DIR" > /dev/null
-		else
+	if [[ "$MODULE_DIR" == /* ]]; then
+		if [[ ! -d "$MODULE_DIR" ]]; then
 			return
+		fi
+		pushd "$MODULE_DIR" > /dev/null
+	else
+		local WORKTREE=$(get_worktree "$MODULE_DIR")
+
+		if [[ -n "$WORKTREE" ]]; then
+			local WORK_PATH
+			WORK_PATH=$(resolve_worktree_path "$MODULE_DIR" "$WORKTREE")
+			if [[ $? -eq 0 && -d "$WORK_PATH" ]]; then
+				pushd "$WORK_PATH" > /dev/null
+			else
+				pushd "$ROOT/$MODULE_DIR" > /dev/null
+			fi
+		else
+			if [[ -d "$ROOT/$MODULE_DIR" ]]; then
+				pushd "$ROOT/$MODULE_DIR" > /dev/null
+			else
+				return
+			fi
 		fi
 	fi
 
@@ -144,9 +161,11 @@ function loopDeps() {
 			continue
 		fi
 
-		DEP=$(basename "$DIR")
-
-		gatherDeps "$DEP"
+		if [[ "$DIR" == /* ]]; then
+			gatherDeps "$DIR"
+		else
+			gatherDeps "$(basename "$DIR")"
+		fi
 	done
 }
 
@@ -164,7 +183,11 @@ for DIR in "${MODULES[@]}"; do
 		continue
 	fi
 
-	pushd "$ROOT/$DIR" > /dev/null
+	if [[ "$DIR" == /* ]]; then
+		pushd "$DIR" > /dev/null
+	else
+		pushd "$ROOT/$DIR" > /dev/null
+	fi
 	echo "checking $PWD"
 
 	for MODULE in "${TARGET_MODULES[@]}"; do
