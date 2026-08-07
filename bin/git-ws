@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+	echo "Usage: git ws <branch-name>" >&2
+	exit 1
+fi
+
+branch=$1
+
+main_worktree=$(cd "$(git rev-parse --git-common-dir)/.." && pwd -P)
+worktree_path="$main_worktree/.worktrees/$branch"
+
+branch_exists=false
+if git show-ref --verify --quiet "refs/heads/$branch"; then
+	branch_exists=true
+fi
+
+worktree_at_path_exists=false
+worktree_at_path_branch=""
+branch_worktree_path=""
+
+current_path=""
+current_branch=""
+while IFS= read -r line; do
+	if [[ -z "$line" ]]; then
+		if [[ -n "$current_path" ]]; then
+			if [[ "$current_path" == "$worktree_path" ]]; then
+				worktree_at_path_exists=true
+				worktree_at_path_branch=$current_branch
+			fi
+			if [[ -n "$current_branch" && "$current_branch" == "$branch" ]]; then
+				branch_worktree_path=$current_path
+			fi
+		fi
+		current_path=""
+		current_branch=""
+	elif [[ "$line" == "worktree "* ]]; then
+		current_path=${line#worktree }
+	elif [[ "$line" == "branch refs/heads/"* ]]; then
+		current_branch=${line#branch refs/heads/}
+	fi
+done < <(git worktree list --porcelain; echo)
+
+if [[ "$worktree_at_path_exists" == "true" && "$worktree_at_path_branch" != "$branch" ]]; then
+	echo "Error: worktree at $worktree_path is checked out to '$worktree_at_path_branch', not '$branch'" >&2
+	exit 1
+fi
+
+if [[ "$worktree_at_path_exists" == "true" ]]; then
+	echo "$worktree_path"
+	exit 0
+fi
+
+if [[ "$branch_exists" == "true" && -n "$branch_worktree_path" ]]; then
+	echo "$branch_worktree_path"
+	exit 0
+fi
+
+if [[ "$branch_exists" == "true" ]]; then
+	git worktree add "$worktree_path" "$branch" >&2
+else
+	git worktree add -b "$branch" "$worktree_path" >&2
+fi
+
+echo "$worktree_path"
