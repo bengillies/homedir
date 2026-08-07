@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+#
+# gh-ro — a strictly read-only wrapper around `gh api`.
+#
+# Why this exists: `gh api` can issue any HTTP method, and the logged-in token
+# carries write scopes (repo, workflow, gist). Allowlisting bare `gh api` would
+# hand out write access. This wrapper forces `--method GET` and refuses every
+# flag or endpoint that could mutate state (or mask a mutation), so it is safe
+# to add to an unattended allowlist.
+#
+# Design: allowlist, not denylist. Any flag not explicitly permitted below is
+# rejected. The HTTP method is hard-coded to GET and cannot be overridden.
+#
+# Usage:
+#   gh-ro <endpoint> [safe flags...]
+#
+# Examples:
+#   gh-ro repos/foo/bar/pulls/1631/comments --paginate
+#   gh-ro repos/bar/bar/pulls/8634/reviews -q '.[].user.login'
+#   gh-ro --hostname github.custom.example.com repos/foo/bar/pulls/8634/comments
+#
+set -euo pipefail
+
+PROG="gh-ro"
+
+die() { printf '%s: %s\n' "$PROG" "$1" >&2; exit 2; }
+
+usage() {
+  cat >&2 <<'EOF'
+gh-ro — read-only `gh api` (GET only)
+
+Usage:
+  gh-ro <endpoint> [safe flags...]
+
+Permitted flags:
+  --hostname H        target host (e.g. github.example.com)
+  --paginate          follow pagination
+  --slurp             with --paginate, collect pages into one array
+  -i, --include       include HTTP response headers in output
+  --cache DUR         cache the response (e.g. 1h)
+  -q, --jq EXPR       filter output with jq (client-side, read-only)
+  -f, -F, --field, --raw-field KEY=VALUE
+                      request parameters — sent as QUERY STRING under GET
+
+Refused (would allow or hide a write):
+  -X, --method        HTTP method override (locked to GET)
+  --input             request body
+  -H, --header        custom headers (blocks method-override headers)
+  graphql             GraphQL endpoint (can carry mutations)
+  --                  argument passthrough
+  any unrecognised flag
+EOF
+  exit 2
+}
+
+[ $# -eq 0 ] && usage
+
+endpoint=""
+args=()
+
+while [ $# -gt 0 ]; do
+  arg="$1"
+  case "$arg" in
+    -h|--help) usage ;;
+
+    # --- refused: anything that can write, or mask a write ---
+    -X|--method|-X*|--method=*)
+      die "refused: HTTP method override ($arg) — this wrapper is GET-only" ;;
+    --input|--input=*|--input-file|--input-file=*)
+      die "refused: $arg sends a request body (write)" ;;
+    -H|--header|-H*|--header=*)
+      die "refused: -H/--header not allowed (blocks method-override headers)" ;;
+
+    # --- allowed: value-less flags ---
+    --paginate|--slurp|-i|--include)
+      args+=("$arg"); shift ;;
+
+    # --- allowed: --flag=value form ---
+    --hostname=*|--cache=*|--jq=*)
+      args+=("$arg"); shift ;;
+    --field=*|--raw-field=*)
+      body="${arg#*=}"
+      [[ "$body" == *"="* ]] || die "refused: field must be KEY=VALUE ($arg)"
+      args+=("$arg"); shift ;;
+
+    # --- allowed: flag + separate value ---
+    --hostname|--cache|--jq|-q)
+      [ $# -ge 2 ] || die "flag $arg needs a value"
+      args+=("$arg" "$2"); shift 2 ;;
+    -f|-F|--field|--raw-field)
+      [ $# -ge 2 ] || die "flag $arg needs a value"
+      [[ "$2" == *"="* ]] || die "refused: field must be KEY=VALUE ($arg $2)"
+      args+=("$arg" "$2"); shift 2 ;;
+
+    # --- everything else ---
+    --)
+      die "refused: -- passthrough not allowed" ;;
+    graphql|graphql/*)
+      die "refused: graphql endpoint can carry mutations" ;;
+    -*)
+      die "refused: unrecognised flag $arg (allowlist only)" ;;
+    *)
+      [ -z "$endpoint" ] || die "refused: multiple positional args ($endpoint, $arg)"
+      endpoint="$arg"; shift ;;
+  esac
+done
+
+[ -n "$endpoint" ] || die "no endpoint given (try: $PROG --help)"
+
+# Defence in depth: reject a GraphQL endpoint however it arrives.
+case "$endpoint" in
+  graphql|graphql/*) die "refused: graphql endpoint can carry mutations" ;;
+esac
+
+# --method GET is hard-coded and comes before user args; -X/--method are already
+# rejected above, so the method cannot be changed. Empty-array-safe expansion
+# keeps this working under `set -u`.
+exec gh api --method GET "$endpoint" ${args[@]+"${args[@]}"}
