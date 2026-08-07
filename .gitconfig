@@ -34,7 +34,7 @@
 	trustExitCode = true
 	keepBackup = false
 [push]
-	default = matching
+	default = simple
 	autoSetupRemote = true
 
 # use https instead of git when the git protocol is blocked by the firewall

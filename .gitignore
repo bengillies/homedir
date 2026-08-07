@@ -21,3 +21,5 @@ PLAN.md
 CONTEXT
 .worktrees
 __pycache__
+
+**/.claude/settings.local.json
