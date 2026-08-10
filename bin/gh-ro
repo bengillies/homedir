@@ -25,6 +25,29 @@ PROG="gh-ro"
 
 die() { printf '%s: %s\n' "$PROG" "$1" >&2; exit 2; }
 
+# `gh api -F key=@path` reads the value from a local file, and `@-` from stdin,
+# which would ship file contents to the API host as a query parameter. Only
+# -F/--field has this magic; -f/--raw-field is always a literal string.
+check_field_value() {
+  local flag="$1" pair="$2" value="${2#*=}"
+  [[ "$value" == @* ]] && die "refused: $flag value starts with @ ($pair) — gh would read it from a file; use -f/--raw-field for a literal value"
+  return 0
+}
+
+# Reduce an endpoint to its API path so the graphql check cannot be dodged by a
+# leading slash, a full URL, or a query string. Case-folded because the
+# comparison should not depend on it.
+endpoint_path() {
+  local e="$1"
+  if [[ "$e" == *"://"* ]]; then
+    e="${e#*://}"
+    if [[ "$e" == */* ]]; then e="${e#*/}"; else e=""; fi
+  fi
+  while [[ "$e" == /* ]]; do e="${e#/}"; done
+  e="${e%%\?*}"
+  printf '%s' "$e" | tr '[:upper:]' '[:lower:]'
+}
+
 usage() {
   cat >&2 <<'EOF'
 gh-ro — read-only `gh api` (GET only)
@@ -42,10 +65,13 @@ Permitted flags:
   -f, -F, --field, --raw-field KEY=VALUE
                       request parameters — sent as QUERY STRING under GET
 
-Refused (would allow or hide a write):
+Refused (would allow or hide a write, or read a local file):
   -X, --method        HTTP method override (locked to GET)
   --input             request body
   -H, --header        custom headers (blocks method-override headers)
+  -F KEY=@VALUE       gh reads @-prefixed field values from a file (or stdin
+                      for @-), which would send local file contents to the
+                      API host — use -f/--raw-field for a literal value
   graphql             GraphQL endpoint (can carry mutations)
   --                  argument passthrough
   any unrecognised flag
@@ -81,6 +107,7 @@ while [ $# -gt 0 ]; do
     --field=*|--raw-field=*)
       body="${arg#*=}"
       [[ "$body" == *"="* ]] || die "refused: field must be KEY=VALUE ($arg)"
+      [[ "$arg" == --field=* ]] && check_field_value "--field" "$body"
       args+=("$arg"); shift ;;
 
     # --- allowed: flag + separate value ---
@@ -90,13 +117,14 @@ while [ $# -gt 0 ]; do
     -f|-F|--field|--raw-field)
       [ $# -ge 2 ] || die "flag $arg needs a value"
       [[ "$2" == *"="* ]] || die "refused: field must be KEY=VALUE ($arg $2)"
+      case "$arg" in
+        -F|--field) check_field_value "$arg" "$2" ;;
+      esac
       args+=("$arg" "$2"); shift 2 ;;
 
     # --- everything else ---
     --)
       die "refused: -- passthrough not allowed" ;;
-    graphql|graphql/*)
-      die "refused: graphql endpoint can carry mutations" ;;
     -*)
       die "refused: unrecognised flag $arg (allowlist only)" ;;
     *)
@@ -107,8 +135,10 @@ done
 
 [ -n "$endpoint" ] || die "no endpoint given (try: $PROG --help)"
 
-# Defence in depth: reject a GraphQL endpoint however it arrives.
-case "$endpoint" in
+# Reject a GraphQL endpoint however it arrives: bare, slash-prefixed, as a full
+# URL, or with a query string. Matching the normalised path rather than the raw
+# argument keeps repos that merely contain "graphql" in their name usable.
+case "$(endpoint_path "$endpoint")" in
   graphql|graphql/*) die "refused: graphql endpoint can carry mutations" ;;
 esac
 

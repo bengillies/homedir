@@ -20,11 +20,21 @@ worktree_at_path_exists=false
 worktree_at_path_branch=""
 branch_worktree_path=""
 
+# Drop records for worktrees whose directory has been deleted. Without this,
+# `git worktree list` keeps reporting them (marked prunable) and we would hand
+# back a path that no longer exists, so `cd "$(git ws foo)"` would fail. It also
+# frees the branch, which is still considered checked out until pruned.
+git worktree prune
+
 current_path=""
 current_branch=""
+current_prunable=false
 while IFS= read -r line; do
 	if [[ -z "$line" ]]; then
-		if [[ -n "$current_path" ]]; then
+		# Belt and braces: skip anything git flagged as prunable, or whose
+		# directory is missing despite the prune above.
+		if [[ -n "$current_path" && "$current_prunable" == "false" \
+				&& -d "$current_path" ]]; then
 			if [[ "$current_path" == "$worktree_path" ]]; then
 				worktree_at_path_exists=true
 				worktree_at_path_branch=$current_branch
@@ -35,10 +45,13 @@ while IFS= read -r line; do
 		fi
 		current_path=""
 		current_branch=""
+		current_prunable=false
 	elif [[ "$line" == "worktree "* ]]; then
 		current_path=${line#worktree }
 	elif [[ "$line" == "branch refs/heads/"* ]]; then
 		current_branch=${line#branch refs/heads/}
+	elif [[ "$line" == "prunable"* ]]; then
+		current_prunable=true
 	fi
 done < <(git worktree list --porcelain; echo)
 
