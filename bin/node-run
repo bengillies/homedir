@@ -2,8 +2,11 @@
 """
 node-run: Auto-rebuild runner for symlinked dependencies.
 
-Works with node-link. Builds linked repos (npm run dist) in dependency order,
+Works with node-link. Builds linked repos (<pm> run dist) in dependency order,
 runs your command, then watches for source changes and rebuilds/restarts.
+
+Each repo is built with its own package manager (npm or pnpm), detected by
+bin/pkg-manager, so a part-migrated set of repos still works.
 
 Usage:
     node-run -n @foo start-dev
@@ -26,38 +29,110 @@ import time
 
 COORD_BASE = "/tmp/node-run"
 
+_PM_CACHE = {}
+
+
+def package_manager(path="."):
+    """Which package manager a repo is set up for ("npm" or "pnpm").
+
+    Delegates to bin/pkg-manager so node-link, node-run and the ni shell
+    function all agree on the answer. Falls back to a lockfile check if the
+    helper is missing.
+    """
+    key = os.path.realpath(path)
+    if key in _PM_CACHE:
+        return _PM_CACHE[key]
+
+    helper = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "pkg-manager"
+    )
+    pm = None
+    try:
+        result = subprocess.run(
+            [helper, key], capture_output=True, text=True, timeout=10
+        )
+        out = result.stdout.strip()
+        if out in ("npm", "pnpm"):
+            pm = out
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    if pm is None:
+        pm = "pnpm" if os.path.exists(
+            os.path.join(key, "pnpm-lock.yaml")
+        ) else "npm"
+
+    _PM_CACHE[key] = pm
+    return pm
+
+
+def is_linked(mod_dir, entry, project_root):
+    """Did node-link create this symlink?
+
+    Mirrors node-link's test. "Is a symlink" is not enough: pnpm symlinks
+    every dependency into node_modules/.pnpm, and both managers symlink
+    file:/link: deps and workspace members. Require a _<name> backup marker
+    alongside it (only node-link creates those) *and* a target outside this
+    project (ours point at sibling repos; store links resolve back inside).
+    """
+    full = os.path.join(mod_dir, entry)
+    if not os.path.islink(full):
+        return False
+    if not os.path.lexists(os.path.join(mod_dir, "_" + entry)):
+        return False
+    real = os.path.realpath(full)
+    return real != project_root \
+        and not real.startswith(project_root + os.sep)
+
 
 def discover_repos(namespace):
-    """Scan node_modules/<namespace>/ for symlinks, then recursively
-    check each discovered repo's own node_modules/<namespace>/ for
-    more linked repos.
+    """Scan node_modules/<namespace>/ for repos node-link has linked in,
+    then recursively check each discovered repo's own
+    node_modules/<namespace>/ for more linked repos.
 
     Returns list of (name, real_path) tuples.
     """
     found = {}  # name -> real_path (dedupes by name)
 
-    def scan_dir(mod_dir):
+    def scan_dir(mod_dir, project_root):
         if not os.path.isdir(mod_dir):
             return
         for entry in os.listdir(mod_dir):
-            full = os.path.join(mod_dir, entry)
-            if os.path.islink(full):
-                real = os.path.realpath(full)
-                if os.path.isdir(real) \
-                        and entry not in found:
-                    found[entry] = real
-                    # Recurse into this repo's node_modules
-                    sub = os.path.join(
-                        real, "node_modules", namespace
-                    )
-                    scan_dir(sub)
+            if entry.startswith("_"):
+                continue
+            if not is_linked(mod_dir, entry, project_root):
+                # A link pointing outside the project with no _<name> marker
+                # was probably ours, but we cannot tell it apart from a
+                # file:/link: dep. Say so rather than silently skipping it,
+                # or local changes appear to be ignored for no reason.
+                full = os.path.join(mod_dir, entry)
+                if os.path.islink(full) and not os.path.lexists(
+                    os.path.join(mod_dir, "_" + entry)
+                ):
+                    real = os.path.realpath(full)
+                    if not real.startswith(project_root + os.sep):
+                        print(
+                            f"node-run: skipping {entry} — symlinked to "
+                            f"{real} but has no _{entry} backup, so it is "
+                            f"not treated as a linked repo",
+                            file=sys.stderr,
+                        )
+                continue
+            real = os.path.realpath(os.path.join(mod_dir, entry))
+            if os.path.isdir(real) and entry not in found:
+                found[entry] = real
+                # Recurse into this repo's node_modules
+                sub = os.path.join(
+                    real, "node_modules", namespace
+                )
+                scan_dir(sub, real)
 
     top = os.path.join("node_modules", namespace)
     if not os.path.isdir(top):
         print(f"node-run: {top} not found", file=sys.stderr)
         return []
 
-    scan_dir(top)
+    scan_dir(top, os.path.realpath(os.getcwd()))
     return list(found.items())
 
 
@@ -448,7 +523,7 @@ class RepoCoordinator(threading.Thread):
         print(f"  [{self.name}] building...", file=sys.stderr)
         try:
             result = subprocess.run(
-                ["npm", "run", "dist"],
+                [package_manager(self.repo_path), "run", "dist"],
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
@@ -633,6 +708,7 @@ class CommandRunner:
 
     def __init__(self, command):
         self.command = command
+        self.pm = package_manager(".")
         self._proc = None
         self._lock = threading.Lock()
 
@@ -652,10 +728,11 @@ class CommandRunner:
             self._kill()
 
     def _spawn(self):
-        print(f"\n>>> Starting: npm run {' '.join(self.command)}", file=sys.stderr)
+        print(f"\n>>> Starting: {self.pm} run {' '.join(self.command)}",
+              file=sys.stderr)
         try:
             self._proc = subprocess.Popen(
-                ["npm", "run"] + self.command,
+                [self.pm, "run"] + self.command,
                 preexec_fn=os.setsid,
             )
         except Exception as e:
@@ -912,7 +989,7 @@ class NodeWatch:
               file=sys.stderr)
         try:
             result = subprocess.run(
-                ["npm", "run", "dist"],
+                [package_manager(path), "run", "dist"],
                 cwd=path,
                 capture_output=True,
                 text=True,

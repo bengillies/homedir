@@ -112,11 +112,22 @@ alias lein='nocorrect lein'
 alias g='git'
 
 #update node modules
+#uses pnpm if the repo is set up for it, npm otherwise (see bin/pkg-manager)
 function ni() {
-	local DIR=`mktemp -d /tmp/node_modules_XXXX`
-	mv node_modules $DIR
-	(rm -rf $DIR &) &> /dev/null
-	npm install
+	local PM
+	PM=$(pkg-manager 2>/dev/null)
+	[[ -z $PM ]] && PM=npm
+
+	#move node_modules aside and delete it in the background so the
+	#install can start immediately
+	if [[ -d node_modules ]]; then
+		local DIR=`mktemp -d /tmp/node_modules_XXXX`
+		mv node_modules $DIR
+		(rm -rf $DIR &) &> /dev/null
+	fi
+
+	echo "ni: $PM install"
+	$PM install "$@"
 }
 
 #manually specify unicorn startup

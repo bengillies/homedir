@@ -15,11 +15,21 @@ fi
 CONFIG_FILE='package.json'
 
 UNLINK=false
+CLEAN_STALE=false
+FORCE=false
 
 while [[ $# -gt 0 ]]; do
 	case $1 in
 		--unlink)
 			UNLINK=true
+			shift
+			;;
+		--clean-stale)
+			CLEAN_STALE=true
+			shift
+			;;
+		--force)
+			FORCE=true
 			shift
 			;;
 		-n)
@@ -31,7 +41,7 @@ while [[ $# -gt 0 ]]; do
 			break
 			;;
 		-*)
-			echo "Usage: node-link [-n @namespace] [--unlink] modules..."
+			echo "Usage: node-link [-n @namespace] [--unlink] [--clean-stale] [--force] modules..."
 			exit 1
 			;;
 		*)
@@ -101,17 +111,121 @@ resolve_worktree_path() {
 	return 1
 }
 
+# Is this symlink one that node-link created?
+#
+# "Is a symlink" is not enough: pnpm symlinks every dependency into
+# node_modules/.pnpm, and both npm and pnpm symlink file:/link: deps and
+# workspace members. So we require two things:
+#   1. a _$NAME backup marker sitting alongside it (node-link put it there;
+#      no package manager creates these), and
+#   2. a target outside this project (ours point at sibling repos; store
+#      links resolve back inside node_modules).
+# Requiring both also catches a stale marker left behind when pnpm reclaims
+# a link during an install — marker present, but target back inside.
+is_our_link() {
+	local MOD_DIR="$1"
+	local NAME="$2"
+	local LINK="$MOD_DIR/$NAME"
+
+	[[ -L "$LINK" ]] || return 1
+	[[ -e "$MOD_DIR/_$NAME" || -L "$MOD_DIR/_$NAME" ]] || return 1
+
+	# Dangling link with a marker is ours, and broken.
+	[[ -d "$LINK" ]] || return 0
+
+	local TARGET
+	TARGET=$(cd "$LINK" 2>/dev/null && pwd -P) || return 1
+	[[ -n "$TARGET" && "$TARGET" != "$(pwd -P)"/* ]]
+}
+
+# Print the names of symlinks in $1 that node-link created.
+our_links() {
+	local MOD_DIR="$1"
+	local ENTRY NAME
+
+	[[ -d "$MOD_DIR" ]] || return
+	for ENTRY in "$MOD_DIR"/*; do
+		[[ -L "$ENTRY" ]] || continue
+		NAME=$(basename "$ENTRY")
+		[[ "$NAME" == _* ]] && continue
+		if is_our_link "$MOD_DIR" "$NAME"; then
+			echo "$NAME"
+		fi
+	done
+	return 0
+}
+
+# Print the names of backup markers sitting beside a live link that is not
+# ours, i.e. the package manager reclaimed the module during an install.
+# Restoring one of these would put a stale version back over a correct one.
+#
+# A marker with no link beside it is NOT stale — it is the only remaining copy
+# of that module, so it is reported separately and never deleted.
+stale_markers() {
+	local MOD_DIR="$1"
+	local ENTRY NAME
+
+	[[ -d "$MOD_DIR" ]] || return 0
+	for ENTRY in "$MOD_DIR"/_*; do
+		[[ -e "$ENTRY" || -L "$ENTRY" ]] || continue
+		NAME=$(basename "$ENTRY")
+		NAME="${NAME#_}"
+		[[ -e "$MOD_DIR/$NAME" || -L "$MOD_DIR/$NAME" ]] || continue
+		if ! is_our_link "$MOD_DIR" "$NAME"; then
+			echo "$NAME"
+		fi
+	done
+	return 0
+}
+
+# Print the names of backup markers with no link beside them at all. These hold
+# the only copy of the module, so they are never removed automatically.
+orphaned_markers() {
+	local MOD_DIR="$1"
+	local ENTRY NAME
+
+	[[ -d "$MOD_DIR" ]] || return 0
+	for ENTRY in "$MOD_DIR"/_*; do
+		[[ -e "$ENTRY" || -L "$ENTRY" ]] || continue
+		NAME=$(basename "$ENTRY")
+		NAME="${NAME#_}"
+		[[ -e "$MOD_DIR/$NAME" || -L "$MOD_DIR/$NAME" ]] && continue
+		echo "$NAME"
+	done
+	return 0
+}
+
+# Was this module named on the command line?
+is_target() {
+	local NAME="$1" T
+	for T in "${TARGET_MODULES[@]}"; do
+		[[ "$T" == "$NAME" ]] && return 0
+	done
+	return 1
+}
+
+# Which package manager owns this repo? Used only for advice in messages.
+pkg_manager() {
+	if command -v pkg-manager > /dev/null 2>&1; then
+		pkg-manager
+	elif [[ -f pnpm-lock.yaml ]]; then
+		echo pnpm
+	else
+		echo npm
+	fi
+}
+
 # if no modules then print all symlinks found in $MOD_PATH
 
 if [ -z "$MODULES" ]; then
-	find "$MOD_PATH" -type l -depth 1 -print | xargs -I {} basename "{}"
-	exit
+	our_links "$MOD_PATH"
+	exit 0
 fi
 
 DEPS=()
 while IFS= read -r line; do
-	DEPS+=("$line")
-done < <(find "$MOD_PATH" -type l -maxdepth 1)
+	[[ -n "$line" ]] && DEPS+=("$line")
+done < <(our_links "$MOD_PATH")
 DEPS+=("$PWD")
 
 function gatherDeps() {
@@ -121,7 +235,7 @@ function gatherDeps() {
 		if [[ ! -d "$MODULE_DIR" ]]; then
 			return
 		fi
-		pushd "$MODULE_DIR" > /dev/null
+		pushd "$MODULE_DIR" > /dev/null || return
 	else
 		local WORKTREE=$(get_worktree "$MODULE_DIR")
 
@@ -129,13 +243,13 @@ function gatherDeps() {
 			local WORK_PATH
 			WORK_PATH=$(resolve_worktree_path "$MODULE_DIR" "$WORKTREE")
 			if [[ $? -eq 0 && -d "$WORK_PATH" ]]; then
-				pushd "$WORK_PATH" > /dev/null
+				pushd "$WORK_PATH" > /dev/null || return
 			else
-				pushd "$ROOT/$MODULE_DIR" > /dev/null
+				pushd "$ROOT/$MODULE_DIR" > /dev/null || return
 			fi
 		else
 			if [[ -d "$ROOT/$MODULE_DIR" ]]; then
-				pushd "$ROOT/$MODULE_DIR" > /dev/null
+				pushd "$ROOT/$MODULE_DIR" > /dev/null || return
 			else
 				return
 			fi
@@ -145,10 +259,9 @@ function gatherDeps() {
 	MODULES+=("$MODULE_DIR")
 
 	if [[ -d "$MOD_PATH" ]]; then
-		SUB_DEPS=$(find "$MOD_PATH" -type l -maxdepth 1 2>/dev/null | xargs basename 2>/dev/null)
-		for SUB_DEP in $SUB_DEPS; do
-			MODULES+=("$SUB_DEP")
-		done
+		while IFS= read -r SUB_DEP; do
+			[[ -n "$SUB_DEP" ]] && MODULES+=("$SUB_DEP")
+		done < <(our_links "$MOD_PATH")
 	fi
 
 	popd > /dev/null
@@ -177,28 +290,70 @@ MODULES=($(echo "${MODULES[@]}" | tr ' ' '\n' | sort -u))
 echo "found ${MODULES[@]}"
 
 MISSING_BACKUPS=()
+DANGLING_RESTORES=()
+STALE_MARKERS=()
+ORPHANED_MARKERS=()
 
 for DIR in "${MODULES[@]}"; do
 	if [[ -z $DIR ]]; then
 		continue
 	fi
 
+	# A failed pushd would desync the stack and push every later operation
+	# into the wrong directory, so skip anything we cannot enter.
 	if [[ "$DIR" == /* ]]; then
-		pushd "$DIR" > /dev/null
+		pushd "$DIR" > /dev/null || continue
 	else
-		pushd "$ROOT/$DIR" > /dev/null
+		pushd "$ROOT/$DIR" > /dev/null || continue
 	fi
 	echo "checking $PWD"
+
+	while IFS= read -r STALE; do
+		if [[ -n "$STALE" ]]; then
+			# Only ever delete a backup for a module named on the command
+			# line, so --clean-stale cannot touch unrelated modules.
+			if $CLEAN_STALE && is_target "$STALE"; then
+				rm -rf "${MOD_PATH:?}/_$STALE"
+				echo "removed stale backup _$STALE"
+			else
+				STALE_MARKERS+=("$STALE in $PWD")
+			fi
+		fi
+	done < <(stale_markers "$MOD_PATH")
+
+	while IFS= read -r ORPHAN; do
+		[[ -n "$ORPHAN" ]] && ORPHANED_MARKERS+=("$ORPHAN in $PWD")
+	done < <(orphaned_markers "$MOD_PATH")
 
 	for MODULE in "${TARGET_MODULES[@]}"; do
 		MODULE_PATH="$MOD_PATH/$MODULE"
 		BACKUP_PATH="$MOD_PATH/_$MODULE"
 
 		if $UNLINK; then
-			# Unlink mode: remove symlink and restore backed-up module
-			if [[ -L "$MODULE_PATH" ]]; then
-				# Read bin entries before removing the symlink (it points to the source module)
-				SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' "$MODULE_PATH/$CONFIG_FILE" 2> /dev/null)
+			# Unlink mode: remove symlink and restore backed-up module.
+			# Only touch links we created — a bare symlink here could be a
+			# pnpm store link, a file:/link: dep or a workspace member.
+			if [[ -L "$MODULE_PATH" ]] && ! $FORCE \
+					&& ! is_our_link "$MOD_PATH" "$MODULE"; then
+				if [[ -e "$BACKUP_PATH" || -L "$BACKUP_PATH" ]]; then
+					: # stale marker, already reported above
+				else
+					echo "skipping $MODULE (symlink not created by node-link — no _$MODULE backup; use --force to remove it anyway)"
+				fi
+			elif [[ -L "$MODULE_PATH" ]]; then
+				# Read bin entries before removing the symlink (it points to
+				# the source module). If the link is dangling we cannot read
+				# through it, so fall back to the backup and then the source,
+				# or the .bin shims would be left pointing at nothing.
+				BIN_SOURCE="$MODULE_PATH"
+				if [[ ! -f "$MODULE_PATH/$CONFIG_FILE" ]]; then
+					if [[ -f "$BACKUP_PATH/$CONFIG_FILE" ]]; then
+						BIN_SOURCE="$BACKUP_PATH"
+					elif [[ -f "$ROOT/$MODULE/$CONFIG_FILE" ]]; then
+						BIN_SOURCE="$ROOT/$MODULE"
+					fi
+				fi
+				SCRIPTS=$(jq -r '.bin | to_entries | .[] | "\(.key):\(.value)"' "$BIN_SOURCE/$CONFIG_FILE" 2> /dev/null)
 				if [[ -n $SCRIPTS ]]; then
 					for SCRIPT in $SCRIPTS; do
 						CMD=$(echo $SCRIPT | cut -d ':' -f 1)
@@ -215,9 +370,17 @@ for DIR in "${MODULES[@]}"; do
 				fi
 
 				rm "$MODULE_PATH"
-				if [[ -d "$BACKUP_PATH" ]]; then
+				if [[ -d "$BACKUP_PATH" || -L "$BACKUP_PATH" ]]; then
 					mv "$BACKUP_PATH" "$MODULE_PATH"
-					echo "unlinked $MODULE, restored from backup"
+					# Under pnpm the restored entry is a symlink into
+					# .pnpm/<pkg>@<version>, which a store prune or a
+					# lockfile change can invalidate.
+					if [[ -d "$MODULE_PATH" ]]; then
+						echo "unlinked $MODULE, restored from backup"
+					else
+						DANGLING_RESTORES+=("$MODULE in $DIR")
+						echo "unlinked $MODULE, but the restored module does not resolve"
+					fi
 				else
 					MISSING_BACKUPS+=("$MODULE in $DIR")
 					echo "unlinked $MODULE (no backup to restore)"
@@ -225,11 +388,23 @@ for DIR in "${MODULES[@]}"; do
 			fi
 		else
 			# Link mode: back up existing module and create symlink
-			if [[ -d "$MODULE_PATH" ]]; then
-				if [[ -L "$MODULE_PATH" ]]; then
+			if [[ -d "$MODULE_PATH" || -L "$MODULE_PATH" ]]; then
+				if is_our_link "$MOD_PATH" "$MODULE" \
+						|| [[ -L "$MODULE_PATH" \
+							&& ( -e "$BACKUP_PATH" || -L "$BACKUP_PATH" ) ]]; then
+					# Re-linking something already linked: drop our old link
+					# and keep the existing backup, or we would overwrite the
+					# real module with a copy of our own symlink.
+					#
+					# The second test is the same protection for a symlink we
+					# cannot attribute (e.g. the source lives inside this
+					# project, so the "outside" test fails): a backup already
+					# exists, so never overwrite it with a link.
 					rm "$MODULE_PATH"
 				else
-					if [[ -d "$BACKUP_PATH" ]]; then
+					# Always preserve the original, whether it is a real
+					# directory (npm) or a symlink into the store (pnpm).
+					if [[ -e "$BACKUP_PATH" || -L "$BACKUP_PATH" ]]; then
 						rm -rf "$BACKUP_PATH"
 					fi
 					mv "$MODULE_PATH" "$BACKUP_PATH"
@@ -264,7 +439,7 @@ for DIR in "${MODULES[@]}"; do
 						echo "Attaching script $CMD to $CMD_PATH"
 
 						if [[ -e "$BIN_PATH/$CMD" || -L "$BIN_PATH/$CMD" ]]; then
-							if [[ ! -e "$BIN_PATH/_$CMD" ]]; then
+							if [[ ! -e "$BIN_PATH/_$CMD" && ! -L "$BIN_PATH/_$CMD" ]]; then
 								mv "$BIN_PATH/$CMD" "$BIN_PATH/_$CMD"
 							else
 								rm -f "$BIN_PATH/$CMD"
@@ -285,6 +460,35 @@ if [[ ${#MISSING_BACKUPS[@]} -gt 0 ]]; then
 	echo ""
 	echo "Warning: The following modules could not be reinstated (no backup found):"
 	for ENTRY in "${MISSING_BACKUPS[@]}"; do
+		echo "  - $ENTRY"
+	done
+	echo "  Run '$(pkg_manager) install' to reinstate them."
+fi
+
+if [[ ${#DANGLING_RESTORES[@]} -gt 0 ]]; then
+	echo ""
+	echo "Warning: The following modules were restored but do not resolve:"
+	for ENTRY in "${DANGLING_RESTORES[@]}"; do
+		echo "  - $ENTRY"
+	done
+	echo "  The store entry they point at is gone. Run '$(pkg_manager) install'."
+fi
+
+if [[ ${#STALE_MARKERS[@]} -gt 0 ]]; then
+	echo ""
+	echo "Warning: The following backups are stale — the package manager has"
+	echo "reclaimed the module since it was linked, so the backup is out of date:"
+	for ENTRY in "${STALE_MARKERS[@]}"; do
+		echo "  - $ENTRY"
+	done
+	echo "  These are being left alone. Name the module with --clean-stale to remove its backup."
+fi
+
+if [[ ${#ORPHANED_MARKERS[@]} -gt 0 ]]; then
+	echo ""
+	echo "Note: The following backups have no module beside them, so they hold"
+	echo "the only remaining copy and were left untouched:"
+	for ENTRY in "${ORPHANED_MARKERS[@]}"; do
 		echo "  - $ENTRY"
 	done
 fi

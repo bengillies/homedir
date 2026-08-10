@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# pkg-manager: print the package manager a repo is set up for ("pnpm" or "npm").
+#
+# Walks up from the current directory (or $1) so it works from a subdirectory
+# and finds the lockfile at a monorepo root. The first directory holding any
+# signal decides, checked in this order:
+#
+#   1. "packageManager" in package.json  (corepack; most explicit)
+#   2. pnpm-lock.yaml / pnpm-workspace.yaml
+#   3. package-lock.json / npm-shrinkwrap.json
+#
+# Defaults to npm when nothing is found, so existing repos keep working.
+
+DIR="${1:-$PWD}"
+DIR=$(cd "$DIR" 2>/dev/null && pwd -P) || exit 1
+
+while true; do
+	if [[ -f "$DIR/package.json" ]]; then
+		DECLARED=$(grep -o '"packageManager"[[:space:]]*:[[:space:]]*"[^"]*"' \
+			"$DIR/package.json" 2> /dev/null | head -1)
+		case "$DECLARED" in
+			*'"pnpm@'*|*'"pnpm"'*)
+				echo pnpm
+				exit 0
+				;;
+			*'"npm@'*|*'"npm"'*)
+				echo npm
+				exit 0
+				;;
+		esac
+	fi
+
+	if [[ -f "$DIR/pnpm-lock.yaml" || -f "$DIR/pnpm-workspace.yaml" ]]; then
+		echo pnpm
+		exit 0
+	fi
+
+	if [[ -f "$DIR/package-lock.json" || -f "$DIR/npm-shrinkwrap.json" ]]; then
+		echo npm
+		exit 0
+	fi
+
+	# Stop at the repo root so we never inherit a lockfile from an unrelated
+	# parent directory.
+	if [[ -e "$DIR/.git" ]]; then
+		break
+	fi
+
+	PARENT=$(dirname "$DIR")
+	if [[ "$PARENT" == "$DIR" ]]; then
+		break
+	fi
+	DIR="$PARENT"
+done
+
+echo npm
