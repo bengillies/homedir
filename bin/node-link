@@ -2,15 +2,13 @@
 
 MOD_PATH='node_modules'
 BIN_PATH="$MOD_PATH/.bin"
-if [[ -n "$NODE_LINK_ROOT" ]]; then
-	ROOT="$NODE_LINK_ROOT"
+# Sibling repos live alongside this one. Resolve from the git common dir so
+# this still works from inside a worktree, where ../ is the .worktrees dir.
+GIT_COMMON_DIR=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+if [[ -n "$GIT_COMMON_DIR" ]]; then
+	ROOT=$(dirname "$(dirname "$GIT_COMMON_DIR")")
 else
-	GIT_COMMON_DIR=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
-	if [[ -n "$GIT_COMMON_DIR" ]]; then
-		ROOT=$(dirname "$(dirname "$GIT_COMMON_DIR")")
-	else
-		ROOT=$(readlink -f "../")
-	fi
+	ROOT=$(readlink -f "../")
 fi
 CONFIG_FILE='package.json'
 
