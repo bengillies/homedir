@@ -59,7 +59,7 @@ return {
             float = {
               focusable = false,
               border = 'rounded',
-              source = 'always',
+              source = true,
               prefix = ' ',
               scope = 'line',
             },
@@ -67,8 +67,8 @@ return {
 
         -- next/prev diagnostic
         vim.keymap.set('n', '<C-e><C-n>', function()
-            vim.diagnostic.goto_next({
-              float = false,
+            vim.diagnostic.jump({
+              count = 1,
               severity = {
                   min = vim.diagnostic.severity.HINT
               }
@@ -76,8 +76,8 @@ return {
         end, { silent = true })
 
         vim.keymap.set('n', '<C-e><C-p>', function()
-            vim.diagnostic.goto_prev({
-              float = false,
+            vim.diagnostic.jump({
+              count = -1,
               severity = {
                   min = vim.diagnostic.severity.HINT
               }
@@ -179,7 +179,7 @@ return {
               end
 
               -- Handle single location
-              if not vim.tbl_islist(result) then
+              if not vim.islist(result) then
                   handle_location(result, ctx.client_id)
                   return
               end
@@ -195,9 +195,11 @@ return {
         bg = 'none',
       })
 
+      -- `vim.lsp.with()` was removed in Nvim 0.12; per-request options are now
+      -- passed at the call site instead. The hover border already lives on the
+      -- <C-Space> mapping above, and the signatureHelp entry referenced an
+      -- undefined `border` (so it was always a no-op).
       local handlers =  {
-        ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded", }),
-        ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
         ["textDocument/definition"] = goto_definition('split'),
       }
 

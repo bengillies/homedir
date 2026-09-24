@@ -23,8 +23,8 @@ function M.create_terminal()
     local buf = api.nvim_create_buf(false, true)
     
     -- Set buffer options before creating terminal
-    api.nvim_buf_set_option(buf, 'buflisted', false)
-    api.nvim_buf_set_option(buf, 'modifiable', true)
+    vim.bo[buf].buflisted = false
+    vim.bo[buf].modifiable = true
     api.nvim_win_set_buf(win, buf)
     
     -- Determine shell command based on environment
@@ -41,9 +41,9 @@ function M.create_terminal()
     cmd('terminal ' .. shell_cmd)
     
     -- Set terminal specific options
-    api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
-    api.nvim_win_set_option(win, 'number', false)
-    api.nvim_win_set_option(win, 'relativenumber', false)
+    vim.bo[buf].bufhidden = 'hide'
+    vim.wo[win].number = false
+    vim.wo[win].relativenumber = false
     
     -- Store buffer and window handles
     M.term_buf = buf

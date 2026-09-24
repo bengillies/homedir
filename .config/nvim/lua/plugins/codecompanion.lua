@@ -20,7 +20,14 @@ return {
         mcphub = {
           callback = "mcphub.extensions.codecompanion",
           opts = {
-            make_vars = true,
+            -- Must stay false: mcphub's variables.lua reads
+            -- `config.interactions.chat.variables`, which codecompanion removed in
+            -- v19.0.0 (renamed to `editor_context`), so it throws on every startup.
+            -- Tools, tool groups and slash commands are unaffected; the only loss is
+            -- MCP resources as chat `#variables` -- the `access_mcp_resource` tool
+            -- still reaches them. See mcphub.nvim issues #275 and #278: both open,
+            -- six PRs attempted, none merged, no commits upstream since 2026-01-18.
+            make_vars = false,
             make_slash_commands = true,
             auto_approve = false,
           }

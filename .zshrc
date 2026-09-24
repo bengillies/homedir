@@ -209,7 +209,17 @@ eval "$(rbenv init - -zsh --no-rehash)"
 
 #set up nvm paths
 export NVM_DIR="$HOME/.nvm"
-export PATH="$NVM_DIR/versions/node/$(<$NVM_DIR/alias/default)/bin:$PATH"
+#alias/default can hold an alias name (node, lts/iron) or a partial (24), not
+#just a concrete vX.Y.Z — resolve it to a real directory before adding to PATH.
+() {
+	local want dirs
+	[[ -r $NVM_DIR/alias/default ]] && want=$(<$NVM_DIR/alias/default)
+	while [[ -n $want && -r $NVM_DIR/alias/$want ]]; do want=$(<$NVM_DIR/alias/$want); done
+	[[ $want == node ]] && want=
+	[[ $want =~ '^[0-9]' ]] && want=v$want
+	dirs=( $NVM_DIR/versions/node/$want*(/Nn) )
+	(( $#dirs )) && export PATH="${dirs[-1]}/bin:$PATH"
+}
 #alias nvm='unalias nvm; [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"; nvm $@'
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 
