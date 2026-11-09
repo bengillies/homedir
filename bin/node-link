@@ -109,6 +109,29 @@ resolve_worktree_path() {
 	return 1
 }
 
+# Print the directory to work in for a module: an absolute path as given, the
+# worktree named for it on the command line if that exists, otherwise its main
+# checkout under $ROOT. Fails if the directory does not exist.
+module_dir() {
+	local MODULE="$1"
+	local DIR="$MODULE"
+
+	if [[ "$MODULE" != /* ]]; then
+		DIR="$ROOT/$MODULE"
+
+		local WORKTREE WORK_PATH
+		WORKTREE=$(get_worktree "$MODULE")
+		if [[ -n "$WORKTREE" ]] \
+				&& WORK_PATH=$(resolve_worktree_path "$MODULE" "$WORKTREE") \
+				&& [[ -d "$WORK_PATH" ]]; then
+			DIR="$WORK_PATH"
+		fi
+	fi
+
+	[[ -d "$DIR" ]] || return 1
+	echo "$DIR"
+}
+
 # Is this symlink one that node-link created?
 #
 # "Is a symlink" is not enough: pnpm symlinks every dependency into
@@ -228,31 +251,10 @@ DEPS+=("$PWD")
 
 function gatherDeps() {
 	local MODULE_DIR="$1"
+	local DIR
 
-	if [[ "$MODULE_DIR" == /* ]]; then
-		if [[ ! -d "$MODULE_DIR" ]]; then
-			return
-		fi
-		pushd "$MODULE_DIR" > /dev/null || return
-	else
-		local WORKTREE=$(get_worktree "$MODULE_DIR")
-
-		if [[ -n "$WORKTREE" ]]; then
-			local WORK_PATH
-			WORK_PATH=$(resolve_worktree_path "$MODULE_DIR" "$WORKTREE")
-			if [[ $? -eq 0 && -d "$WORK_PATH" ]]; then
-				pushd "$WORK_PATH" > /dev/null || return
-			else
-				pushd "$ROOT/$MODULE_DIR" > /dev/null || return
-			fi
-		else
-			if [[ -d "$ROOT/$MODULE_DIR" ]]; then
-				pushd "$ROOT/$MODULE_DIR" > /dev/null || return
-			else
-				return
-			fi
-		fi
-	fi
+	DIR=$(module_dir "$MODULE_DIR") || return
+	pushd "$DIR" > /dev/null || return
 
 	MODULES+=("$MODULE_DIR")
 
@@ -287,6 +289,17 @@ MODULES=($(echo "${MODULES[@]}" | tr ' ' '\n' | sort -u))
 
 echo "found ${MODULES[@]}"
 
+VISITED=()
+
+# Has this directory already been visited by the loop below?
+is_visited() {
+	local V
+	for V in "${VISITED[@]}"; do
+		[[ "$V" == "$1" ]] && return 0
+	done
+	return 1
+}
+
 MISSING_BACKUPS=()
 DANGLING_RESTORES=()
 STALE_MARKERS=()
@@ -299,11 +312,15 @@ for DIR in "${MODULES[@]}"; do
 
 	# A failed pushd would desync the stack and push every later operation
 	# into the wrong directory, so skip anything we cannot enter.
-	if [[ "$DIR" == /* ]]; then
-		pushd "$DIR" > /dev/null || continue
-	else
-		pushd "$ROOT/$DIR" > /dev/null || continue
-	fi
+	DIR_PATH=$(module_dir "$DIR") || continue
+
+	# A module can be listed both by name and by path (possibly via a symlinked
+	# parent); compare physical paths so it is visited once.
+	VISIT_KEY=$(cd "$DIR_PATH" 2>/dev/null && pwd -P) || continue
+	is_visited "$VISIT_KEY" && continue
+	VISITED+=("$VISIT_KEY")
+
+	pushd "$DIR_PATH" > /dev/null || continue
 	echo "checking $PWD"
 
 	while IFS= read -r STALE; do
